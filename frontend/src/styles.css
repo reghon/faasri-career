@@ -1,0 +1,99 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+@plugin "daisyui";
+
+* {
+  box-sizing: border-box;
+}
+
+.container-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 1rem;
+}
+/* custom elevation */
+.shadow-elevation-3 {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Typography from Figma */
+
+.text-header-1 {
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.text-header-2 {
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.text-header-3 {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.text-header-4 {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.text-hero {
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.text-body-large {
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.text-body {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.text-small {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.text-button {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.text-link {
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: underline;
+}
+
+.text-medium {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.text-navbar {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.text-large-regular {
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.btn-primary-faasri {
+  background-color: #1ea3fb;
+  color: white;
+  border: none;
+}

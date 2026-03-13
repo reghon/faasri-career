@@ -1,0 +1,45 @@
+<div class="card bg-base-100 w-full max-w-3xl shadow-xl flex flex-row overflow-hidden p-1">
+  <!-- HERO IMAGE -->
+  <div class="relative w-80 hidden md:block flex-shrink-0">
+    <img src="heroauth.png" alt="Hero" class="w-full h-full object-cover" />
+  </div>
+
+  <!-- FORM SECTION -->
+  <div class="card-body flex flex-col justify-center flex-1">
+    <div class="flex flex-col items-center gap-1">
+      <h2 class="text-2xl font-bold text-base-content text-center">Buat akun baru</h2>
+
+      <p class="text-sm text-base-content/60 text-center">
+        Sudah punya akun?
+        <a routerLink="/login" class="text-primary font-medium"> Masuk </a>
+      </p>
+    </div>
+
+    <!-- INPUT FORM -->
+    <fieldset class="flex flex-col gap-3 mt-2">
+      <input type="text" placeholder="Nama lengkap" class="input input-bordered w-full" />
+
+      <input type="email" placeholder="Masukkan alamat email" class="input input-bordered w-full" />
+
+      <input
+        type="password"
+        placeholder="Masukkan kata sandi"
+        class="input input-bordered w-full"
+      />
+
+      <input
+        type="password"
+        placeholder="Konfirmasi kata sandi"
+        class="input input-bordered w-full"
+      />
+
+      <button class="btn btn-primary-faasri w-full">Daftar Sekarang</button>
+
+      <p class="text-xs text-base-content/50 text-center">
+        Dengan melanjutkan, kamu me nerima
+        <a href="#" class="text-primary">Syarat Penggunaan</a> dan
+        <a href="#" class="text-primary">Kebijakan Privasi</a> kami.
+      </p>
+    </fieldset>
+  </div>
+</div>

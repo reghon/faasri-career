@@ -1,0 +1,52 @@
+<div class="card bg-base-100 w-full max-w-3xl shadow-xl flex flex-row overflow-hidden p-1">
+  <!-- HERO IMAGE -->
+  <div class="relative w-80 hidden md:block flex-shrink-0">
+    <img src="heroauth.png" alt="Hero" class="w-full h-full object-cover" />
+  </div>
+
+  <!-- FORM SECTION -->
+  <div class="card-body flex flex-col justify-center flex-1">
+    <div class="flex flex-col items-center gap-1 pt-5">
+      <h2 class="text-header-3 font-bold text-base-content text-center">
+        Hai, Selamat Datang Kembali
+      </h2>
+
+      <p class="text-medium text-base-content/60 text-center">
+        Baru di Faasi Careers?
+        <a routerLink="/register" class="text-link text-primary"> Daftar Gratis </a>
+      </p>
+    </div>
+
+    <!-- INPUT FORM -->
+    <fieldset class="flex flex-col gap-4 mt-4">
+      <input
+        type="email"
+        placeholder="Masukkan alamat email"
+        class="input input-bordered w-full text-medium"
+      />
+
+      <input
+        type="password"
+        placeholder="Masukkan kata sandi"
+        class="input input-bordered w-full text-medium"
+      />
+
+      <button class="btn btn-primary-faasri w-full">Masuk</button>
+
+      <div class="text-right">
+        <a href="#" class="text-sm text-primary"> Lupa kata sandi? </a>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input type="checkbox" class="checkbox checkbox-sm" />
+        Ingat perangkat ini
+      </label>
+
+      <p class="text-xs text-base-content/50 text-center">
+        Dengan melanjutkan, kamu menerima
+        <a href="#" class="text-primary">Syarat Penggunaan</a> dan
+        <a href="#" class="text-primary">Kebijakan Privasi</a> kami.
+      </p>
+    </fieldset>
+  </div>
+</div>
