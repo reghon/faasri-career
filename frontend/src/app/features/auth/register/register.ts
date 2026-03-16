@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -7,4 +7,10 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   templateUrl: './register.html',
 })
-export class Register {}
+export class Register {
+  constructor(private router: Router) {}
+
+  onRegister() {
+    this.router.navigate(['/otp']);
+  }
+}
