@@ -1,7 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'tailwindcss';
 @plugin "daisyui";
-
+:root {
+  --color-brand-primary: #1ea3fb;
+}
 * {
   box-sizing: border-box;
 }
@@ -74,6 +76,7 @@
   font-size: 14px;
   line-height: 1;
   text-decoration: underline;
+  color: #4d8acf;
 }
 
 .text-medium {
@@ -93,7 +96,11 @@
 }
 
 .btn-primary-faasri {
-  background-color: #1ea3fb;
+  background-color: var(--color-brand-primary);
   color: white;
   border: none;
+}
+
+.color-yellow-primary{
+  color: #F5B418;
 }
