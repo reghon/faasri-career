@@ -1,18 +1,30 @@
 <nav
-  class="navbar bg-base-100 border-b border-base-200 px-6 shadow-elevation-3"
+  class="navbar border-b border-base-200 px-6 shadow-elevation-3 fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  [class.bg-base-100]="isWhite"
+  [class.bg-transparent]="!isWhite"
+  [class.border-transparent]="!isWhite"
+  [class.shadow-none]="!isWhite"
 >
   <div class="container-app flex items-center w-full">
-    <!-- Logo -->
+
+    <!-- LOGO -->
     <div class="flex-1">
       <a href="/" class="inline-flex items-center gap-2">
-        <img src="faasri_career_logo.png" alt="Faasri Careers" class="h-10" />
+        <img
+          [src]="isWhite ? 'faasri_career_logo.png' : 'faasri_career_logo_light.png'"
+          alt="Faasri Careers"
+          class="h-10"
+        />
       </a>
-    </div>  
-
-    <!-- Menu -->
+    </div>
+    <!-- MENU -->
     <div class="flex items-center gap-4">
-      <a routerLink="/register" class="btn btn-ghost font-semibold"> Sign Up </a>
-      <a routerLink="/login" class="btn btn-ghost font-semibold"> Login </a>
+      <a routerLink="/register" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite">
+        Sign Up
+      </a>
+      <a routerLink="/login" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite">
+        Login
+      </a>
     </div>
   </div>
 </nav>
