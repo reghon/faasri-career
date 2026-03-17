@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthLayout } from './layouts/auth-layout/auth-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
+import { ApplicantLayout } from './layouts/applicant-layout/applicant-layout';
 
 export const routes: Routes = [
   {
@@ -10,6 +11,16 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./features/home/home').then((m) => m.Home),
+      },
+    ],
+  },
+  {
+    path: '',
+    component: ApplicantLayout,
+    children: [
+      {
+        path: 'job/:id',
+        loadComponent: () => import('./features/job-detail/job-detail').then((m) => m.JobDetail),
       },
     ],
   },
@@ -26,13 +37,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
       },
       {
+        path: 'otp',
+        loadComponent: () => import('./features/auth/otp/otp').then((m) => m.Otp),
+      },
+      {
         path: '',
         redirectTo: 'login',
         pathMatch: 'full',
-      },
-      {
-        path: 'otp',
-        loadComponent: () => import('./features/auth/otp/otp').then((m) => m.Otp),
       },
     ],
   },
