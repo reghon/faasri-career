@@ -1,0 +1,338 @@
+<div class="flex flex-col gap-5">
+  <!-- CV -->
+  <div data-field="cv">
+    <label class="text-sm font-medium text-base-content mb-1 block">Curriculum Vitae (CV)</label>
+    <div class="flex items-center gap-2">
+      <input
+        type="text"
+        class="input input-bordered flex-1"
+        [class.input-error]="hasError('cv')"
+        [value]="data.cvFile?.name || ''"
+        placeholder="Pilih file"
+        readonly
+      />
+      <label class="btn btn-primary-faasri btn-sm cursor-pointer">
+        Pilih
+        <input type="file" class="hidden" accept=".pdf,.docx" (change)="onCvChange($event)" />
+      </label>
+    </div>
+    @if (hasError('cv')) {
+      <p class="text-xs text-error mt-1">{{ getError('cv') }}</p>
+    } @else {
+      <p class="text-xs text-success mt-1">
+        Berkas harus berformat .docx atau .pdf dengan ukuran maksimum 5MB.
+      </p>
+    }
+  </div>
+
+  <!-- NAMA LENGKAP -->
+  <div data-field="fullName">
+    <label class="text-sm font-medium text-base-content mb-1 block"
+      >Nama Lengkap (sesuai KTP)</label
+    >
+    <input
+      type="text"
+      class="input input-bordered w-full"
+      [class.input-error]="hasError('fullName')"
+      placeholder="Masukkan nama lengkap"
+      [(ngModel)]="data.fullName"
+      (ngModelChange)="onChange('fullName')"
+    />
+    @if (hasError('fullName')) {
+      <p class="text-xs text-error mt-1">{{ getError('fullName') }}</p>
+    }
+  </div>
+
+  <!-- TEMPAT LAHIR -->
+  <div data-field="birthPlace">
+    <label class="text-sm font-medium text-base-content mb-1 block">Tempat Lahir</label>
+    <input
+      type="text"
+      class="input input-bordered w-full"
+      [class.input-error]="hasError('birthPlace')"
+      placeholder="Masukkan tempat lahir"
+      [(ngModel)]="data.birthPlace"
+      (ngModelChange)="onChange('birthPlace')"
+    />
+    @if (hasError('birthPlace')) {
+      <p class="text-xs text-error mt-1">{{ getError('birthPlace') }}</p>
+    }
+  </div>
+
+  <!-- TANGGAL LAHIR -->
+  <div data-field="birthDate">
+    <label class="text-sm font-medium text-base-content mb-1 block">Tanggal Lahir</label>
+    <div class="grid grid-cols-3 gap-3">
+      <select
+        class="select select-bordered"
+        [class.select-error]="hasError('birthDate')"
+        [(ngModel)]="data.birthDay"
+        (ngModelChange)="onChange('birthDate')"
+      >
+        <option value="">Tanggal</option>
+        @for (d of days; track d) {
+          <option [value]="d">{{ d }}</option>
+        }
+      </select>
+      <select
+        class="select select-bordered"
+        [class.select-error]="hasError('birthDate')"
+        [(ngModel)]="data.birthMonth"
+        (ngModelChange)="onChange('birthDate')"
+      >
+        <option value="">Bulan</option>
+        @for (m of months; track m) {
+          <option [value]="m">{{ m }}</option>
+        }
+      </select>
+      <select
+        class="select select-bordered"
+        [class.select-error]="hasError('birthDate')"
+        [(ngModel)]="data.birthYear"
+        (ngModelChange)="onChange('birthDate')"
+      >
+        <option value="">Tahun</option>
+        @for (y of years; track y) {
+          <option [value]="y">{{ y }}</option>
+        }
+      </select>
+    </div>
+    @if (hasError('birthDate')) {
+      <p class="text-xs text-error mt-1">{{ getError('birthDate') }}</p>
+    }
+  </div>
+
+  <!-- EMAIL -->
+  <div data-field="email">
+    <label class="text-sm font-medium text-base-content mb-1 block">Alamat Email</label>
+    <input
+      type="email"
+      class="input input-bordered w-full"
+      [class.input-error]="hasError('email')"
+      placeholder="Masukkan alamat email"
+      [(ngModel)]="data.email"
+      (ngModelChange)="onChange('email')"
+    />
+    @if (hasError('email')) {
+      <p class="text-xs text-error mt-1">{{ getError('email') }}</p>
+    } @else {
+      <p class="text-xs text-success mt-1">
+        Anda akan diberi informasi melalui alamat email tersebut.
+      </p>
+    }
+  </div>
+
+  <!-- NO.TELP -->
+  <div data-field="phone">
+    <label class="text-sm font-medium text-base-content mb-1 block">Nomor Telepon</label>
+    <div class="flex gap-2">
+      <select class="select select-bordered w-24" [(ngModel)]="data.phoneCode">
+        @for (code of phoneCodes; track code) {
+          <option [value]="code">{{ code }}</option>
+        }
+      </select>
+      <input
+        type="text"
+        class="input input-bordered flex-1"
+        [class.input-error]="hasError('phone')"
+        placeholder="Masukkan nomor telepon"
+        [(ngModel)]="data.phone"
+        (ngModelChange)="onChange('phone')"
+      />
+    </div>
+    @if (hasError('phone')) {
+      <p class="text-xs text-error mt-1">{{ getError('phone') }}</p>
+    }
+  </div>
+
+  <!-- JENIS KELAMIN -->
+  <div data-field="gender">
+    <label class="text-sm font-medium text-base-content mb-2 block">Jenis Kelamin</label>
+    <div class="flex gap-6">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          class="radio color-blue-primary"
+          name="gender"
+          value="Laki-laki"
+          [(ngModel)]="data.gender"
+          (ngModelChange)="onChange('gender')"
+        />
+        <span class="text-sm">Laki-laki</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          class="radio color-blue-primary"
+          name="gender"
+          value="Perempuan"
+          [(ngModel)]="data.gender"
+          (ngModelChange)="onChange('gender')"
+        />
+        <span class="text-sm">Perempuan</span>
+      </label>
+    </div>
+    @if (hasError('gender')) {
+      <p class="text-xs text-error mt-1">{{ getError('gender') }}</p>
+    }
+  </div>
+
+  <!-- ALAMAT -->
+  <div data-field="address">
+    <label class="text-sm font-medium text-base-content mb-1 block">Alamat (sesuai KTP)</label>
+    <textarea
+      class="textarea textarea-bordered w-full h-24"
+      [class.textarea-error]="hasError('address')"
+      placeholder="Masukkan alamat"
+      [(ngModel)]="data.address"
+      (ngModelChange)="onChange('address')"
+    ></textarea>
+    @if (hasError('address')) {
+      <p class="text-xs text-error mt-1">{{ getError('address') }}</p>
+    }
+  </div>
+
+  <!-- KELURAHAN - KECAMATAN -->
+  <div class="grid grid-cols-2 gap-3">
+    <div data-field="kelurahan">
+      <label class="text-sm font-medium text-base-content mb-1 block">Kelurahan (sesuai KTP)</label>
+      <input
+        type="text"
+        class="input input-bordered w-full"
+        [class.input-error]="hasError('kelurahan')"
+        placeholder="Masukkan kelurahan"
+        [(ngModel)]="data.kelurahan"
+        (ngModelChange)="onChange('kelurahan')"
+      />
+      @if (hasError('kelurahan')) {
+        <p class="text-xs text-error mt-1">{{ getError('kelurahan') }}</p>
+      }
+    </div>
+    <div data-field="kecamatan">
+      <label class="text-sm font-medium text-base-content mb-1 block">Kecamatan (sesuai KTP)</label>
+      <input
+        type="text"
+        class="input input-bordered w-full"
+        [class.input-error]="hasError('kecamatan')"
+        placeholder="Masukkan kecamatan"
+        [(ngModel)]="data.kecamatan"
+        (ngModelChange)="onChange('kecamatan')"
+      />
+      @if (hasError('kecamatan')) {
+        <p class="text-xs text-error mt-1">{{ getError('kecamatan') }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- KOTA - PROVINSI -->
+  <div class="grid grid-cols-2 gap-3">
+    <div data-field="city">
+      <label class="text-sm font-medium text-base-content mb-1 block"
+        >Kota / Kabupaten (sesuai KTP)</label
+      >
+      <input
+        type="text"
+        class="input input-bordered w-full"
+        [class.input-error]="hasError('city')"
+        placeholder="Masukkan kota/kabupaten"
+        [(ngModel)]="data.city"
+        (ngModelChange)="onChange('city')"
+      />
+      @if (hasError('city')) {
+        <p class="text-xs text-error mt-1">{{ getError('city') }}</p>
+      }
+    </div>
+    <div data-field="province">
+      <label class="text-sm font-medium text-base-content mb-1 block">Provinsi (sesuai KTP)</label>
+      <input
+        type="text"
+        class="input input-bordered w-full"
+        [class.input-error]="hasError('province')"
+        placeholder="Masukkan provinsi"
+        [(ngModel)]="data.province"
+        (ngModelChange)="onChange('province')"
+      />
+      @if (hasError('province')) {
+        <p class="text-xs text-error mt-1">{{ getError('province') }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- KODE POS -->
+  <div data-field="postalCode">
+    <label class="text-sm font-medium text-base-content mb-1 block">Pos Kode (sesuai KTP)</label>
+    <input
+      type="text"
+      class="input input-bordered w-full"
+      [class.input-error]="hasError('postalCode')"
+      placeholder="Masukkan kode pos"
+      [(ngModel)]="data.postalCode"
+      (ngModelChange)="onChange('postalCode')"
+    />
+    @if (hasError('postalCode')) {
+      <p class="text-xs text-error mt-1">{{ getError('postalCode') }}</p>
+    }
+  </div>
+
+  <!-- KONFIRMASI -->
+  <div data-field="isSameAddress">
+    <label class="text-sm font-medium text-base-content mb-2 block">
+      Apakah alamat pada KTP sama dengan alamat tempat tinggal anda saat ini?
+    </label>
+    <div class="flex gap-6">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          class="radio color-blue-primary"
+          name="sameAddress"
+          [value]="true"
+          [(ngModel)]="data.isSameAddress"
+        />
+        <span class="text-sm">Ya</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          class="radio color-blue-primary"
+          name="sameAddress"
+          [value]="false"
+          [(ngModel)]="data.isSameAddress"
+        />
+        <span class="text-sm">Tidak</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- LinkedIn -->
+  <div>
+    <label class="text-sm font-medium text-base-content mb-1 block">URL Linkedin</label>
+    <input
+      type="text"
+      class="input input-bordered w-full"
+      placeholder="Masukkan link"
+      [(ngModel)]="data.linkedinUrl"
+    />
+    <p class="text-xs text-base-content/40 mt-1">Contoh: https://www.linkedin.com/in/..</p>
+  </div>
+
+  <!-- SUMBER INFORMASI -->
+  <div data-field="jobSource">
+    <label class="text-sm font-medium text-base-content mb-1 block">
+      Dari mana anda mendapatkan informasi pekerjaan ini?
+    </label>
+    <select
+      class="select select-bordered w-full"
+      [class.select-error]="hasError('jobSource')"
+      [(ngModel)]="data.jobSource"
+      (ngModelChange)="onChange('jobSource')"
+    >
+      <option value="">Pilih saluran</option>
+      @for (s of jobSources; track s) {
+        <option [value]="s">{{ s }}</option>
+      }
+    </select>
+    @if (hasError('jobSource')) {
+      <p class="text-xs text-error mt-1">{{ getError('jobSource') }}</p>
+    }
+  </div>
+</div>
