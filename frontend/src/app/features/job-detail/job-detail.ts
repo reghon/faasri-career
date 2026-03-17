@@ -8,7 +8,7 @@ import { JobCard } from '../../shared/components/job-card/job-card';
   selector: 'app-job',
   standalone: true,
   imports: [RouterLink, JobCard],
-  templateUrl: './job.html',
+  templateUrl: './job-detail.html',
 })
 export class JobDetail implements OnInit {
   job: Job | null = null;
