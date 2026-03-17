@@ -1,0 +1,81 @@
+<div class="min-h-screen bg-blue-50 py-10">
+  <div class="container-app flex justify-center">
+    <div style="width: 820px">
+      <h1 class="text-2xl font-bold text-base-content mb-6">Formulir Lamaran Pekerjaan</h1>
+
+      <div class="card bg-base-100 shadow-sm p-8">
+        <!-- STEPPER -->
+        <app-step-indicator
+          [steps]="steps"
+          [currentStep]="currentStep"
+          (stepClick)="goToStep($event)"
+        />
+
+        <!-- STEP 1 -->
+        @if (currentStep === 1) {
+          <app-step1-personal
+            [data]="personalInfo"
+            [months]="months"
+            [days]="days"
+            [years]="years"
+            [phoneCodes]="phoneCodes"
+            [jobSources]="jobSources"
+            (dataChange)="personalInfo = $event; isDirty = true"
+          />
+        }
+
+        <!-- STEP 2 -->
+        @if (currentStep === 2) {
+          <app-step2-education
+            [data]="educationInfo"
+            [months]="months"
+            [days]="days"
+            [years]="years"
+            [educationLevels]="educationLevels"
+            (dataChange)="educationInfo = $event; isDirty = true"
+          />
+        }
+
+        <!-- STEP 3 -->
+        @if (currentStep === 3) {
+          <app-step3-experience
+            [data]="experienceInfo"
+            [months]="months"
+            [days]="days"
+            [years]="years"
+            [phoneCodes]="phoneCodes"
+            [industries]="industries"
+            [employmentTypes]="employmentTypes"
+            [jobLevels]="jobLevels"
+            [leaveReasons]="leaveReasons"
+            [technicalSkillOptions]="technicalSkillOptions"
+            [languageOptions]="languageOptions"
+            [proficiencyOptions]="proficiencyOptions"
+            (dataChange)="experienceInfo = $event; isDirty = true"
+          />
+        }
+
+        <!-- STEP 4 -->
+        @if (currentStep === 4) {
+          <app-step4-review
+            [personalInfo]="personalInfo"
+            [educationInfo]="educationInfo"
+            [experienceInfo]="experienceInfo"
+          />
+        }
+
+        <!-- NAVIGATION -->
+        <div class="flex justify-between mt-8">
+          <button class="btn btn-ghost" (click)="prevStep()" [disabled]="currentStep === 1">
+            Kembali
+          </button>
+          @if (currentStep < totalSteps) {
+            <button class="btn btn-primary-faasri" (click)="nextStep()">Selanjutnya</button>
+          } @else {
+            <button class="btn btn-primary-faasri" (click)="submit()">Kirim Lamaran</button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
