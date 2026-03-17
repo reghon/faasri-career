@@ -1,14 +1,16 @@
 import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NgIf],
   templateUrl: './navbar.html',
 })
 export class Navbar implements OnInit {
   @Input() transparent = false;
+  @Input() isLoggedIn = false;
   isScrolled = false;
 
   @HostListener('window:scroll')

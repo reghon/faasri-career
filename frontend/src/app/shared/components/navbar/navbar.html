@@ -6,7 +6,6 @@
   [class.shadow-none]="!isWhite"
 >
   <div class="container-app flex items-center w-full">
-
     <!-- LOGO -->
     <div class="flex-1">
       <a href="/" class="inline-flex items-center gap-2">
@@ -17,14 +16,87 @@
         />
       </a>
     </div>
-    <!-- MENU -->
-    <div class="flex items-center gap-4">
+
+    <!-- MENU: belum login -->
+    <div class="flex items-center gap-4" *ngIf="!isLoggedIn">
       <a routerLink="/register" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite">
         Sign Up
       </a>
       <a routerLink="/login" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite">
         Login
       </a>
+    </div>
+
+    <!-- MENU: sudah login -->
+    <div class="flex items-center gap-4" *ngIf="isLoggedIn">
+      <a routerLink="/" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite"> Home </a>
+
+      <!-- Notifikasi -->
+      <button class="btn btn-ghost btn-circle" [class.text-white]="!isWhite">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+          />
+        </svg>
+      </button>
+
+      <!-- User dropdown -->
+      <div class="dropdown dropdown-end">
+        <div
+          tabindex="0"
+          role="button"
+          class="flex items-center gap-2 cursor-pointer px-2 py-1 rounded-lg hover:bg-base-200 transition"
+        >
+          <div class="avatar">
+            <div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-base-content/50"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                />
+              </svg>
+            </div>
+          </div>
+          <span class="font-semibold text-sm" [class.text-white]="!isWhite">User</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            [class.text-white]="!isWhite"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+        <ul
+          tabindex="0"
+          class="dropdown-content menu bg-base-100 rounded-box shadow-lg w-48 p-2 mt-2 z-50"
+        >
+          <li><a routerLink="/profile">Profile</a></li>
+          <li><a routerLink="/settings">Settings</a></li>
+          <li><hr class="my-1" /></li>
+          <li><a class="text-error">Logout</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </nav>
