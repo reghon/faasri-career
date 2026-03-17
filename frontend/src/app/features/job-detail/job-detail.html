@@ -1,0 +1,139 @@
+@if (job) {
+  <div class="pt-6">
+    <!-- BACK -->
+    <div class="container-app">
+      <a
+        routerLink="/"
+        class="flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back to career list
+      </a>
+    </div>
+
+    <!-- JOB HEADER -->
+    <div class="container-app px-6">
+      <div class="divider my-0 mt-3"></div>
+
+      <div class="py-6">
+        <h1 class="text-header-3">{{ job.title }}</h1>
+        <p class="text-body color-yellow-primary font-semibold mt-0.5">{{ job.category }}</p>
+        <p class="text-body mt-1">{{ job.location }} ({{ job.workType }})</p>
+        <p class="text-body color-blue-primary mt-1">{{ job.salary }}</p>
+      </div>
+
+      <div class="flex items-center justify-between flex-wrap gap-4 pb-4">
+        <div class="flex items-center gap-6 text-xs text-base-content/40">
+          <span>Job uploaded: {{ job.postedAt }}</span>
+          <span>Last Updated: {{ job.updatedAt }}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="btn btn-ghost btn-sm gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
+            </svg>
+            Share
+          </button>
+          <button class="btn btn-ghost btn-sm gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-4-7 4V5z"
+              />
+            </svg>
+            Save
+          </button>
+          <button class="btn btn-primary-faasri btn-sm">APPLY FOR JOB</button>
+        </div>
+      </div>
+
+      <div class="divider my-0"></div>
+
+      <!-- DESCRIPTION -->
+      <div class="py-6 flex flex-col gap-6 max-w-3xl">
+        <div>
+          <h2 class="text-body font-semibold mb-2">About the Role</h2>
+          <p class="text-sm text-base-content/70 leading-relaxed">{{ job.aboutRole }}</p>
+        </div>
+
+        <div>
+          <h2 class="text-body font-semibold mb-2">Responsibilities</h2>
+          <ul
+            class="list-disc list-inside text-sm text-base-content/70 leading-relaxed flex flex-col gap-1"
+          >
+            @for (item of job.responsibilities; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="text-body font-semibold mb-2">Qualifications</h2>
+          <ul
+            class="list-disc list-inside text-sm text-base-content/70 leading-relaxed flex flex-col gap-1"
+          >
+            @for (item of job.qualifications; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER JOBS -->
+    <div
+      class="w-full py-8"
+      style="
+        background-image: url('gradient_background_job.png');
+        background-size: cover;
+        background-position: center;
+      "
+    >
+      <div class="container-app">
+        <h2 class="font-bold text-white text-lg mb-6">Other Job</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+          @for (j of otherJobs; track j.id) {
+            <app-job-card [job]="j" class="flex flex-col h-full" />
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="container-app px-6 pt-20 text-center">
+    <p class="text-base-content/50">Job tidak ditemukan.</p>
+    <a routerLink="/" class="btn btn-primary btn-sm mt-4">Kembali ke Home</a>
+  </div>
+}
