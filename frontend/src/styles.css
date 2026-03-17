@@ -104,3 +104,7 @@
 .color-yellow-primary{
   color: #F5B418;
 }
+
+.color-blue-primary{
+  color: var(--color-brand-primary);
+}
