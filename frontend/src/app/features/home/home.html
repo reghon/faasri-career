@@ -1,28 +1,53 @@
 <app-hero-section />
 
 <div class="container-app px-6">
-  <app-job-filter />
-
+  <app-job-filter [totalJobs]="filteredJobs.length" (filterChange)="onFilterChange($event)" />
   <!-- JOB GRID -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-8">
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-    <app-job-card />
-  </div>
+  @if (isLoading) {
+    <div class="flex justify-center items-center py-20">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  } @else if (jobs.length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-8 items-stretch">
+      @for (job of jobs; track job.id) {
+        <app-job-card [job]="job" class="flex flex-col h-full" />
+      }
+    </div>
+  } @else {
+    <div class="text-center py-20 text-base-content/40">
+      <p class="text-lg font-semibold">Tidak ada pekerjaan ditemukan</p>
+      <p class="text-sm mt-1">Coba ubah filter atau kata kunci pencarian</p>
+    </div>
+  }
 
   <!-- PAGINATION -->
-  <div class="flex justify-center pb-10">
-    <div class="join">
-      <button class="join-item btn btn-sm">«</button>
-      <button class="join-item btn btn-sm btn-active">1</button>
-      <button class="join-item btn btn-sm">2</button>
-      <button class="join-item btn btn-sm">»</button>
+  @if (totalPages > 1 && !isLoading) {
+    <div class="flex justify-center pb-10">
+      <div class="join">
+        <button
+          class="join-item btn btn-sm"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          «
+        </button>
+        @for (page of pages; track page) {
+          <button
+            class="join-item btn btn-sm"
+            [class.btn-active]="page === currentPage"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+        <button
+          class="join-item btn btn-sm"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          »
+        </button>
+      </div>
     </div>
-  </div>
+  }
 </div>
