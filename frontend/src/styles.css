@@ -19,6 +19,10 @@
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.12);
 }
 
+.form {
+  max-width: 864px;
+}
+
 /* Typography from Figma */
 
 .text-header-1 {
@@ -101,10 +105,14 @@
   border: none;
 }
 
-.color-yellow-primary{
-  color: #F5B418;
+.color-yellow-primary {
+  color: #f5b418;
 }
 
-.color-blue-primary{
+.color-blue-primary {
   color: var(--color-brand-primary);
+}
+
+.bg-blue-primary {
+  background-color: var(--color-brand-primary);
 }
