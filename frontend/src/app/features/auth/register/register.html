@@ -15,25 +15,48 @@
       </p>
     </div>
 
+    <!-- ERROR MESSAGE -->
+    @if (errorMessage) {
+      <div class="alert alert-error text-sm py-2 mt-3">{{ errorMessage }}</div>
+    }
+
     <!-- INPUT FORM -->
     <fieldset class="flex flex-col gap-3 mt-2">
-      <input type="text" placeholder="Nama lengkap" class="input input-bordered w-full" />
+      <input
+        type="text"
+        placeholder="Nama lengkap"
+        class="input input-bordered w-full"
+        [(ngModel)]="fullName"
+      />
 
-      <input type="email" placeholder="Masukkan alamat email" class="input input-bordered w-full" />
+      <input
+        type="email"
+        placeholder="Masukkan alamat email"
+        class="input input-bordered w-full"
+        [(ngModel)]="email"
+      />
 
       <input
         type="password"
         placeholder="Masukkan kata sandi"
         class="input input-bordered w-full"
+        [(ngModel)]="password"
       />
 
       <input
         type="password"
         placeholder="Konfirmasi kata sandi"
         class="input input-bordered w-full"
+        [(ngModel)]="confirmPassword"
       />
 
-      <button class="btn btn-primary-faasri w-full" (click)="onRegister()">Daftar Sekarang</button>
+      <button class="btn btn-primary-faasri w-full" [disabled]="isLoading" (click)="onRegister()">
+        @if (isLoading) {
+          <span class="loading loading-spinner loading-sm"></span>
+        } @else {
+          Daftar Sekarang
+        }
+      </button>
 
       <p class="text-medium text-base-content/50 text-center">
         Dengan melanjutkan, kamu menerima
