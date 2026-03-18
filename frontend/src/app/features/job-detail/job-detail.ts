@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobService } from '../../core/services/job';
 import { Job } from '../../core/mock/job.mock';
 import { JobCard } from '../../shared/components/job-card/job-card';
@@ -13,9 +13,9 @@ import { JobCard } from '../../shared/components/job-card/job-card';
 export class JobDetail implements OnInit {
   job: Job | null = null;
   otherJobs: Job[] = [];
-
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private jobService: JobService,
   ) {}
 
@@ -29,5 +29,9 @@ export class JobDetail implements OnInit {
         this.otherJobs = jobs.filter((j) => j.id !== id).slice(0, 3);
       });
     });
+  }
+  goToApply() {
+    console.log('job id:', this.job?.id);
+    this.router.navigate(['/job', this.job?.id, 'apply']);
   }
 }
