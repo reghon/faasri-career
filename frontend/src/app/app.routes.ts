@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthLayout } from './layouts/auth-layout/auth-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 import { ApplicantLayout } from './layouts/applicant-layout/applicant-layout';
+import { unsavedChangesGuard } from './core/guards/unsaved-changes-guard';
 
 export const routes: Routes = [
   {
@@ -21,6 +22,11 @@ export const routes: Routes = [
       {
         path: 'job/:id',
         loadComponent: () => import('./features/job-detail/job-detail').then((m) => m.JobDetail),
+      },
+      {
+        path: 'job/:id/apply',
+        loadComponent: () => import('./features/applicant/apply/apply').then((m) => m.Apply),
+        canDeactivate: [unsavedChangesGuard],
       },
     ],
   },
