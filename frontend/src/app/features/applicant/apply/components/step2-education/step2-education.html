@@ -1,0 +1,274 @@
+<div class="flex flex-col gap-6">
+  <p class="text-sm text-base-content/60">
+    Beritahu kami tentang riwayat pendidikan Anda, termasuk studi yang sedang Anda jalani.
+  </p>
+
+  @for (edu of data.educations; track $index) {
+    <div class="flex flex-col gap-4">
+      <h3 class="font-semibold text-base-content">Pendidikan {{ $index + 1 }}</h3>
+
+      <!-- TINGKAT PENDIDIKAN -->
+      <div [attr.data-field]="'edu-' + $index + '-level'">
+        <label class="text-sm font-medium text-base-content mb-1 block">Tingkat Pendidikan</label>
+        <select
+          class="select select-bordered w-full"
+          [class.select-error]="hasError('edu-' + $index + '-level')"
+          [(ngModel)]="edu.level"
+          (ngModelChange)="clearError('edu-' + $index + '-level'); onChange()"
+        >
+          <option value="">Pilih saluran</option>
+          @for (l of educationLevels; track l) {
+            <option [value]="l">{{ l }}</option>
+          }
+        </select>
+        @if (hasError('edu-' + $index + '-level')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-level') }}</p>
+        }
+      </div>
+
+      <!-- NEGARA TEMPAT STUDI -->
+      <div>
+        <label class="text-sm font-medium text-base-content mb-2 block">Negara Tempat Studi</label>
+        <div class="flex gap-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              class="radio color-blue-primary"
+              [name]="'country' + $index"
+              value="Indonesia"
+              [(ngModel)]="edu.country"
+              (ngModelChange)="onChange()"
+            />
+            <span class="text-sm">Indonesia</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              class="radio color-blue-primary"
+              [name]="'country' + $index"
+              value="Lainnya"
+              [(ngModel)]="edu.country"
+              (ngModelChange)="onChange()"
+            />
+            <span class="text-sm">Lainnya</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- INSTITUSI -->
+      <div [attr.data-field]="'edu-' + $index + '-institution'">
+        <label class="text-sm font-medium text-base-content mb-1 block">Nama Institusi</label>
+        <input
+          type="text"
+          class="input input-bordered w-full"
+          [class.input-error]="hasError('edu-' + $index + '-institution')"
+          placeholder="Masukkan nama institusi"
+          [(ngModel)]="edu.institution"
+          (ngModelChange)="clearError('edu-' + $index + '-institution'); onChange()"
+        />
+        @if (hasError('edu-' + $index + '-institution')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-institution') }}</p>
+        }
+      </div>
+
+      <!-- JURUSAN STUDI -->
+      <div [attr.data-field]="'edu-' + $index + '-major'">
+        <label class="text-sm font-medium text-base-content mb-1 block">Jurusan Studi</label>
+        <input
+          type="text"
+          class="input input-bordered w-full"
+          [class.input-error]="hasError('edu-' + $index + '-major')"
+          placeholder="Masukkan jurusan"
+          [(ngModel)]="edu.major"
+          (ngModelChange)="clearError('edu-' + $index + '-major'); onChange()"
+        />
+        @if (hasError('edu-' + $index + '-major')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-major') }}</p>
+        }
+      </div>
+
+      <!-- MASA STUDI -->
+      <div>
+        <label class="text-sm font-medium text-base-content mb-2 block">
+          Apakah saat ini anda masih dalam masa studi?
+        </label>
+        <div class="flex gap-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              class="radio color-blue-primary"
+              [name]="'studying' + $index"
+              [value]="true"
+              [(ngModel)]="edu.isStillStudying"
+              (ngModelChange)="onChange()"
+            />
+            <span class="text-sm">Ya</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              class="radio color-blue-primary"
+              [name]="'studying' + $index"
+              [value]="false"
+              [(ngModel)]="edu.isStillStudying"
+              (ngModelChange)="onChange()"
+            />
+            <span class="text-sm">Tidak</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- TANGGAL MULAI -->
+      <div [attr.data-field]="'edu-' + $index + '-start'">
+        <label class="text-sm font-medium text-base-content mb-1 block">Tanggal Mulai</label>
+        <div class="grid grid-cols-3 gap-3">
+          <select
+            class="select select-bordered"
+            [class.select-error]="hasError('edu-' + $index + '-start')"
+            [(ngModel)]="edu.startDay"
+            (ngModelChange)="onChange()"
+          >
+            <option value="">Tanggal</option>
+            @for (d of days; track d) {
+              <option [value]="d">{{ d }}</option>
+            }
+          </select>
+          <select
+            class="select select-bordered"
+            [class.select-error]="hasError('edu-' + $index + '-start')"
+            [(ngModel)]="edu.startMonth"
+            (ngModelChange)="clearError('edu-' + $index + '-start'); onChange()"
+          >
+            <option value="">Bulan</option>
+            @for (m of months; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+          <select
+            class="select select-bordered"
+            [class.select-error]="hasError('edu-' + $index + '-start')"
+            [(ngModel)]="edu.startYear"
+            (ngModelChange)="clearError('edu-' + $index + '-start'); onChange()"
+          >
+            <option value="">Tahun</option>
+            @for (y of years; track y) {
+              <option [value]="y">{{ y }}</option>
+            }
+          </select>
+        </div>
+        @if (hasError('edu-' + $index + '-start')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-start') }}</p>
+        }
+      </div>
+
+      <!-- TANGGAL SELESAI -->
+      @if (!edu.isStillStudying) {
+        <div [attr.data-field]="'edu-' + $index + '-end'">
+          <label class="text-sm font-medium text-base-content mb-1 block">Tanggal Selesai</label>
+          <div class="grid grid-cols-3 gap-3">
+            <select
+              class="select select-bordered"
+              [class.select-error]="hasError('edu-' + $index + '-end')"
+              [(ngModel)]="edu.endDay"
+              (ngModelChange)="onChange()"
+            >
+              <option value="">Tanggal</option>
+              @for (d of days; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+            <select
+              class="select select-bordered"
+              [class.select-error]="hasError('edu-' + $index + '-end')"
+              [(ngModel)]="edu.endMonth"
+              (ngModelChange)="clearError('edu-' + $index + '-end'); onChange()"
+            >
+              <option value="">Bulan</option>
+              @for (m of months; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+            <select
+              class="select select-bordered"
+              [class.select-error]="hasError('edu-' + $index + '-end')"
+              [(ngModel)]="edu.endYear"
+              (ngModelChange)="clearError('edu-' + $index + '-end'); onChange()"
+            >
+              <option value="">Tahun</option>
+              @for (y of years; track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </div>
+          @if (hasError('edu-' + $index + '-end')) {
+            <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-end') }}</p>
+          }
+        </div>
+      }
+
+      <!-- NILAI AKHIR -->
+      <div [attr.data-field]="'edu-' + $index + '-gpa'">
+        <label class="text-sm font-medium text-base-content mb-1 block">Nilai Akhir</label>
+        <div class="flex items-center gap-3">
+          <input
+            type="text"
+            class="input input-bordered flex-1"
+            [class.input-error]="hasError('edu-' + $index + '-gpa')"
+            placeholder="Masukkan nilai akhir"
+            [(ngModel)]="edu.gpa"
+            (ngModelChange)="clearError('edu-' + $index + '-gpa'); onChange()"
+          />
+          <span class="text-sm text-base-content/60">dari</span>
+          <input
+            type="text"
+            class="input input-bordered flex-1"
+            [class.input-error]="hasError('edu-' + $index + '-gpaScale')"
+            placeholder="Masukkan skala"
+            [(ngModel)]="edu.gpaScale"
+            (ngModelChange)="clearError('edu-' + $index + '-gpaScale'); onChange()"
+          />
+        </div>
+        @if (hasError('edu-' + $index + '-gpa')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-gpa') }}</p>
+        }
+        @if (hasError('edu-' + $index + '-gpaScale')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-gpaScale') }}</p>
+        }
+      </div>
+
+      @if (data.educations.length > 1) {
+        <button
+          class="btn btn-ghost btn-sm text-error self-start"
+          (click)="confirmRemoveEducation($index)"
+        >
+          Hapus Pendidikan
+        </button>
+      }
+
+      @if ($index < data.educations.length - 1) {
+        <div class="divider"></div>
+      }
+    </div>
+  }
+
+  <button class="btn btn-ghost btn-sm color-blue-primary self-start gap-2" (click)="addEducation()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-4 h-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    Tambah Pendidikan
+  </button>
+
+  <app-confirm-modal
+    [isOpen]="showDeleteModal"
+    title="Hapus Pendidikan"
+    message="Apakah anda yakin ingin menghapus pendidikan ini? Data yang sudah diisi akan hilang."
+    (confirmed)="onConfirmDelete()"
+    (cancelled)="onCancelDelete()"
+  />
+</div>
