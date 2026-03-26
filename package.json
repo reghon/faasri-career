@@ -1,0 +1,11 @@
+{
+  "name": "faasri-career",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev:frontend": "pnpm --filter frontend start",
+    "dev:backend": "pnpm --filter backend dev",
+    "build": "pnpm -r build",
+    "start": "pnpm --filter backend start"
+  }
+}
