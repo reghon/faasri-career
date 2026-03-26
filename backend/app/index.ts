@@ -14,11 +14,22 @@ import languageRoutes from "./modules/applicant/languages/language.routes";
 import technicalSkillRoutes from "./modules/applicant/technical_skills/technical_skill.routes";
 
 const app: Application = express();
+const PORT = Number(process.env.PORT) || config.app.port;
 
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:4200", credentials: true }));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:4200",
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.get("/", (_req, res) => {
+  res.status(200).send("Backend is running");
+});
 
 app.use("/api/auth", userRoutes);
 app.use("/api/applicant/profile", applicantProfileRoutes);
@@ -27,8 +38,6 @@ app.use("/api/applicant/educations", educationRoutes);
 app.use("/api/applicant/certifications", certificationRoutes);
 app.use("/api/applicant/languages", languageRoutes);
 app.use("/api/applicant/technical-skills", technicalSkillRoutes);
-
-const PORT = config.app.port;
 
 async function bootstrap() {
   try {
