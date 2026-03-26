@@ -1,0 +1,50 @@
+import "dotenv/config";
+import express, { Application } from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import pool from "./configurations/database";
+import { config } from "./configurations/env";
+
+import userRoutes from "./modules/users/user.routes";
+import applicantProfileRoutes from "./modules/applicant/applicant_profile/applicant_profile.routes";
+import workExperienceRoutes from "./modules/applicant/work_experiences/work_experience.routes";
+import educationRoutes from "./modules/applicant/educations/education.routes";
+import certificationRoutes from "./modules/applicant/certifications/certification.routes";
+import languageRoutes from "./modules/applicant/languages/language.routes";
+import technicalSkillRoutes from "./modules/applicant/technical_skills/technical_skill.routes";
+
+const app: Application = express();
+
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:4200", credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use("/api/auth", userRoutes);
+app.use("/api/applicant/profile", applicantProfileRoutes);
+app.use("/api/applicant/work-experiences", workExperienceRoutes);
+app.use("/api/applicant/educations", educationRoutes);
+app.use("/api/applicant/certifications", certificationRoutes);
+app.use("/api/applicant/languages", languageRoutes);
+app.use("/api/applicant/technical-skills", technicalSkillRoutes);
+
+const PORT = config.app.port;
+
+async function bootstrap() {
+  try {
+    const client = await pool.connect();
+    console.log("✅ Database connected");
+    client.release();
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Database connection failed:", error);
+    process.exit(1);
+  }
+}
+
+bootstrap();
+
+export default app;

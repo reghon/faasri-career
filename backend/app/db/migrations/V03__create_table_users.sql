@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  "isActive" BOOLEAN NOT NULL DEFAULT true,
+  "updatedBy" VARCHAR(255),
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  role_id UUID REFERENCES roles(id) ON DELETE SET NULL
+);

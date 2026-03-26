@@ -1,8 +1,13 @@
-<div class="flex items-center mb-8">
+<div class="flex flex-col md:flex-row md:items-center mb-8 min-w-0">
   @for (step of steps; track step.number) {
-    <div class="flex items-center" [class.flex-1]="step.number < steps.length">
-      <div class="flex items-center gap-2 cursor-pointer" (click)="stepClick.emit(step.number)">
-
+    <div
+      class="flex flex-col md:flex-row md:items-center min-w-0"
+      [class.flex-1]="step.number < steps.length"
+    >
+      <div
+        class="flex items-center gap-2 cursor-pointer min-w-0"
+        (click)="stepClick.emit(step.number)"
+      >
         <!-- SELSAI -->
         @if (step.number < currentStep) {
           <div class="w-8 h-8 rounded-full bg-success flex items-center justify-center shrink-0">
@@ -42,7 +47,7 @@
         }
 
         <span
-          class="text-sm ml-1"
+          class="text-sm ml-1 min-w-0 whitespace-normal break-words"
           [class.font-semibold]="step.number === currentStep"
           [class.text-base-content]="step.number <= currentStep"
           [class.text-base-content/40]="step.number > currentStep"
@@ -52,7 +57,9 @@
       </div>
 
       @if (step.number < steps.length) {
-        <div class="flex-1 h-px bg-base-300 mx-3"></div>
+        <div
+          class="w-px h-6 ml-4 my-2 bg-base-300 md:w-auto md:flex-1 md:h-px md:mx-3 md:my-0 min-w-0"
+        ></div>
       }
     </div>
   }
