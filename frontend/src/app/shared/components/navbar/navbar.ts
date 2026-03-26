@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIf } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -29,19 +29,20 @@ export class Navbar implements OnInit {
   }
 
   get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn;
+    return this.authService.isLoggedIn();
   }
 
   get currentUser() {
-    return this.authService.currentUser;
+    return this.authService.currentUser();
   }
+
   get displayName(): string {
-    const email = this.authService.currentUser?.email;
+    const email = this.authService.currentUser()?.email;
     if (!email) return 'User';
     return email.split('@')[0];
   }
 
   logout() {
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 }
