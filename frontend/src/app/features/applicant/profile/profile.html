@@ -1,0 +1,464 @@
+@if (isLoading) {
+  <div class="flex justify-center items-center py-20">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+  </div>
+} @else if (user) {
+  <div class="container-app">
+    <!-- SECTION PROFIL -->
+    <div class="card bg-base-100 overflow-hidden shadow-sm mt-6">
+      <!-- HEADER -->
+      <div
+        class="h-14 w-full px-6 flex items-center"
+        style="
+          background-image: url('profile_background.png');
+          background-size: cover;
+          background-position: center;
+        "
+      >
+        <h2 class="font-bold text-white text-lg">Profile</h2>
+      </div>
+
+      <div class="px-6 pb-6">
+        <!-- AVATAR + NAMA + TOMBOL EDIT -->
+        <div class="flex items-start justify-between py-4">
+          <div class="flex items-end gap-4">
+            <label class="cursor-pointer">
+              <div
+                class="w-16 h-16 rounded-full bg-base-300 border-4 border-base-100 overflow-hidden flex items-center justify-center"
+              >
+                @if (user.avatar) {
+                  <img [src]="user.avatar" alt="avatar" class="w-full h-full object-cover" />
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-8 h-8 text-base-content/30"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                    />
+                  </svg>
+                }
+              </div>
+              @if (isEditing) {
+                <input
+                  type="file"
+                  class="hidden"
+                  accept="image/*"
+                  (change)="onAvatarChange($event)"
+                />
+              }
+            </label>
+            <div class="mb-1">
+              <p class="font-bold text-base-content">{{ user.name }}</p>
+              <p class="text-sm text-base-content/50">{{ user.email }}</p>
+            </div>
+          </div>
+          <button class="btn btn-primary-faasri btn-sm mt-10" (click)="toggleEdit()">
+            {{ isEditing ? 'Simpan' : 'Edit' }}
+          </button>
+        </div>
+
+        <!-- DETAIL PROFIL -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- TEMPAT LAHIR -->
+          <div>
+            <label class="text-xs text-base-content/50 mb-1 block">Tempat Lahir</label>
+            @if (isEditing) {
+              <input
+                type="text"
+                class="input input-bordered input-sm w-full"
+                [(ngModel)]="user.birthPlace"
+              />
+            } @else {
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ user.birthPlace }}
+              </div>
+            }
+          </div>
+
+          <!-- TANGGAL LAHIR -->
+          <div>
+            <label class="text-xs text-base-content/50 mb-1 block">Tanggal Lahir</label>
+            @if (isEditing) {
+              <input
+                type="text"
+                class="input input-bordered input-sm w-full"
+                [(ngModel)]="user.birthDate"
+              />
+            } @else {
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ user.birthDate }}
+              </div>
+            }
+          </div>
+
+          <!-- JENIS KELAMIN -->
+          <div>
+            <label class="text-xs text-base-content/50 mb-1 block">Jenis Kelamin</label>
+            @if (isEditing) {
+              <select class="select select-bordered select-sm w-full" [(ngModel)]="user.gender">
+                <option value="Laki-Laki">Laki-Laki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+            } @else {
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ user.gender }}
+              </div>
+            }
+          </div>
+
+          <!-- NOMOR TELEPON -->
+          <div>
+            <label class="text-xs text-base-content/50 mb-1 block">Nomor Telepon</label>
+            @if (isEditing) {
+              <input
+                type="text"
+                class="input input-bordered input-sm w-full"
+                [(ngModel)]="user.phone"
+              />
+            } @else {
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ user.phone }}
+              </div>
+            }
+          </div>
+
+          <!-- URL LINKEDIN -->
+          <div>
+            <label class="text-xs text-base-content/50 mb-1 block">URL Linkedin</label>
+            @if (isEditing) {
+              <input
+                type="text"
+                class="input input-bordered input-sm w-full"
+                [(ngModel)]="user.linkedinUrl"
+              />
+            } @else {
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ user.linkedinUrl }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION LATAR BELAKANG -->
+    <div class="card bg-base-100 overflow-hidden shadow-sm mt-6">
+      <!-- HEADER -->
+      <div
+        class="h-14 w-full px-6 flex items-center"
+        style="
+          background-image: url('profile_background.png');
+          background-size: cover;
+          background-position: center;
+        "
+      >
+        <h2 class="font-bold text-white text-lg">Latar Belakang</h2>
+      </div>
+
+      <div class="px-6 py-4 flex flex-col divide-y divide-base-200">
+        <!-- PENGALAMAN KERJA -->
+        <div class="py-4">
+          <h3 class="font-semibold text-base-content mb-3">Pengalaman Kerja</h3>
+          @if (user.workExperiences.length === 0) {
+            <p class="text-sm text-base-content/40 text-center mb-2">
+              Tambahkan pengalaman kerja yang relevan untuk menunjukkan keahlian dan pencapaianmu.
+            </p>
+            <div class="flex justify-center">
+              <button class="btn btn-ghost btn-sm color-blue-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                    efaefefafaefae
+                  />
+                </svg>
+                TAMBAHKAN PENGALAMAN KERJA
+              </button>
+            </div>
+          } @else {
+            @for (exp of user.workExperiences; track exp.id) {
+              <div class="flex flex-col gap-1 mb-4">
+                <p class="font-medium text-sm">{{ exp.position }}</p>
+                <p class="text-sm text-base-content/60">
+                  {{ exp.company }} · {{ exp.employmentType }}
+                </p>
+                <p class="text-xs text-base-content/40">
+                  {{ exp.startMonth }} {{ exp.startYear }} -
+                  {{ exp.isCurrentJob ? 'Sekarang' : exp.endMonth + ' ' + exp.endYear }}
+                </p>
+                <p class="text-sm text-base-content/60">{{ exp.responsibilities }}</p>
+              </div>
+            }
+            <button class="btn btn-ghost btn-sm text-primary color-blue-primary gap-1 mt-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              TAMBAHKAN PENGALAMAN KERJA
+            </button>
+          }
+        </div>
+
+        <!-- PENDIDIKAN -->
+        <div class="py-4">
+          <h3 class="font-semibold text-base-content mb-3">Pendidikan</h3>
+          @if (user.educations.length === 0) {
+            <p class="text-sm text-base-content/40 text-center mb-2">
+              Masukan riwayat pendidikan yang pernah kamu tempuh.
+            </p>
+            <div class="flex justify-center">
+              <button class="btn btn-ghost btn-sm text-primary color-blue-primary gap-1 mt-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                TAMBAHKAN PENDIDIKAN
+              </button>
+            </div>
+          } @else {
+            @for (edu of user.educations; track edu.id) {
+              <div class="flex flex-col gap-1 mb-4">
+                <p class="font-medium text-sm">{{ edu.institution }}</p>
+                <p class="text-sm text-base-content/60">{{ edu.level }} · {{ edu.major }}</p>
+                <p class="text-xs text-base-content/40">
+                  {{ edu.startYear }} - {{ edu.isStillStudying ? 'Sekarang' : edu.endYear }}
+                </p>
+                <p class="text-xs text-base-content/40">IPK: {{ edu.gpa }} / {{ edu.gpaScale }}</p>
+              </div>
+            }
+            <button class="btn btn-ghost btn-sm text-primary color-blue-primary gap-1 mt-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              TAMBAHKAN PENDIDIKAN
+            </button>
+          }
+        </div>
+
+        <!-- CURRICULUM VITAE -->
+        <div class="py-4">
+          <h3 class="font-semibold text-base-content mb-3">Curricullum Vitae</h3>
+          @if (!user.cvFile) {
+            <p class="text-sm text-base-content/40 text-center mb-2">
+              Unggah CV terbaru agar kami dapat melihat ringkasan pengalaman dan keahlianmu.
+            </p>
+            <div class="flex justify-center">
+              <label class="btn btn-ghost btn-sm text-primary gap-1 cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                UNGGAH CV
+                <input
+                  type="file"
+                  class="hidden"
+                  accept=".pdf,.docx"
+                  (change)="onCvChange($event)"
+                />
+              </label>
+            </div>
+          } @else {
+            <div class="flex items-center gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-primary"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span class="text-sm text-base-content">{{ user.cvFile }}</span>
+              <label class="btn btn-ghost btn-xs text-primary cursor-pointer ml-auto">
+                Ganti
+                <input
+                  type="file"
+                  class="hidden"
+                  accept=".pdf,.docx"
+                  (change)="onCvChange($event)"
+                />
+              </label>
+            </div>
+          }
+        </div>
+
+        <!-- KETERAMPILAN TEKNIS -->
+        <div class="py-4">
+          <h3 class="font-semibold text-base-content mb-3">Keterampilan Teknis</h3>
+          @if (user.technicalSkills.length === 0) {
+            <p class="text-sm text-base-content/40 text-center mb-2">
+              Tambahkan keahlian yang kamu miliki untuk membantu perekrut memahami kemampuanmu.
+            </p>
+            <div class="flex justify-center">
+              <button class="btn btn-ghost btn-sm text-primary gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                TAMBAHKAN KEAHLIAN
+              </button>
+            </div>
+          } @else {
+            <div class="flex flex-wrap gap-2 mb-3">
+              @for (skill of user.technicalSkills; track skill) {
+                <span class="badge badge-outline">{{ skill }}</span>
+              }
+            </div>
+            <button class="btn btn-ghost btn-sm text-primary gap-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              TAMBAHKAN KEAHLIAN
+            </button>
+          }
+        </div>
+
+        <!-- SERTIFIKASI -->
+        <div class="py-4">
+          <h3 class="font-semibold text-base-content mb-3">Sertifikasi</h3>
+          @if (user.certifications.length === 0) {
+            <p class="text-sm text-base-content/40 text-center mb-2">
+              Tambahkan sertifikasi atau pelatihan yang pernah kamu ikuti.
+            </p>
+            <div class="flex justify-center">
+              <button class="btn btn-ghost btn-sm text-primary gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                TAMBAHKAN SERTIFIKASI
+              </button>
+            </div>
+          } @else {
+            @for (cert of user.certifications; track cert.id) {
+              <div class="flex flex-col gap-1 mb-4">
+                <p class="font-medium text-sm">{{ cert.name }}</p>
+                <p class="text-sm text-base-content/60">{{ cert.issuer }}</p>
+                <p class="text-xs text-base-content/40">
+                  Diterbitkan: {{ cert.issuedMonth }} {{ cert.issuedYear }} · Kadaluwarsa:
+                  {{ cert.expiredMonth }} {{ cert.expiredYear }}
+                </p>
+              </div>
+            }
+            <button class="btn btn-ghost btn-sm text-primary gap-1 mt-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              TAMBAHKAN SERTIFIKASI
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="px-6 py-3 border-t border-base-200 text-center">
+        <p class="text-xs text-base-content/40">
+          Lengkapi informasi pribadi Anda untuk mempermudah melamar pekerjaan baru
+        </p>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="text-center py-20">
+    <p class="text-base-content/40">Gagal memuat profile</p>
+  </div>
+}
