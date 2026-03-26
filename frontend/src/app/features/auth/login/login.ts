@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +19,7 @@ export class Login {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
   ) {}
 
   onLogin() {
@@ -26,18 +27,30 @@ export class Login {
       this.errorMessage = 'Email dan password wajib diisi';
       return;
     }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.email)) {
       this.errorMessage = 'Format email tidak valid';
       return;
     }
+
     this.isLoading = true;
+
     this.errorMessage = '';
+
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-        this.router.navigate(['/']);
+        this.authService.getMe().subscribe({
+          next: () => {
+            this.isLoading = false;
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+            this.router.navigateByUrl(returnUrl);
+          },
+          error: () => {
+            this.isLoading = false;
+            this.router.navigate(['/']);
+          },
+        });
       },
       error: (err) => {
         this.isLoading = false;
