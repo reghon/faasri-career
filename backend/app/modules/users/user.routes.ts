@@ -11,5 +11,6 @@ router.post("/login", validate(loginSchema), userController.login);
 router.post("/logout", userController.logout);
 router.post("/refresh", userController.refresh);
 router.get("/me", authenticate, userController.me);
+router.post("/verify-otp", userController.verifyOtp);
 
 export default router;
