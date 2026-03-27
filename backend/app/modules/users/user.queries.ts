@@ -16,11 +16,15 @@ export const userQueries = {
   `,
 
   createUser: `
-    INSERT INTO users (id, email, password, "isActive", "createdAt", "updatedAt", role_id)
-    VALUES (gen_random_uuid(), $1, $2, true, NOW(), NOW(), $3)
+    INSERT INTO users (id, email, password, "isActive", otp, "otpExpiredAt", "createdAt", "updatedAt", role_id)
+    VALUES (gen_random_uuid(), $1, $2, false, $4, $5, NOW(), NOW(), $3)
     RETURNING id, email, "isActive", "createdAt", role_id
   `,
-
+  activateUser: `
+    UPDATE users
+    SET "isActive" = true, otp = NULL, "otpExpiredAt" = NULL, "updatedAt" = NOW()
+    WHERE id = $1
+  `,
   findRoleByName: `
     SELECT id FROM roles WHERE name = $1 LIMIT 1
   `,
