@@ -40,7 +40,7 @@ async function seed() {
 
     await pool.query(
       `
-      INSERT INTO applicant_profiles (s
+      INSERT INTO applicant_profiles (
         id, "fullName", "birthPlace", "birthDate", gender,
         "phoneCode", phone, address, kelurahan, kecamatan,
         city, province, "postalCode", "isSameAddress",
