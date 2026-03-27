@@ -53,6 +53,7 @@ export const routes: Routes = [
         path: 'otp',
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/otp/otp').then((m) => m.Otp),
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: '',
