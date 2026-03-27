@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -21,6 +22,7 @@ export class Register {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private toastService: ToastService,
   ) {}
 
   onRegister() {
@@ -45,9 +47,8 @@ export class Register {
     this.errorMessage = '';
     this.authService.register(this.email, this.password).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-        this.router.navigate(['/']);
+        this.toastService.show('Registrasi berhasil! Cek email kamu.');
+        this.router.navigate(['/otp'], { state: { email: this.email } });
       },
       error: (err) => {
         this.isLoading = false;
