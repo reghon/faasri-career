@@ -12,6 +12,22 @@ export const userController = {
     }
   },
 
+  async verifyOtp(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+      const { accessToken, refreshToken } = await userService.verifyOtp(email, otp);
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      return res.status(200).json({ message: "Account verified successfully", data: { accessToken } });
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
+  },
+
   async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
