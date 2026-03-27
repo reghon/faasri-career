@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
     logout: `${API_URL}/api/auth/logout`,
     refresh: `${API_URL}/api/auth/refresh`,
     me: `${API_URL}/api/auth/me`,
+    verifyOtp: `${API_URL}/api/auth/verify-otp`,
   },
   applicant: {
     profileMe: `${API_URL}/api/applicant/profile/me`,
