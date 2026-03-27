@@ -18,7 +18,7 @@ const PORT = Number(process.env.PORT) || config.app.port;
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:4200",
+    origin: process.env.CLIENT_URL || "https://faasri-career.vercel.app",
     credentials: true,
   }),
 );
@@ -45,7 +45,7 @@ async function bootstrap() {
     console.log("✅ Database connected");
     client.release();
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "127.0.0.1", () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
   } catch (error) {
