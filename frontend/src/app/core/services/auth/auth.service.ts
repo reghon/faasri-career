@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../config/api.config';
+import { ToastService } from '../toast/toast.service';
 
 export interface User {
   id: string;
@@ -20,9 +21,13 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private toastService: ToastService,
   ) {
     const token = localStorage.getItem('accessToken');
-    if (token) this.accessToken.set(token);
+    if (token) {
+      this.accessToken.set(token);
+      this.getMe().subscribe();
+    }
   }
 
   register(email: string, password: string) {
@@ -39,6 +44,7 @@ export class AuthService {
         tap((res) => {
           this.accessToken.set(res.data.accessToken);
           localStorage.setItem('accessToken', res.data.accessToken);
+          this.toastService.show('Login berhasil!');
         }),
       );
   }
@@ -49,6 +55,7 @@ export class AuthService {
         this.accessToken.set(null);
         this.currentUser.set(null);
         localStorage.removeItem('accessToken');
+        this.toastService.show('Logut Berhasil');
         this.router.navigate(['/login']);
       }),
     );
