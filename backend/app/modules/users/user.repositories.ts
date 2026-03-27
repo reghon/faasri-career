@@ -11,16 +11,13 @@ export const userRepository = {
     const result = await pool.query(userQueries.findUserById, [id]);
     return result.rows[0] || null;
   },
-
-  async create(email: string, hashedPassword: string, roleId: string) {
-    const result = await pool.query(userQueries.createUser, [
-      email,
-      hashedPassword,
-      roleId,
-    ]);
+  async create(email: string, hashedPassword: string, roleId: string, otp: string, otpExpiredAt: Date) {
+    const result = await pool.query(userQueries.createUser, [email, hashedPassword, roleId, otp, otpExpiredAt]);
     return result.rows[0];
   },
-
+  async activateUser(id: string) {
+    await pool.query(userQueries.activateUser, [id]);
+  },
   async findRoleByName(name: string) {
     const result = await pool.query(userQueries.findRoleByName, [name]);
     return result.rows[0] || null;
