@@ -18,7 +18,7 @@ const PORT = Number(process.env.PORT) || config.app.port;
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "https://faasri-career.vercel.app",
+    origin: process.env.CLIENT_URL || "http://localhost:4200",
     credentials: true,
   }),
 );
