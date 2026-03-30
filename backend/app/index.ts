@@ -16,9 +16,17 @@ import technicalSkillRoutes from "./modules/applicant/technical_skills/technical
 const app: Application = express();
 const PORT = Number(process.env.PORT) || config.app.port;
 
+const allowedOrigins = ["http://localhost:4200", process.env.CLIENT_URL].filter(Boolean);
+
 app.use(
   cors({
-    origin: ["http://localhost:4200", "https://career.aigra.id"],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
