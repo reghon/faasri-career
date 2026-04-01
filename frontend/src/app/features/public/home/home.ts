@@ -3,9 +3,9 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { HeroSection } from './components/hero-section/hero-section';
 import { JobFilter, JobFilterValue } from './components/job-filter/job-filter';
-import { JobCard } from '../../shared/components/job-card/job-card';
-import { JobService } from '../../core/services/job';
-import { Job } from '../../core/mock/job.mock';
+import { JobCard } from '../../../shared/components/job-card/job-card';
+import { JobService } from '../../../core/services/job';
+import { Job } from '../../../core/mock/job.mock';
 
 @Component({
   selector: 'app-home',
