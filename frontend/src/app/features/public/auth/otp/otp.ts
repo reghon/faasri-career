@@ -2,9 +2,9 @@ import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } fro
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { API_ENDPOINTS } from '../../../core/config/api.config';
-import { AuthService } from '../../../core/services/auth/auth.service';
-import { ToastService } from '../../../core/services/toast/toast.service';
+import { API_ENDPOINTS } from '../../../../core/config/api.config';
+import { AuthService } from '../../../../domain/auth/auth.service';
+import { ToastService } from '../../../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-otp',
