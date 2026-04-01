@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { JobService } from '../../core/services/job';
-import { Job } from '../../core/mock/job.mock';
-import { JobCard } from '../../shared/components/job-card/job-card';
+import { JobService } from '../../../core/services/job';
+import { Job } from '../../../core/mock/job.mock';
+import { JobCard } from '../../../shared/components/job-card/job-card';
 
 @Component({
   selector: 'app-job',
