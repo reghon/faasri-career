@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
-import { API_ENDPOINTS } from '../../config/api.config';
-import { TechnicalSkill } from './applicant.model';
+import { API_ENDPOINTS } from '../../../core/config/api.config';
+import { TechnicalSkill } from './technical_skill.model';
 
 @Injectable({ providedIn: 'root' })
 export class TechnicalSkillService {
