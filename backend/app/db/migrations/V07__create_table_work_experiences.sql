@@ -21,7 +21,10 @@ CREATE TABLE IF NOT EXISTS work_experiences (
   reference_phone_code VARCHAR(10),
   reference_phone VARCHAR(50),
   reference_email VARCHAR(255),
-  updated_by VARCHAR(255),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+  created_by UUID REFERENCES users(id),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_by UUID REFERENCES users(id),
+  deleted_at TIMESTAMP,
+  deleted_by UUID REFERENCES users(id)
 );

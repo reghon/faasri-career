@@ -14,7 +14,10 @@ CREATE TABLE IF NOT EXISTS educations (
   end_year VARCHAR(10),
   gpa VARCHAR(10),
   gpa_scale VARCHAR(10),
-  updated_by VARCHAR(255),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+  created_by UUID REFERENCES users(id),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_by UUID REFERENCES users(id),
+  deleted_at TIMESTAMP,
+  deleted_by UUID REFERENCES users(id)
  );
