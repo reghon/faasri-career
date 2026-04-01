@@ -1,20 +1,20 @@
 CREATE TABLE IF NOT EXISTS educations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  applicant_profile_id UUID REFERENCES applicant_profiles(id) ON DELETE CASCADE,
   level VARCHAR(255),
   country VARCHAR(255),
   institution VARCHAR(255),
   major VARCHAR(255),
-  "isStillStudying" BOOLEAN DEFAULT false,
-  "startDay" VARCHAR(10),
-  "startMonth" VARCHAR(10),
-  "startYear" VARCHAR(10),
-  "endDay" VARCHAR(10),
-  "endMonth" VARCHAR(10),
-  "endYear" VARCHAR(10),
+  is_still_studying BOOLEAN DEFAULT false,
+  start_day VARCHAR(10),
+  start_month VARCHAR(10),
+  start_year VARCHAR(10),
+  end_day VARCHAR(10),
+  end_month VARCHAR(10),
+  end_year VARCHAR(10),
   gpa VARCHAR(10),
-  "gpaScale" VARCHAR(10),
-  "updatedBy" VARCHAR(255),
-  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-  applicant_profile_id UUID REFERENCES applicant_profiles(id) ON DELETE CASCADE
-);
+  gpa_scale VARCHAR(10),
+  updated_by VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+ );
