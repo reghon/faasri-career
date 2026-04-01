@@ -12,6 +12,7 @@ import educationRoutes from "./modules/applicant/educations/education.routes";
 import certificationRoutes from "./modules/applicant/certifications/certification.routes";
 import languageRoutes from "./modules/applicant/languages/language.routes";
 import technicalSkillRoutes from "./modules/applicant/technical_skills/technical_skill.routes";
+import applicantMasterRoutes from "./modules/applicant/applicant_master.routes";
 
 const app: Application = express();
 const PORT = Number(process.env.PORT) || config.app.port;
@@ -46,6 +47,7 @@ app.use("/api/applicant/educations", educationRoutes);
 app.use("/api/applicant/certifications", certificationRoutes);
 app.use("/api/applicant/languages", languageRoutes);
 app.use("/api/applicant/technical-skills", technicalSkillRoutes);
+app.use("/api/applicant/applicant-master", applicantMasterRoutes);
 
 async function bootstrap() {
   try {
