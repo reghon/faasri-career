@@ -1,42 +1,49 @@
 import { Request, Response } from "express";
+import { requireUserId } from "../../../utils/request-user.util";
+import { getValidatedBody, getValidatedParams } from "../../../utils/validated-request.util";
+import { WorkExperienceBodyInput, WorkExperienceParamsInput } from "./work_experience.schemas";
 import { workExperienceService } from "./work_experience.services";
-
-const getUserId = (req: Request) => (req as any).user.userId;
 
 export const workExperienceController = {
   async getAll(req: Request, res: Response) {
-    try {
-      const data = await workExperienceService.getAll(getUserId(req));
-      return res.status(200).json({ message: "Success", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const data = await workExperienceService.getAll(requireUserId(req));
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
   },
 
   async create(req: Request, res: Response) {
-    try {
-      const data = await workExperienceService.create(getUserId(req), req.body);
-      return res.status(201).json({ message: "Work experience created", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const body = getValidatedBody<WorkExperienceBodyInput>(req);
+
+    const data = await workExperienceService.create(requireUserId(req), body);
+
+    res.status(201).json({
+      message: "Work experience created successfully",
+      data,
+    });
   },
 
   async update(req: Request, res: Response) {
-    try {
-      const data = await workExperienceService.update(getUserId(req), req.params.id as string, req.body);
-      return res.status(200).json({ message: "Work experience updated", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const body = getValidatedBody<WorkExperienceBodyInput>(req);
+    const params = getValidatedParams<WorkExperienceParamsInput>(req);
+
+    const data = await workExperienceService.update(requireUserId(req), params.id, body);
+
+    res.status(200).json({
+      message: "Work experience updated successfully",
+      data,
+    });
   },
 
   async delete(req: Request, res: Response) {
-    try {
-      await workExperienceService.delete(getUserId(req), req.params.id as string);
-      return res.status(200).json({ message: "Work experience deleted" });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const params = getValidatedParams<WorkExperienceParamsInput>(req);
+
+    await workExperienceService.delete(requireUserId(req), params.id);
+
+    res.status(200).json({
+      message: "Work experience deleted successfully",
+    });
   },
 };
