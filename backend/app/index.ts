@@ -5,6 +5,7 @@ import cors from "cors";
 import pool from "./configurations/database";
 import { config } from "./configurations/env";
 
+
 import userRoutes from "./modules/users/user.routes";
 import applicantProfileRoutes from "./modules/applicant/applicant_profile/applicant_profile.routes";
 import workExperienceRoutes from "./modules/applicant/work_experiences/work_experience.routes";
@@ -13,6 +14,7 @@ import certificationRoutes from "./modules/applicant/certifications/certificatio
 import languageRoutes from "./modules/applicant/languages/language.routes";
 import technicalSkillRoutes from "./modules/applicant/technical_skills/technical_skill.routes";
 import applicantMasterRoutes from "./modules/applicant/applicant_master.routes";
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app: Application = express();
 const PORT = Number(process.env.PORT) || config.app.port;
@@ -48,6 +50,8 @@ app.use("/api/applicant/certifications", certificationRoutes);
 app.use("/api/applicant/languages", languageRoutes);
 app.use("/api/applicant/technical-skills", technicalSkillRoutes);
 app.use("/api/applicant/applicant-master", applicantMasterRoutes);
+
+app.use(errorMiddleware);
 
 async function bootstrap() {
   try {
