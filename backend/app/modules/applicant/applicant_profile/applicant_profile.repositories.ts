@@ -1,10 +1,10 @@
 import pool from "../../../configurations/database";
+import { queryCamelOne } from "../../../utils/db.util";
 import { applicantProfileQueries } from "./applicant_profile.queries";
 
 export const applicantProfileRepository = {
   async getByUserId(userId: string) {
-    const result = await pool.query(applicantProfileQueries.getProfileByUserId, [userId]);
-    return result.rows[0] || null;
+    return queryCamelOne(applicantProfileQueries.getProfileByUserId, [userId]);
   },
 
   async create(userId: string) {
