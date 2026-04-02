@@ -1,23 +1,25 @@
-import pool from "../../../configurations/database";
+import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { certificationQueries } from "./certification.queries";
+import { Certification, CertificationPayload } from "./certification.types";
 
 export const certificationRepository = {
-  async getByProfileId(profileId: string) {
-    const result = await pool.query(certificationQueries.getByProfileId, [profileId]);
-    return result.rows;
+  async getByProfileId(profileId: string): Promise<Certification[]> {
+    return queryCamel<Certification>(certificationQueries.getByProfileId, [profileId]);
   },
 
-  async create(profileId: string, data: any, updatedBy: string) {
-    const result = await pool.query(certificationQueries.create, [data.name, data.issuer, data.issuedDay, data.issuedMonth, data.issuedYear, data.expiredDay, data.expiredMonth, data.expiredYear, updatedBy, profileId]);
-    return result.rows[0];
+  async getById(id: string, profileId: string): Promise<Certification | null> {
+    return queryCamelOne<Certification>(certificationQueries.getById, [id, profileId]);
   },
 
-  async update(id: string, profileId: string, data: any) {
-    const result = await pool.query(certificationQueries.update, [data.name, data.issuer, data.issuedDay, data.issuedMonth, data.issuedYear, data.expiredDay, data.expiredMonth, data.expiredYear, id, profileId]);
-    return result.rows[0];
+  async create(profileId: string, data: CertificationPayload, actorId: string): Promise<Certification | null> {
+    return queryCamelOne<Certification>(certificationQueries.create, [profileId, data.name, data.issuer, data.issuedDay, data.issuedMonth, data.issuedYear, data.expiredDay, data.expiredMonth, data.expiredYear, actorId]);
   },
 
-  async delete(id: string, profileId: string) {
-    await pool.query(certificationQueries.delete, [id, profileId]);
+  async update(id: string, profileId: string, data: CertificationPayload, actorId: string): Promise<Certification | null> {
+    return queryCamelOne<Certification>(certificationQueries.update, [data.name, data.issuer, data.issuedDay, data.issuedMonth, data.issuedYear, data.expiredDay, data.expiredMonth, data.expiredYear, actorId, id, profileId]);
+  },
+
+  async softDelete(id: string, profileId: string, actorId: string): Promise<{ id: string } | null> {
+    return queryCamelOne<{ id: string }>(certificationQueries.softDelete, [id, profileId, actorId]);
   },
 };
