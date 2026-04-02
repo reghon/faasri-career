@@ -1,18 +1,21 @@
-import pool from "../../../configurations/database";
+import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { technicalSkillQueries } from "./technical_skill.queries";
+import { TechnicalSkill, TechnicalSkillPayload } from "./technical_skill.types";
 
 export const technicalSkillRepository = {
-  async getByProfileId(profileId: string) {
-    const result = await pool.query(technicalSkillQueries.getByProfileId, [profileId]);
-    return result.rows;
+  async getByProfileId(profileId: string): Promise<TechnicalSkill[]> {
+    return queryCamel<TechnicalSkill>(technicalSkillQueries.getByProfileId, [profileId]);
   },
 
-  async create(profileId: string, data: any, updatedBy: string) {
-    const result = await pool.query(technicalSkillQueries.create, [data.skillName, updatedBy, profileId]);
-    return result.rows[0];
+  async getById(id: string, profileId: string): Promise<TechnicalSkill | null> {
+    return queryCamelOne<TechnicalSkill>(technicalSkillQueries.getById, [id, profileId]);
   },
 
-  async delete(id: string, profileId: string) {
-    await pool.query(technicalSkillQueries.delete, [id, profileId]);
+  async create(profileId: string, data: TechnicalSkillPayload, actorId: string): Promise<TechnicalSkill | null> {
+    return queryCamelOne<TechnicalSkill>(technicalSkillQueries.create, [profileId, data.skillName, actorId]);
+  },
+
+  async softDelete(id: string, profileId: string, actorId: string): Promise<{ id: string } | null> {
+    return queryCamelOne<{ id: string }>(technicalSkillQueries.softDelete, [id, profileId, actorId]);
   },
 };

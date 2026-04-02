@@ -1,33 +1,37 @@
 import { Request, Response } from "express";
+import { requireUserId } from "../../../utils/request-user.util";
+import { getValidatedBody, getValidatedParams } from "../../../utils/validated-request.util";
+import { TechnicalSkillBodyInput, TechnicalSkillParamsInput } from "./technical_skill.schemas";
 import { technicalSkillService } from "./technical_skill.services";
-
-const getUserId = (req: Request) => (req as any).user.userId;
 
 export const technicalSkillController = {
   async getAll(req: Request, res: Response) {
-    try {
-      const data = await technicalSkillService.getAll(getUserId(req));
-      return res.status(200).json({ message: "Success", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const data = await technicalSkillService.getAll(requireUserId(req));
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
   },
 
   async create(req: Request, res: Response) {
-    try {
-      const data = await technicalSkillService.create(getUserId(req), req.body);
-      return res.status(201).json({ message: "Skill created", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const body = getValidatedBody<TechnicalSkillBodyInput>(req);
+
+    const data = await technicalSkillService.create(requireUserId(req), body);
+
+    res.status(201).json({
+      message: "Technical skill created successfully",
+      data,
+    });
   },
 
   async delete(req: Request, res: Response) {
-    try {
-      await technicalSkillService.delete(getUserId(req), req.params.id as string);
-      return res.status(200).json({ message: "Skill deleted" });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const params = getValidatedParams<TechnicalSkillParamsInput>(req);
+
+    await technicalSkillService.delete(requireUserId(req), params.id);
+
+    res.status(200).json({
+      message: "Technical skill deleted successfully",
+    });
   },
 };
