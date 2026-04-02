@@ -1,18 +1,19 @@
 import { applicantProfileRepository } from "./applicant_profile.repositories";
 
+const getOrCreate = async (userId: string) => {
+  const profile = await applicantProfileRepository.getByUserId(userId);
+  if (profile) return profile;
+
+  return applicantProfileRepository.create(userId);
+};
+
 export const applicantProfileService = {
   async getOrCreateProfile(userId: string) {
-    let profile = await applicantProfileRepository.getByUserId(userId);
-    if (!profile) {
-      await applicantProfileRepository.create(userId);
-      profile = await applicantProfileRepository.getByUserId(userId);
-    }
-    return profile;
+    return getOrCreate(userId);
   },
 
   async updateProfile(userId: string, data: any) {
-    let profile = await applicantProfileRepository.getByUserId(userId);
-    if (!profile) await applicantProfileRepository.create(userId);
+    await getOrCreate(userId);
     return applicantProfileRepository.update(userId, data);
   },
 };
