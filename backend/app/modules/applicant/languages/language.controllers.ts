@@ -1,42 +1,49 @@
 import { Request, Response } from "express";
+import { requireUserId } from "../../../utils/request-user.util";
+import { getValidatedBody, getValidatedParams } from "../../../utils/validated-request.util";
+import { LanguageBodyInput, LanguageParamsInput } from "./language.schemas";
 import { languageService } from "./language.services";
-
-const getUserId = (req: Request) => (req as any).user.userId;
 
 export const languageController = {
   async getAll(req: Request, res: Response) {
-    try {
-      const data = await languageService.getAll(getUserId(req));
-      return res.status(200).json({ message: "Success", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const data = await languageService.getAll(requireUserId(req));
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
   },
 
   async create(req: Request, res: Response) {
-    try {
-      const data = await languageService.create(getUserId(req), req.body);
-      return res.status(201).json({ message: "Language created", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const body = getValidatedBody<LanguageBodyInput>(req);
+
+    const data = await languageService.create(requireUserId(req), body);
+
+    res.status(201).json({
+      message: "Language created successfully",
+      data,
+    });
   },
 
   async update(req: Request, res: Response) {
-    try {
-      const data = await languageService.update(getUserId(req), req.params.id as string, req.body);
-      return res.status(200).json({ message: "Language updated", data });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const body = getValidatedBody<LanguageBodyInput>(req);
+    const params = getValidatedParams<LanguageParamsInput>(req);
+
+    const data = await languageService.update(requireUserId(req), params.id, body);
+
+    res.status(200).json({
+      message: "Language updated successfully",
+      data,
+    });
   },
 
   async delete(req: Request, res: Response) {
-    try {
-      await languageService.delete(getUserId(req), req.params.id as string);
-      return res.status(200).json({ message: "Language deleted" });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
-    }
+    const params = getValidatedParams<LanguageParamsInput>(req);
+
+    await languageService.delete(requireUserId(req), params.id);
+
+    res.status(200).json({
+      message: "Language deleted successfully",
+    });
   },
 };

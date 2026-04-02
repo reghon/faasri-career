@@ -1,23 +1,25 @@
-import pool from "../../../configurations/database";
+import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { languageQueries } from "./language.queries";
+import { Language, LanguagePayload } from "./language.types";
 
 export const languageRepository = {
-  async getByProfileId(profileId: string) {
-    const result = await pool.query(languageQueries.getByProfileId, [profileId]);
-    return result.rows;
+  async getByProfileId(profileId: string): Promise<Language[]> {
+    return queryCamel<Language>(languageQueries.getByProfileId, [profileId]);
   },
 
-  async create(profileId: string, data: any, updatedBy: string) {
-    const result = await pool.query(languageQueries.create, [data.language, data.proficiency, updatedBy, profileId]);
-    return result.rows[0];
+  async getById(id: string, profileId: string): Promise<Language | null> {
+    return queryCamelOne<Language>(languageQueries.getById, [id, profileId]);
   },
 
-  async update(id: string, profileId: string, data: any) {
-    const result = await pool.query(languageQueries.update, [data.language, data.proficiency, id, profileId]);
-    return result.rows[0];
+  async create(profileId: string, data: LanguagePayload, actorId: string): Promise<Language | null> {
+    return queryCamelOne<Language>(languageQueries.create, [profileId, data.language, data.proficiency, actorId]);
   },
 
-  async delete(id: string, profileId: string) {
-    await pool.query(languageQueries.delete, [id, profileId]);
+  async update(id: string, profileId: string, data: LanguagePayload, actorId: string): Promise<Language | null> {
+    return queryCamelOne<Language>(languageQueries.update, [data.language, data.proficiency, actorId, id, profileId]);
+  },
+
+  async softDelete(id: string, profileId: string, actorId: string): Promise<{ id: string } | null> {
+    return queryCamelOne<{ id: string }>(languageQueries.softDelete, [id, profileId, actorId]);
   },
 };
