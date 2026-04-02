@@ -1,82 +1,90 @@
 import { Request, Response } from "express";
+import { requireUserId } from "../../utils/request-user.util";
+import { getValidatedBody } from "../../utils/validated-request.util";
+import { LoginBodyInput, RegisterBodyInput, VerifyOtpBodyInput } from "./user.schemas";
 import { userService } from "./user.services";
+
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
 
 export const userController = {
   async register(req: Request, res: Response) {
-    try {
-      const { email, password, role } = req.body;
-      const user = await userService.register(email, password, role);
-      return res.status(201).json({ message: "User registered successfully", data: user });
-    } catch (error: any) {
-      return res.status(400).json({ message: error.message });
-    }
+    const body = getValidatedBody<RegisterBodyInput>(req);
+
+    const user = await userService.register(body.email, body.password, body.role);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      data: user,
+    });
   },
 
   async verifyOtp(req: Request, res: Response) {
-    try {
-      const { email, otp } = req.body;
-      const { accessToken, refreshToken } = await userService.verifyOtp(email, otp);
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-      return res.status(200).json({ message: "Account verified successfully", data: { accessToken } });
-    } catch (error: any) {
-      return res.status(400).json({ message: error.message });
-    }
+    const body = getValidatedBody<VerifyOtpBodyInput>(req);
+
+    const { accessToken, refreshToken } = await userService.verifyOtp(body.email, body.otp);
+
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+
+    res.status(200).json({
+      message: "Account verified successfully",
+      data: { accessToken },
+    });
   },
 
   async login(req: Request, res: Response) {
-    try {
-      const { email, password } = req.body;
-      const { accessToken, refreshToken } = await userService.login(email, password);
+    const body = getValidatedBody<LoginBodyInput>(req);
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+    const { accessToken, refreshToken } = await userService.login(body.email, body.password);
 
-      return res.status(200).json({ message: "Login successful", data: { accessToken } });
-    } catch (error: any) {
-      return res.status(401).json({ message: error.message });
-    }
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+
+    res.status(200).json({
+      message: "Login successful",
+      data: { accessToken },
+    });
   },
 
   async logout(req: Request, res: Response) {
-    try {
-      const refreshToken = req.cookies?.refreshToken;
-      if (refreshToken) await userService.logout(refreshToken);
-      res.clearCookie("refreshToken");
-      return res.status(200).json({ message: "Logout successful" });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    const refreshToken = req.cookies?.refreshToken as string | undefined;
+
+    if (refreshToken) {
+      await userService.logout(refreshToken);
     }
+
+    res.clearCookie("refreshToken");
+
+    res.status(200).json({
+      message: "Logout successful",
+    });
   },
 
   async refresh(req: Request, res: Response) {
-    try {
-      const refreshToken = req.cookies?.refreshToken;
-      if (!refreshToken) {
-        return res.status(401).json({ message: "Refresh token not found" });
-      }
-      const { accessToken } = await userService.refreshAccessToken(refreshToken);
-      return res.status(200).json({ message: "Token refreshed", data: { accessToken } });
-    } catch (error: any) {
-      return res.status(401).json({ message: error.message });
+    const refreshToken = req.cookies?.refreshToken as string | undefined;
+
+    if (!refreshToken) {
+      res.status(401).json({ message: "Refresh token not found" });
+      return;
     }
+
+    const { accessToken } = await userService.refreshAccessToken(refreshToken);
+
+    res.status(200).json({
+      message: "Token refreshed",
+      data: { accessToken },
+    });
   },
 
   async me(req: Request, res: Response) {
-    try {
-      const userId = (req as any).user.userId;
-      const user = await userService.getMe(userId);
-      return res.status(200).json({ message: "Success", data: user });
-    } catch (error: any) {
-      return res.status(404).json({ message: error.message });
-    }
+    const user = await userService.getMe(requireUserId(req));
+
+    res.status(200).json({
+      message: "Success",
+      data: user,
+    });
   },
 };

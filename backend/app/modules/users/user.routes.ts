@@ -1,16 +1,22 @@
 import { Router } from "express";
-import { userController } from "./user.controllers";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
-import { loginSchema, registerSchema } from "./user.validations";
+import { asyncHandler } from "../../utils/async-handler";
+import { userController } from "./user.controllers";
+import { loginBodySchema, registerBodySchema, verifyOtpBodySchema } from "./user.schemas";
 
 const router: Router = Router();
 
-router.post("/register", validate(registerSchema), userController.register);
-router.post("/login", validate(loginSchema), userController.login);
-router.post("/logout", userController.logout);
-router.post("/refresh", userController.refresh);
-router.get("/me", authenticate, userController.me);
-router.post("/verify-otp", userController.verifyOtp);
+router.post("/register", validate({ body: registerBodySchema }), asyncHandler(userController.register));
+
+router.post("/verify-otp", validate({ body: verifyOtpBodySchema }), asyncHandler(userController.verifyOtp));
+
+router.post("/login", validate({ body: loginBodySchema }), asyncHandler(userController.login));
+
+router.post("/logout", asyncHandler(userController.logout));
+
+router.post("/refresh", asyncHandler(userController.refresh));
+
+router.get("/me", authenticate, asyncHandler(userController.me));
 
 export default router;
