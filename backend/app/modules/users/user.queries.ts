@@ -1,32 +1,43 @@
 export const userQueries = {
   findUserByEmail: `
-    SELECT u.*, r.name as role_name
+    SELECT u.*, r.name AS role_name
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.email = $1
+      AND u.deleted_at IS NULL
     LIMIT 1
   `,
 
   findUserById: `
-    SELECT u.id, u.email, u."isActive", u."createdAt", u."updatedAt", r.name as role_name
+    SELECT u.id, u.email, u.is_active, r.name AS role_name
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.id = $1
+      AND u.deleted_at IS NULL
     LIMIT 1
   `,
 
   createUser: `
-    INSERT INTO users (id, email, password, "isActive", otp, "otpExpiredAt", "createdAt", "updatedAt", role_id)
-    VALUES (gen_random_uuid(), $1, $2, false, $4, $5, NOW(), NOW(), $3)
-    RETURNING id, email, "isActive", "createdAt", role_id
+    INSERT INTO users (
+      id, role_id, email, password, is_active, otp, otp_expired_at, created_at, updated_at
+    ) VALUES (
+      gen_random_uuid(), $1, $2, $3, FALSE, $4, $5, NOW(), NOW()
+    )
+    RETURNING id, email, is_active, created_at, role_id
   `,
+
   activateUser: `
     UPDATE users
-    SET "isActive" = true, otp = NULL, "otpExpiredAt" = NULL, "updatedAt" = NOW()
+    SET is_active = true, otp = NULL, otp_expired_at = NULL, updated_at = NOW()
     WHERE id = $1
   `,
+
   findRoleByName: `
-    SELECT id FROM roles WHERE name = $1 LIMIT 1
+    SELECT id
+    FROM roles
+    WHERE name = $1
+      AND deleted_at IS NULL
+    LIMIT 1
   `,
 
   storeRefreshToken: `
