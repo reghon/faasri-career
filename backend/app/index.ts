@@ -17,6 +17,10 @@ import applicantMasterRoutes from "./modules/applicant/applicant_master.routes";
 import employmentTypeRoutes from "./modules/job/masters/employment_type/employment_type.routes";
 import jobCategoryRoutes from "./modules/job/masters/job_category/job_category.routes";
 import jobLocationRoutes from "./modules/job/masters/job_locations/job_location.routes";
+import jobStatusRoutes from "./modules/job/masters/job_statuses/job_status.routes";
+import workModeRoutes from "./modules/job/masters/work_modes/work_mode.routes";
+import educationLevelRoutes from "./modules/job/masters/education_levels/education_level.routes";
+import departmentRoutes from "./modules/job/masters/departments/department.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -57,6 +61,10 @@ app.use("/api/applicant/applicant-master", applicantMasterRoutes);
 app.use("/api/job/employment-types", employmentTypeRoutes);
 app.use("/api/job/job-categories", jobCategoryRoutes);
 app.use("/api/job/job-locations", jobLocationRoutes);
+app.use("/api/job/job-statuses", jobStatusRoutes);
+app.use("/api/job/work-modes", workModeRoutes);
+app.use("/api/job/education-levels", educationLevelRoutes);
+app.use("/api/job/departments", departmentRoutes);
 
 app.use(errorMiddleware);
 
