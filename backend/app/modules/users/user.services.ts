@@ -9,18 +9,20 @@ const generateOtp = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+const DEFAULT_REGISTER_ROLE = "applicant";
+
 export const userService = {
-  async register(email: string, password: string, role = "applicant") {
+  async register(email: string, password: string) {
     const existingUser = await userRepository.findByEmail(email);
 
     if (existingUser) {
       throw new AppError(409, "Email already registered");
     }
 
-    const foundRole = await userRepository.findRoleByName(role);
+    const defaultRole = await userRepository.findRoleByName(DEFAULT_REGISTER_ROLE);
 
-    if (!foundRole) {
-      throw new AppError(404, "Role not found");
+    if (!defaultRole) {
+      throw new AppError(500, "Default role not found");
     }
 
     const hashedPassword = await bcrypt.hash(password, config.bcrypt.saltRounds);
@@ -28,7 +30,7 @@ export const userService = {
     const otp = generateOtp();
     const otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    const user = await userRepository.create(email, hashedPassword, foundRole.id, otp, otpExpiredAt);
+    const user = await userRepository.create(email, hashedPassword, defaultRole.id, otp, otpExpiredAt);
 
     if (!user) {
       throw new AppError(500, "Failed to register user");
@@ -46,7 +48,8 @@ export const userService = {
       throw new AppError(404, "User not found");
     }
 
-    if (user.isActive) {
+    if (!user.isActive) {
+    } else {
       throw new AppError(400, "Account already verified");
     }
 
@@ -58,7 +61,7 @@ export const userService = {
       throw new AppError(400, "OTP expired");
     }
 
-    if (!user.roleName) {
+    if (!user.roleId) {
       throw new AppError(500, "User role not found");
     }
 
@@ -66,12 +69,12 @@ export const userService = {
 
     const accessToken = signAccessToken({
       userId: user.id,
-      role: user.roleName as "applicant" | "admin" | "recruiter" | "hr",
+      roleId: user.roleId,
     });
 
     const refreshToken = signRefreshToken({
       userId: user.id,
-      role: user.roleName as "applicant" | "admin" | "recruiter" | "hr",
+      roleId: user.roleId,
     });
 
     const expiresAt = new Date();
@@ -99,18 +102,18 @@ export const userService = {
       throw new AppError(401, "Invalid email or password");
     }
 
-    if (!user.roleName) {
+    if (!user.roleId) {
       throw new AppError(500, "User role not found");
     }
 
     const accessToken = signAccessToken({
       userId: user.id,
-      role: user.roleName as "applicant" | "admin" | "recruiter" | "hr",
+      roleId: user.roleId,
     });
 
     const refreshToken = signRefreshToken({
       userId: user.id,
-      role: user.roleName as "applicant" | "admin" | "recruiter" | "hr",
+      roleId: user.roleId,
     });
 
     const expiresAt = new Date();
@@ -140,14 +143,14 @@ export const userService = {
       throw new AppError(404, "User not found");
     }
 
-    if (!user.roleName) {
-      throw new AppError(500, "User role not found");
+    if (!payload.roleId) {
+      throw new AppError(401, "Invalid refresh token payload");
     }
 
     return {
       accessToken: signAccessToken({
         userId: user.id,
-        role: user.roleName as "applicant" | "admin" | "recruiter" | "hr",
+        roleId: payload.roleId,
       }),
     };
   },
