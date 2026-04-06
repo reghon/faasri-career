@@ -14,6 +14,10 @@ import certificationRoutes from "./modules/applicant/certifications/certificatio
 import languageRoutes from "./modules/applicant/languages/language.routes";
 import technicalSkillRoutes from "./modules/applicant/technical_skills/technical_skill.routes";
 import applicantMasterRoutes from "./modules/applicant/applicant_master.routes";
+import employmentTypeRoutes from "./modules/job/masters/employment_type/employment_type.routes";
+import jobCategoryRoutes from "./modules/job/masters/job_category/job_category.routes";
+import jobLocationRoutes from "./modules/job/masters/job_locations/job_location.routes";
+
 import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app: Application = express();
@@ -50,6 +54,9 @@ app.use("/api/applicant/certifications", certificationRoutes);
 app.use("/api/applicant/languages", languageRoutes);
 app.use("/api/applicant/technical-skills", technicalSkillRoutes);
 app.use("/api/applicant/applicant-master", applicantMasterRoutes);
+app.use("/api/job/employment-types", employmentTypeRoutes);
+app.use("/api/job/job-categories", jobCategoryRoutes);
+app.use("/api/job/job-locations", jobLocationRoutes);
 
 app.use(errorMiddleware);
 
