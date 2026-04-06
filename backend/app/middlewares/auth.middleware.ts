@@ -20,7 +20,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
 
     const payload = verifyAccessToken(token);
 
-    if (!payload.userId || !payload.role) {
+    if (!payload.userId || !payload.roleId) {
       next(new AppError(401, "Invalid access token payload"));
       return;
     }
