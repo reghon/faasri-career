@@ -12,7 +12,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./features/home/home').then((m) => m.Home),
+        loadComponent: () => import('./features/public/home/home').then((m) => m.Home),
       },
     ],
   },
@@ -22,7 +22,8 @@ export const routes: Routes = [
     children: [
       {
         path: 'job/:id',
-        loadComponent: () => import('./features/job-detail/job-detail').then((m) => m.JobDetail),
+        loadComponent: () =>
+          import('./features/public/job-detail/job-detail').then((m) => m.JobDetail),
       },
       {
         path: 'job/:id/apply',
@@ -42,18 +43,18 @@ export const routes: Routes = [
       {
         path: 'login',
         canActivate: [guestGuard],
-        loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+        loadComponent: () => import('./features/public/auth/login/login').then((m) => m.Login),
       },
       {
         path: 'register',
         canActivate: [guestGuard],
-        loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+        loadComponent: () =>
+          import('./features/public/auth/register/register').then((m) => m.Register),
       },
       {
         path: 'otp',
         canActivate: [guestGuard],
-        loadComponent: () => import('./features/auth/otp/otp').then((m) => m.Otp),
-        canDeactivate: [unsavedChangesGuard],
+        loadComponent: () => import('./features/public/auth/otp/otp').then((m) => m.Otp),
       },
       {
         path: '',
@@ -64,6 +65,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    loadComponent: () => import('./features/not-found/not-found.component').then((m) => m.NotFound),
+    loadComponent: () => import('./features/common/not-found/not-found.component').then((m) => m.NotFound),
   },
 ];
