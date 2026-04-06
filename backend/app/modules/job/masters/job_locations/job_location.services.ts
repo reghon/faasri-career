@@ -8,66 +8,74 @@ export const jobLocationService = {
   },
 
   async getById(id: string) {
-    const jobLocation = await jobLocationRepository.getById(id);
+    const data = await jobLocationRepository.getById(id);
 
-    if (!jobLocation) {
+    if (!data) {
       throw new AppError(404, "Job location not found");
     }
 
-    return jobLocation;
+    return data;
   },
 
   async create(data: JobLocationPayload, actorId: string) {
-    const existingJobLocation = await jobLocationRepository.getByName(data.name);
+    const existingByCode = await jobLocationRepository.getByCode(data.code);
+    if (existingByCode) {
+      throw new AppError(409, "Job location code already exists");
+    }
 
-    if (existingJobLocation) {
+    const existingByName = await jobLocationRepository.getByName(data.name);
+    if (existingByName) {
       throw new AppError(409, "Job location name already exists");
     }
 
-    const createdJobLocation = await jobLocationRepository.create(data, actorId);
+    const created = await jobLocationRepository.create(data, actorId);
 
-    if (!createdJobLocation) {
+    if (!created) {
       throw new AppError(500, "Failed to create job location");
     }
 
-    return createdJobLocation;
+    return created;
   },
 
   async update(id: string, data: JobLocationPayload, actorId: string) {
-    const existingJobLocation = await jobLocationRepository.getById(id);
+    const existing = await jobLocationRepository.getById(id);
 
-    if (!existingJobLocation) {
+    if (!existing) {
       throw new AppError(404, "Job location not found");
     }
 
-    const duplicateJobLocation = await jobLocationRepository.getByName(data.name);
+    const duplicateCode = await jobLocationRepository.getByCode(data.code);
+    if (duplicateCode && duplicateCode.id !== id) {
+      throw new AppError(409, "Job location code already exists");
+    }
 
-    if (duplicateJobLocation && duplicateJobLocation.id !== id) {
+    const duplicateName = await jobLocationRepository.getByName(data.name);
+    if (duplicateName && duplicateName.id !== id) {
       throw new AppError(409, "Job location name already exists");
     }
 
-    const updatedJobLocation = await jobLocationRepository.update(id, data, actorId);
+    const updated = await jobLocationRepository.update(id, data, actorId);
 
-    if (!updatedJobLocation) {
+    if (!updated) {
       throw new AppError(500, "Failed to update job location");
     }
 
-    return updatedJobLocation;
+    return updated;
   },
 
   async delete(id: string, actorId: string) {
-    const existingJobLocation = await jobLocationRepository.getById(id);
+    const existing = await jobLocationRepository.getById(id);
 
-    if (!existingJobLocation) {
+    if (!existing) {
       throw new AppError(404, "Job location not found");
     }
 
-    const deletedJobLocation = await jobLocationRepository.softDelete(id, actorId);
+    const deleted = await jobLocationRepository.softDelete(id, actorId);
 
-    if (!deletedJobLocation) {
+    if (!deleted) {
       throw new AppError(500, "Failed to delete job location");
     }
 
-    return deletedJobLocation;
+    return deleted;
   },
 };

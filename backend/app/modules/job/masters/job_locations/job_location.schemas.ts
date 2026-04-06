@@ -12,6 +12,7 @@ const requiredTrimmedString = (max: number, fieldName: string) =>
     });
 
 export const jobLocationBodySchema = z.object({
+  code: requiredTrimmedString(50, "Code"),
   name: requiredTrimmedString(100, "Name"),
   city: requiredTrimmedString(100, "City"),
   province: requiredTrimmedString(100, "Province"),
