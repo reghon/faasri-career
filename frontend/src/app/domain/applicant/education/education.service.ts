@@ -1,28 +1,41 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../../core/config/api.config';
-import { Education } from './education.model';
+import { Education, EducationPayload } from './education.model';
 
-@Injectable({ providedIn: 'root' })
+interface ApiResponse<T> {
+  message: string;
+  data: T;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
 export class EducationService {
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
-  getAll() {
+  getAll(): Observable<Education[]> {
     return this.http
-      .get<{ data: Education[] }>(API_ENDPOINTS.applicant.educations)
-      .pipe(map((res) => res.data));
+      .get<ApiResponse<Education[]>>(API_ENDPOINTS.applicant.educations)
+      .pipe(map((response) => response.data));
   }
 
-  create(data: Partial<Education>) {
-    return this.http.post<{ data: Education }>(API_ENDPOINTS.applicant.educations, data);
+  create(payload: EducationPayload): Observable<Education> {
+    return this.http
+      .post<ApiResponse<Education>>(API_ENDPOINTS.applicant.educations, payload)
+      .pipe(map((response) => response.data));
   }
 
-  update(id: string, data: Partial<Education>) {
-    return this.http.put<{ data: Education }>(`${API_ENDPOINTS.applicant.educations}/${id}`, data);
+  update(id: string, payload: EducationPayload): Observable<Education> {
+    return this.http
+      .put<ApiResponse<Education>>(`${API_ENDPOINTS.applicant.educations}/${id}`, payload)
+      .pipe(map((response) => response.data));
   }
 
-  delete(id: string) {
-    return this.http.delete(`${API_ENDPOINTS.applicant.educations}/${id}`);
+  delete(id: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<null>>(`${API_ENDPOINTS.applicant.educations}/${id}`)
+      .pipe(map(() => void 0));
   }
 }
