@@ -13,7 +13,7 @@ export const userQueries = {
 
   findById: `
     SELECT
-      u.id, u.email, u.is_active, r.name AS role_name
+      u.id, u.role_id, u.email, u.is_active, r.name AS role_name
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.id = $1
