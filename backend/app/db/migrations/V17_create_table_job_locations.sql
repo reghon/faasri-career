@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS job_locations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code VARCHAR(50) NOT NULL UNIQUE,
   name VARCHAR(100) NOT NULL UNIQUE,          
   city VARCHAR(100) NOT NULL,
   province VARCHAR(100) NOT NULL,
