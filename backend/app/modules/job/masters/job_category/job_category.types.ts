@@ -1,6 +1,16 @@
 export type JobCategory = {
   id: string;
   name: string;
+  code: string;
+  description: string | null;
+  isActive: boolean;
+};
+
+
+export type JobCategoryDetail = {
+  id: string;
+  name: string;
+  code: string;
   description: string | null;
   isActive: boolean;
   createdAt: string;
@@ -13,6 +23,7 @@ export type JobCategory = {
 
 export type JobCategoryPayload = {
   name: string;
+  code: string
   description: string | null;
   isActive: boolean;
 };

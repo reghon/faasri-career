@@ -6,33 +6,33 @@ import { JobCategoryBodyInput, JobCategoryParamsInput } from "./job_category.sch
 
 export const jobCategoryController = {
   async getAll(_req: Request, res: Response) {
-    const jobCategories = await jobCategoryService.getAll();
+    const data = await jobCategoryService.getAll();
 
     res.status(200).json({
       message: "Success",
-      data: jobCategories,
+      data,
     });
   },
 
   async getById(req: Request, res: Response) {
     const params = getValidatedParams<JobCategoryParamsInput>(req);
 
-    const jobCategory = await jobCategoryService.getById(params.id);
+    const data = await jobCategoryService.getById(params.id);
 
     res.status(200).json({
       message: "Success",
-      data: jobCategory,
+      data,
     });
   },
 
   async create(req: Request, res: Response) {
     const body = getValidatedBody<JobCategoryBodyInput>(req);
 
-    const jobCategory = await jobCategoryService.create(body, requireUserId(req));
+    const data = await jobCategoryService.create(body, requireUserId(req));
 
     res.status(201).json({
       message: "Job category created successfully",
-      data: jobCategory,
+      data,
     });
   },
 
@@ -40,22 +40,22 @@ export const jobCategoryController = {
     const params = getValidatedParams<JobCategoryParamsInput>(req);
     const body = getValidatedBody<JobCategoryBodyInput>(req);
 
-    const jobCategory = await jobCategoryService.update(params.id, body, requireUserId(req));
+    const data = await jobCategoryService.update(params.id, body, requireUserId(req));
 
     res.status(200).json({
       message: "Job category updated successfully",
-      data: jobCategory,
+      data,
     });
   },
 
   async delete(req: Request, res: Response) {
     const params = getValidatedParams<JobCategoryParamsInput>(req);
 
-    const jobCategory = await jobCategoryService.delete(params.id, requireUserId(req));
+    const data = await jobCategoryService.delete(params.id, requireUserId(req));
 
     res.status(200).json({
       message: "Job category deleted successfully",
-      data: jobCategory,
+      data,
     });
   },
 };

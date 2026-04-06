@@ -17,20 +17,34 @@ export const jobCategoryService = {
     return jobCategory;
   },
 
-  async create(data: JobCategoryPayload, actorId: string) {
-    const existingJobCategory = await jobCategoryRepository.getByName(data.name);
+  async getDetailById(id: string) {
+    const jobCategory = await jobCategoryRepository.getDetailById(id);
 
-    if (existingJobCategory) {
+    if (!jobCategory) {
+      throw new AppError(404, "Job category not found");
+    }
+
+    return jobCategory;
+  },
+
+  async create(data: JobCategoryPayload, actorId: string) {
+    const existingByName = await jobCategoryRepository.getByName(data.name);
+    if (existingByName) {
       throw new AppError(409, "Job category name already exists");
     }
 
-    const jobCategoryType = await jobCategoryRepository.create(data, actorId);
+    const existingByCode = await jobCategoryRepository.getByCode(data.code);
+    if (existingByCode) {
+      throw new AppError(409, "Job category code already exists");
+    }
 
-    if (!jobCategoryType) {
+    const createdJobCategory = await jobCategoryRepository.create(data, actorId);
+
+    if (!createdJobCategory) {
       throw new AppError(500, "Failed to create job category");
     }
 
-    return jobCategoryType;
+    return createdJobCategory;
   },
 
   async update(id: string, data: JobCategoryPayload, actorId: string) {
@@ -40,10 +54,14 @@ export const jobCategoryService = {
       throw new AppError(404, "Job category not found");
     }
 
-    const duplicateJobCategory = await jobCategoryRepository.getByName(data.name);
-
-    if (duplicateJobCategory && duplicateJobCategory.id !== id) {
+    const duplicateByName = await jobCategoryRepository.getByName(data.name);
+    if (duplicateByName && duplicateByName.id !== id) {
       throw new AppError(409, "Job category name already exists");
+    }
+
+    const duplicateByCode = await jobCategoryRepository.getByCode(data.code);
+    if (duplicateByCode && duplicateByCode.id !== id) {
+      throw new AppError(409, "Job category code already exists");
     }
 
     const updatedJobCategory = await jobCategoryRepository.update(id, data, actorId);
