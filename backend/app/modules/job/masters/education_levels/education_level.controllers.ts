@@ -1,0 +1,61 @@
+import { Request, Response } from "express";
+import { requireUserId } from "../../../../utils/request-user.util";
+import { getValidatedBody, getValidatedParams } from "../../../../utils/validated-request.util";
+import { educationLevelService } from "./education_level.services";
+import { EducationLevelBodyInput, EducationLevelParamsInput } from "./education_level.schemas";
+
+export const educationLevelController = {
+  async getAll(_req: Request, res: Response) {
+    const data = await educationLevelService.getAll();
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
+  async getById(req: Request, res: Response) {
+    const params = getValidatedParams<EducationLevelParamsInput>(req);
+
+    const data = await educationLevelService.getById(params.id);
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
+  async create(req: Request, res: Response) {
+    const body = getValidatedBody<EducationLevelBodyInput>(req);
+
+    const data = await educationLevelService.create(body, requireUserId(req));
+
+    res.status(201).json({
+      message: "Education level created successfully",
+      data,
+    });
+  },
+
+  async update(req: Request, res: Response) {
+    const params = getValidatedParams<EducationLevelParamsInput>(req);
+    const body = getValidatedBody<EducationLevelBodyInput>(req);
+
+    const data = await educationLevelService.update(params.id, body, requireUserId(req));
+
+    res.status(200).json({
+      message: "Education level updated successfully",
+      data,
+    });
+  },
+
+  async delete(req: Request, res: Response) {
+    const params = getValidatedParams<EducationLevelParamsInput>(req);
+
+    const data = await educationLevelService.delete(params.id, requireUserId(req));
+
+    res.status(200).json({
+      message: "Education level deleted successfully",
+      data,
+    });
+  },
+};
