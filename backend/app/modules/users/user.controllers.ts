@@ -15,7 +15,7 @@ export const userController = {
   async register(req: Request, res: Response) {
     const body = getValidatedBody<RegisterBodyInput>(req);
 
-    const user = await userService.register(body.email, body.password, body.role);
+    const user = await userService.register(body.email, body.password);
 
     res.status(201).json({
       message: "User registered successfully",
