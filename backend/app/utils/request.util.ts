@@ -1,10 +1,6 @@
 import { Request } from "express";
-import { AppError } from "../errors/app-error";
+import { requireUserId } from "./request-user.util";
 
 export function getAuthenticatedUserId(req: Request): string {
-  if (!req.user?.userId) {
-    throw new AppError(401, "Unauthorized");
-  }
-
-  return req.user.userId;
+  return requireUserId(req);
 }

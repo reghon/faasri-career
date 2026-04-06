@@ -13,3 +13,7 @@ export const requireAuthUser = (req: Request): JwtPayloadCustom => {
 export const requireUserId = (req: Request): string => {
   return requireAuthUser(req).userId;
 };
+
+export const requireRoleId = (req: Request): string => {
+  return requireAuthUser(req).roleId;
+};
