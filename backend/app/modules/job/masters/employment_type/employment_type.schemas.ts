@@ -28,6 +28,7 @@ const nullableTrimmedString = (max: number, fieldName: string) =>
 
 export const employmentTypeBodySchema = z.object({
   name: requiredTrimmedString(100, "Name"),
+  code: requiredTrimmedString(50, "Code"),
   description: nullableTrimmedString(1000, "Description"),
   isActive: z.boolean(),
 });

@@ -1,10 +1,14 @@
 const SELECT_FIELDS = `
-  id, name, description, is_active,
+  id, name, code, description, is_active
+`;
+
+const DETAIL_FIELDS = `
+  id, name, code, description, is_active,
   created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
 `;
 
 const INSERT_FIELDS = `
-  name, description, is_active, created_at, created_by, updated_at, updated_by
+  name, code, description, is_active, created_at, created_by, updated_at, updated_by
 `;
 
 export const employmentTypeQueries = {
@@ -23,17 +27,33 @@ export const employmentTypeQueries = {
     LIMIT 1
   `,
 
+  getDetailById: `
+    SELECT ${DETAIL_FIELDS}
+    FROM employment_types
+    WHERE id = $1
+      AND deleted_at IS NULL
+    LIMIT 1
+  `,
+
   getByName: `
-    SELECT ${SELECT_FIELDS}
+    SELECT id, name, code
     FROM employment_types
     WHERE LOWER(name) = LOWER($1)
       AND deleted_at IS NULL
     LIMIT 1
   `,
 
+  getByCode: `
+    SELECT id, name, code
+    FROM employment_types
+    WHERE LOWER(code) = LOWER($1)
+      AND deleted_at IS NULL
+    LIMIT 1
+  `,
+
   create: `
     INSERT INTO employment_types (${INSERT_FIELDS})
-    VALUES ($1, $2, $3, NOW(), $4, NOW(), $4)
+    VALUES ($1, $2, $3, $4, NOW(), $5, NOW(), $5)
     RETURNING ${SELECT_FIELDS}
   `,
 
@@ -41,11 +61,12 @@ export const employmentTypeQueries = {
     UPDATE employment_types
     SET
       name = $1,
-      description = $2,
-      is_active = $3,
+      code = $2,
+      description = $3,
+      is_active = $4,
       updated_at = NOW(),
-      updated_by = $4
-    WHERE id = $5
+      updated_by = $5
+    WHERE id = $6
       AND deleted_at IS NULL
     RETURNING ${SELECT_FIELDS}
   `,
@@ -59,6 +80,6 @@ export const employmentTypeQueries = {
       updated_by = $2
     WHERE id = $1
       AND deleted_at IS NULL
-    RETURNING ${SELECT_FIELDS}
+    RETURNING ${DETAIL_FIELDS}
   `,
 };

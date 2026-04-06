@@ -1,6 +1,22 @@
 export type EmploymentType = {
   id: string;
   name: string;
+  code: string;
+  description: string | null;
+  isActive: boolean;
+};
+
+export type EmploymentTypePayload = {
+  name: string;
+  code: string;
+  description: string | null;
+  isActive: boolean;
+};
+
+export type EmploymentTypeDetail = {
+  id: string;
+  name: string;
+  code: string;
   description: string | null;
   isActive: boolean;
   createdAt: string;
@@ -9,10 +25,4 @@ export type EmploymentType = {
   updatedBy: string | null;
   deletedAt: string | null;
   deletedBy: string | null;
-};
-
-export type EmploymentTypePayload = {
-  name: string;
-  description: string | null;
-  isActive: boolean;
 };

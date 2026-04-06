@@ -17,11 +17,25 @@ export const employmentTypeService = {
     return employmentType;
   },
 
-  async create(data: EmploymentTypePayload, actorId: string) {
-    const existingEmploymentType = await employmentTypeRepository.getByName(data.name);
+  async getDetailById(id: string) {
+    const employmentType = await employmentTypeRepository.getDetailById(id);
 
-    if (existingEmploymentType) {
+    if (!employmentType) {
+      throw new AppError(404, "Employment type not found");
+    }
+
+    return employmentType;
+  },
+
+  async create(data: EmploymentTypePayload, actorId: string) {
+    const existingByName = await employmentTypeRepository.getByName(data.name);
+    if (existingByName) {
       throw new AppError(409, "Employment type name already exists");
+    }
+
+    const existingByCode = await employmentTypeRepository.getByCode(data.code);
+    if (existingByCode) {
+      throw new AppError(409, "Employment type code already exists");
     }
 
     const createdEmploymentType = await employmentTypeRepository.create(data, actorId);
@@ -40,10 +54,14 @@ export const employmentTypeService = {
       throw new AppError(404, "Employment type not found");
     }
 
-    const duplicateEmploymentType = await employmentTypeRepository.getByName(data.name);
-
-    if (duplicateEmploymentType && duplicateEmploymentType.id !== id) {
+    const duplicateByName = await employmentTypeRepository.getByName(data.name);
+    if (duplicateByName && duplicateByName.id !== id) {
       throw new AppError(409, "Employment type name already exists");
+    }
+
+    const duplicateByCode = await employmentTypeRepository.getByCode(data.code);
+    if (duplicateByCode && duplicateByCode.id !== id) {
+      throw new AppError(409, "Employment type code already exists");
     }
 
     const updatedEmploymentType = await employmentTypeRepository.update(id, data, actorId);
