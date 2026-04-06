@@ -12,7 +12,8 @@ export const API_ENDPOINTS = {
     verifyOtp: `${API_URL}/api/auth/verify-otp`,
   },
   applicant: {
-    profileMe: `${API_URL}/api/applicant/profile/me`,
+    applicantMaster: `${API_URL}/api/applicant/applicant-master/me`,
+    applicantProfile: `${API_URL}/api/applicant/profile/me`,
     workExperiences: `${API_URL}/api/applicant/work-experiences`,
     educations: `${API_URL}/api/applicant/educations`,
     certifications: `${API_URL}/api/applicant/certifications`,
