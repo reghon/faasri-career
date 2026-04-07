@@ -20,4 +20,8 @@ export const API_ENDPOINTS = {
     languages: `${API_URL}/api/applicant/languages`,
     technicalSkills: `${API_URL}/api/applicant/technical-skills`,
   },
+  job: {
+    list: `${API_URL}/api/job/jobs`,
+    detail: (id: string) => `${API_URL}/api/job/jobs/${id}`,
+  },
 };
