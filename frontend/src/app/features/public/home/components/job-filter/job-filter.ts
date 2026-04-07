@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 export interface JobFilterValue {
@@ -8,6 +8,11 @@ export interface JobFilterValue {
   workType: string;
   experience: string;
 }
+
+type FilterOption = {
+  label: string;
+  value: string;
+};
 
 @Component({
   selector: 'app-job-filter',
@@ -24,16 +29,43 @@ export class JobFilter {
   selectedJobType = '';
   selectedWorkType = '';
   selectedExperience = '';
+
   showLocationDropdown = false;
   showFilterDropdown = false;
-  locations = ['Kelapa Gading, Jakarta', 'Baranangsiang, Bogor', 'BSD'];
-  jobTypes = ['Full Time', 'Part Time', 'Contract', 'Internship'];
-  workTypes = ['WFO', 'WFH', 'Hybrid', 'Remote'];
-  experiences = ['0-1 YOE', '1-2 YOE', '2-3 YOE', '3-5 YOE', '5+ YOE'];
+
+  // value disamakan dengan payload API
+  locations: FilterOption[] = [
+    { label: 'Kelapa Gading, DKI Jakarta', value: 'Kelapa Gading Office' },
+    { label: 'Bogor Timur, Kota Bogor', value: 'Bogor Timur Office' },
+    { label: 'BSD, Tangerang Selatan', value: 'BSD Office' },
+  ];
+
+  // value disamakan dengan payload API
+  jobTypes: FilterOption[] = [
+    { label: 'Full Time', value: 'Full Time' },
+    { label: 'Part Time', value: 'Part Time' },
+    { label: 'Contract', value: 'Contract' },
+    { label: 'Internship', value: 'Internship' },
+  ];
+
+  // value disamakan dengan payload API
+  workTypes: FilterOption[] = [
+    { label: 'Onsite', value: 'Onsite' },
+    { label: 'Hybrid', value: 'Hybrid' },
+    { label: 'Remote', value: 'Remote' },
+  ];
+
+  experiences: FilterOption[] = [
+    { label: '0-1 YOE', value: '0-1' },
+    { label: '1-2 YOE', value: '1-2' },
+    { label: '2-3 YOE', value: '2-3' },
+    { label: '3-5 YOE', value: '3-5' },
+    { label: '5+ YOE', value: '5+' },
+  ];
 
   emit() {
     this.filterChange.emit({
-      search: this.search,
+      search: this.search.trim(),
       location: this.selectedLocation,
       jobType: this.selectedJobType,
       workType: this.selectedWorkType,
@@ -46,24 +78,24 @@ export class JobFilter {
     this.emit();
   }
 
-  selectLocation(loc: string) {
-    this.selectedLocation = this.selectedLocation === loc ? '' : loc;
+  selectLocation(value: string) {
+    this.selectedLocation = this.selectedLocation === value ? '' : value;
     this.showLocationDropdown = false;
     this.emit();
   }
 
-  selectJobType(val: string) {
-    this.selectedJobType = this.selectedJobType === val ? '' : val;
+  selectJobType(value: string) {
+    this.selectedJobType = this.selectedJobType === value ? '' : value;
     this.emit();
   }
 
-  selectWorkType(val: string) {
-    this.selectedWorkType = this.selectedWorkType === val ? '' : val;
+  selectWorkType(value: string) {
+    this.selectedWorkType = this.selectedWorkType === value ? '' : value;
     this.emit();
   }
 
-  selectExperience(val: string) {
-    this.selectedExperience = this.selectedExperience === val ? '' : val;
+  selectExperience(value: string) {
+    this.selectedExperience = this.selectedExperience === value ? '' : value;
     this.emit();
   }
 
@@ -73,7 +105,11 @@ export class JobFilter {
       this.selectedJobType,
       this.selectedWorkType,
       this.selectedExperience,
-    ].filter((v) => v !== '').length;
+    ].filter(Boolean).length;
+  }
+
+  get selectedLocationLabel(): string {
+    return this.locations.find((item) => item.value === this.selectedLocation)?.label ?? 'Lokasi';
   }
 
   resetFilters() {

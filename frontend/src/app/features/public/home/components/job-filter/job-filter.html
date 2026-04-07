@@ -19,6 +19,7 @@
         type="text"
         placeholder="Cari Pekerjaan..."
         class="grow"
+        [ngModel]="search"
         (keyup)="onSearchInput($event)"
         (input)="onSearchInput($event)"
       />
@@ -46,22 +47,23 @@
             d="M12 2C8.686 2 6 4.686 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.314-2.686-6-6-6z"
           />
         </svg>
-        {{ selectedLocation || 'Lokasi' }}
+        {{ selectedLocationLabel }}
       </button>
       @if (showLocationDropdown) {
         <ul
-          class="absolute top-12 left-0 z-50 bg-base-100 border border-base-200 rounded-box shadow-lg w-56 p-2"
+          class="absolute top-12 left-0 z-50 bg-base-100 border border-base-200 rounded-box shadow-lg w-64 p-2"
         >
-          @for (loc of locations; track loc) {
+          @for (loc of locations; track loc.value) {
             <li>
               <button
                 class="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-base-200 flex items-center justify-between"
-                [class.text-primary]="selectedLocation === loc"
-                [class.font-semibold]="selectedLocation === loc"
-                (click)="selectLocation(loc)"
+                [class.text-primary]="selectedLocation === loc.value"
+                [class.font-semibold]="selectedLocation === loc.value"
+                (click)="selectLocation(loc.value)"
               >
-                {{ loc }}
-                @if (selectedLocation === loc) {
+                {{ loc.label }}
+
+                @if (selectedLocation === loc.value) {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="w-4 h-4"
@@ -120,14 +122,14 @@
           <div>
             <p class="text-xs font-semibold text-base-content/60 mb-2">Tipe Pekerjaan</p>
             <div class="flex flex-wrap gap-2">
-              @for (type of jobTypes; track type) {
+              @for (type of jobTypes; track type.value) {
                 <button
                   class="badge cursor-pointer"
-                  [class.badge-primary]="selectedJobType === type"
-                  [class.badge-outline]="selectedJobType !== type"
-                  (click)="selectJobType(type)"
+                  [class.badge-primary]="selectedJobType === type.value"
+                  [class.badge-outline]="selectedJobType !== type.value"
+                  (click)="selectJobType(type.value)"
                 >
-                  {{ type }}
+                  {{ type.label }}
                 </button>
               }
             </div>
@@ -137,14 +139,14 @@
           <div>
             <p class="text-xs font-semibold text-base-content/60 mb-2">Work Arrangement</p>
             <div class="flex flex-wrap gap-2">
-              @for (type of workTypes; track type) {
+              @for (type of workTypes; track type.value) {
                 <button
                   class="badge cursor-pointer"
-                  [class.badge-primary]="selectedWorkType === type"
-                  [class.badge-outline]="selectedWorkType !== type"
-                  (click)="selectWorkType(type)"
+                  [class.badge-primary]="selectedWorkType === type.value"
+                  [class.badge-outline]="selectedWorkType !== type.value"
+                  (click)="selectWorkType(type.value)"
                 >
-                  {{ type }}
+                  {{ type.label }}
                 </button>
               }
             </div>
@@ -154,14 +156,14 @@
           <div>
             <p class="text-xs font-semibold text-base-content/60 mb-2">Pengalaman</p>
             <div class="flex flex-wrap gap-2">
-              @for (exp of experiences; track exp) {
+              @for (exp of experiences; track exp.value) {
                 <button
                   class="badge cursor-pointer"
-                  [class.badge-primary]="selectedExperience === exp"
-                  [class.badge-outline]="selectedExperience !== exp"
-                  (click)="selectExperience(exp)"
+                  [class.badge-primary]="selectedExperience === exp.value"
+                  [class.badge-outline]="selectedExperience !== exp.value"
+                  (click)="selectExperience(exp.value)"
                 >
-                  {{ exp }}
+                  {{ exp.label }}
                 </button>
               }
             </div>
