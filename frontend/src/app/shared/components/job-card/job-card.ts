@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Job } from '../../../core/mock/job.mock';
+import { JobListItem } from '../../../domain/job/models/job.model';
 
 @Component({
   selector: 'app-job-card',
@@ -9,7 +9,7 @@ import { Job } from '../../../core/mock/job.mock';
   templateUrl: './job-card.html',
 })
 export class JobCard {
-  @Input() job!: Job;
+  @Input() job!: JobListItem;
 
   getSkillsLabel(skills: string[]): string {
     const maxShow = 2;
