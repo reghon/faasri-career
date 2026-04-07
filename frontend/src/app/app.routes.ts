@@ -23,7 +23,7 @@ export const routes: Routes = [
       {
         path: 'job/:id',
         loadComponent: () =>
-          import('./features/public/job-detail/job-detail').then((m) => m.JobDetail),
+          import('./features/public/job-detail/job-detail').then((m) => m.JobDetailComponent),
       },
       {
         path: 'job/:id/apply',
