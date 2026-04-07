@@ -21,6 +21,7 @@ import jobStatusRoutes from "./modules/job/masters/job_statuses/job_status.route
 import workModeRoutes from "./modules/job/masters/work_modes/work_mode.routes";
 import educationLevelRoutes from "./modules/job/masters/education_levels/education_level.routes";
 import departmentRoutes from "./modules/job/masters/departments/department.routes";
+import jobRoutes from "./modules/job/job.routes"
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -65,6 +66,7 @@ app.use("/api/job/job-statuses", jobStatusRoutes);
 app.use("/api/job/work-modes", workModeRoutes);
 app.use("/api/job/education-levels", educationLevelRoutes);
 app.use("/api/job/departments", departmentRoutes);
+app.use("/api/job/jobs", jobRoutes);
 
 app.use(errorMiddleware);
 
