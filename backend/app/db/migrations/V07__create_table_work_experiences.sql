@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS work_experiences (
   reference_phone_code VARCHAR(10),
   reference_phone VARCHAR(50),
   reference_email VARCHAR(255),
+  is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   created_by UUID REFERENCES users(id),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
