@@ -1,0 +1,19 @@
+@if (open) {
+  <app-generic-modal
+    [open]="open"
+    title="Ubah Pengalaman Kerja"
+    [isSubmitting]="isSubmitting"
+    (close)="onClose()"
+    (save)="onSave()"
+  >
+    <app-work-experience-section
+      [data]="formData"
+      [phoneCodes]="phoneCodes"
+      [industries]="industries"
+      [employmentTypes]="employmentTypes"
+      [jobLevels]="jobLevels"
+      [leaveReasons]="leaveReasons"
+      (dataChange)="onDataChange($event)"
+    ></app-work-experience-section>
+  </app-generic-modal>
+}
