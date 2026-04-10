@@ -11,7 +11,7 @@ const INSERT_FIELDS = `
   job_level, team_size, start_day, start_month, start_year, end_day,
   end_month, end_year, is_current_job, responsibilities, leave_reason,
   reference_name, reference_position, reference_phone_code, reference_phone,
-  reference_email, created_at, created_by, updated_at, updated_by
+  reference_email, is_active, created_at, created_by, updated_at, updated_by
 `;
 
 export const workExperienceQueries = {
@@ -20,6 +20,7 @@ export const workExperienceQueries = {
     FROM work_experiences
     WHERE applicant_profile_id = $1
       AND deleted_at IS NULL
+      AND is_active = TRUE
     ORDER BY
       CASE WHEN start_year ~ '^[0-9]+$' THEN start_year::INT ELSE NULL END DESC NULLS LAST,
       updated_at DESC
@@ -30,11 +31,12 @@ export const workExperienceQueries = {
     WHERE id = $1
       AND applicant_profile_id = $2
       AND deleted_at IS NULL
+      AND is_active = TRUE
     LIMIT 1
   `,
   create: `
     INSERT INTO work_experiences (${INSERT_FIELDS})
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, NOW(), $22, NOW(), $22)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, TRUE, NOW(), $22, NOW(), $22)
     RETURNING ${SELECT_FIELDS}
   `,
   update: `
@@ -69,7 +71,7 @@ export const workExperienceQueries = {
   `,
   softDelete: `
     UPDATE work_experiences
-    SET deleted_at = NOW(), deleted_by = $3, updated_at = NOW(), updated_by = $3
+    SET deleted_at = NOW(), deleted_by = $3, updated_at = NOW(), updated_by = $3, is_active = FALSE
     WHERE id = $1
       AND applicant_profile_id = $2
       AND deleted_at IS NULL
