@@ -16,7 +16,14 @@
           />
 
           @if (currentStep === 1) {
-            <app-step1-personal [data]="personalInfo" (dataChange)="onPersonalInfoChange($event)" />
+            <app-step1-personal
+              [data]="personalInfo"
+              [cvFile]="cvFile"
+              [cvFileName]="personalInfo.cvFileName"
+              (dataChange)="onPersonalInfoChange($event)"
+              (cvFileChange)="onCvFileChange($event)"
+              (cvFileNameChange)="onCvFileNameChange($event)"
+            />
           }
 
           @if (currentStep === 2) {
