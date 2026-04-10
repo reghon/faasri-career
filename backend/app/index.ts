@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import pool from "./configurations/database";
 import { config } from "./configurations/env";
+import path from "path";
 
 
 import userRoutes from "./modules/users/user.routes";
@@ -67,6 +68,7 @@ app.use("/api/job/work-modes", workModeRoutes);
 app.use("/api/job/education-levels", educationLevelRoutes);
 app.use("/api/job/departments", departmentRoutes);
 app.use("/api/job/jobs", jobRoutes);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(errorMiddleware);
 
