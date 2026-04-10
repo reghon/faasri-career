@@ -1,0 +1,14 @@
+@if (open) {
+  <app-generic-modal
+    [open]="open"
+    title="Ubah Pendidikan"
+    [isSubmitting]="isSubmitting"
+    (close)="onClose()"
+    (save)="onSave()"
+  >
+    <app-step2-education
+      [data]="formData"
+      (dataChange)="onDataChange($event)"
+    ></app-step2-education>
+  </app-generic-modal>
+}
