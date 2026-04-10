@@ -1,6 +1,6 @@
 import { queryCamelOne } from "../../../utils/db.util";
 import { applicantProfileQueries } from "./applicant_profile.queries";
-import { ApplicantProfile, ApplicantProfilePayload } from "./applicant_profile.types";
+import { ApplicantProfile, ApplicantProfileAvatarPayload, ApplicantProfileCvPayload, ApplicantProfilePayload } from "./applicant_profile.types";
 
 export const applicantProfileRepository = {
   async getByUserId(userId: string): Promise<ApplicantProfile | null> {
@@ -30,5 +30,21 @@ export const applicantProfileRepository = {
       actorId,
       userId,
     ]);
+  },
+
+  async updateAvatar(userId: string, data: ApplicantProfileAvatarPayload, actorId: string): Promise<ApplicantProfile | null> {
+    return queryCamelOne<ApplicantProfile>(applicantProfileQueries.updateAvatar, [data.avatarUrl, actorId, userId]);
+  },
+
+  async updateCv(userId: string, data: ApplicantProfileCvPayload, actorId: string): Promise<ApplicantProfile | null> {
+    return queryCamelOne<ApplicantProfile>(applicantProfileQueries.updateCv, [data.cvUrl, data.cvFileName, actorId, userId]);
+  },
+  
+  async removeAvatar(userId: string, actorId: string): Promise<ApplicantProfile | null> {
+    return queryCamelOne<ApplicantProfile>(applicantProfileQueries.removeAvatar, [actorId, userId]);
+  },
+
+  async removeCv(userId: string, actorId: string): Promise<ApplicantProfile | null> {
+    return queryCamelOne<ApplicantProfile>(applicantProfileQueries.removeCv, [actorId, userId]);
   },
 };

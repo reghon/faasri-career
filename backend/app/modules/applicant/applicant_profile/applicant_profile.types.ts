@@ -45,3 +45,12 @@ export type ApplicantProfilePayload = {
   postalCode: string | null;
   linkedinUrl: string | null;
 };
+
+export type ApplicantProfileAvatarPayload = {
+  avatarUrl: string | null;
+};
+
+export type ApplicantProfileCvPayload = {
+  cvUrl: string | null;
+  cvFileName: string | null;
+};

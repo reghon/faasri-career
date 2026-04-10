@@ -47,4 +47,50 @@ export const applicantProfileQueries = {
       AND deleted_at IS NULL
     RETURNING ${SELECT_FIELDS}
   `,
+
+  updateAvatar: `
+    UPDATE applicant_profiles
+    SET
+      avatar_url = $1,
+      updated_at = NOW(),
+      updated_by = $2
+    WHERE user_id = $3
+      AND deleted_at IS NULL
+    RETURNING ${SELECT_FIELDS}
+  `,
+
+  updateCv: `
+    UPDATE applicant_profiles
+    SET
+      cv_url = $1,
+      cv_file_name = $2,
+      updated_at = NOW(),
+      updated_by = $3
+    WHERE user_id = $4
+      AND deleted_at IS NULL
+    RETURNING ${SELECT_FIELDS}
+  `,
+
+  removeAvatar: `
+  UPDATE applicant_profiles
+  SET
+    avatar_url = NULL,
+    updated_at = NOW(),
+    updated_by = $1
+  WHERE user_id = $2
+    AND deleted_at IS NULL
+  RETURNING ${SELECT_FIELDS}
+`,
+
+  removeCv: `
+  UPDATE applicant_profiles
+  SET
+    cv_url = NULL,
+    cv_file_name = NULL,
+    updated_at = NOW(),
+    updated_by = $1
+  WHERE user_id = $2
+    AND deleted_at IS NULL
+  RETURNING ${SELECT_FIELDS}
+`,
 };
