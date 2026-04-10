@@ -42,6 +42,4 @@ export interface ApplicantProfilePayload {
   province: string | null;
   postalCode: string | null;
   linkedinUrl: string | null;
-  cvUrl: string | null;
-  cvFileName: string | null;
 }
