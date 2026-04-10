@@ -1,0 +1,434 @@
+<div class="flex flex-col gap-6">
+  <div>
+    <label class="text-sm font-medium text-base-content mb-2 block">
+      Apakah anda memiliki pengalaman kerja?
+    </label>
+
+    <div class="flex flex-col gap-2">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          class="radio color-blue-primary"
+          name="hasExp"
+          [value]="true"
+          [ngModel]="data.hasExperience"
+          (ngModelChange)="onHasExperienceChange(true)"
+        />
+        <span class="text-sm">Ya, saya memiliki pengalaman kerja</span>
+      </label>
+
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          class="radio color-blue-primary"
+          name="hasExp"
+          [value]="false"
+          [ngModel]="data.hasExperience"
+          (ngModelChange)="onHasExperienceChange(false)"
+        />
+        <span class="text-sm">Tidak, saya baru lulus dan belum memiliki pengalaman kerja</span>
+      </label>
+    </div>
+  </div>
+
+  @if (data.hasExperience) {
+    <div class="flex flex-col gap-4">
+      <h3 class="font-semibold">Pengalaman Kerja</h3>
+      <p class="text-sm text-base-content/60">
+        Ceritakan kepada kami tentang pengalaman kerja Anda, mulai dari perusahaan saat ini atau
+        yang paling baru.
+      </p>
+
+      @for (exp of data.experiences; track $index) {
+        <div class="flex flex-col gap-4">
+          <h4 class="font-semibold text-sm">Pengalaman Kerja {{ $index + 1 }}</h4>
+
+          <div [attr.data-field]="'exp-' + $index + '-company'">
+            <label class="text-sm font-medium text-base-content mb-1 block">Nama Perusahaan</label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [class.input-error]="hasError('exp-' + $index + '-company')"
+              placeholder="Masukkan nama perusahaan"
+              [(ngModel)]="exp.company"
+              (ngModelChange)="onChange('exp-' + $index + '-company')"
+            />
+            @if (hasError('exp-' + $index + '-company')) {
+              <p class="text-xs text-error mt-1">{{ getError('exp-' + $index + '-company') }}</p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-industry'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Industri atau Bidang Pekerjaan
+            </label>
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="hasError('exp-' + $index + '-industry')"
+              [(ngModel)]="exp.industry"
+              (ngModelChange)="onChange('exp-' + $index + '-industry')"
+            >
+              <option value="">Pilih industri</option>
+              @for (i of industries; track i) {
+                <option [value]="i">{{ i }}</option>
+              }
+            </select>
+            @if (hasError('exp-' + $index + '-industry')) {
+              <p class="text-xs text-error mt-1">{{ getError('exp-' + $index + '-industry') }}</p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-position'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Jabatan Pekerjaan
+            </label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [class.input-error]="hasError('exp-' + $index + '-position')"
+              placeholder="Masukkan jabatan pekerjaan"
+              [(ngModel)]="exp.position"
+              (ngModelChange)="onChange('exp-' + $index + '-position')"
+            />
+            @if (hasError('exp-' + $index + '-position')) {
+              <p class="text-xs text-error mt-1">{{ getError('exp-' + $index + '-position') }}</p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-employmentType'">
+            <label class="text-sm font-medium text-base-content mb-1 block">Tipe Kepegawaian</label>
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="hasError('exp-' + $index + '-employmentType')"
+              [(ngModel)]="exp.employmentType"
+              (ngModelChange)="onChange('exp-' + $index + '-employmentType')"
+            >
+              <option value="">Pilih tipe kepegawaian</option>
+              @for (t of employmentTypes; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+            @if (hasError('exp-' + $index + '-employmentType')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-employmentType') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-jobLevel'">
+            <label class="text-sm font-medium text-base-content mb-1 block">Level Jabatan</label>
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="hasError('exp-' + $index + '-jobLevel')"
+              [(ngModel)]="exp.jobLevel"
+              (ngModelChange)="onChange('exp-' + $index + '-jobLevel')"
+            >
+              <option value="">Pilih level jabatan</option>
+              @for (level of jobLevels; track level) {
+                <option [value]="level">{{ level }}</option>
+              }
+            </select>
+            @if (hasError('exp-' + $index + '-jobLevel')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-jobLevel') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-teamSize'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Berapa banyak anggota tim yang Anda pimpin? (Masukkan 0 jika tidak ada)
+            </label>
+            <input
+              type="text"
+              inputmode="numeric"
+              class="input input-bordered w-full"
+              [class.input-error]="hasError('exp-' + $index + '-teamSize')"
+              [ngModel]="exp.teamSize"
+              (input)="onTeamSizeInput($index, $event)"
+              placeholder="Masukkan jumlah dalam angka"
+            />
+            @if (hasError('exp-' + $index + '-teamSize')) {
+              <p class="text-xs text-error mt-1">{{ getError('exp-' + $index + '-teamSize') }}</p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-start'">
+            <label class="text-sm font-medium text-base-content mb-1 block">Tanggal Mulai</label>
+            <div class="grid grid-cols-3 gap-3">
+              <select
+                class="select select-bordered"
+                [class.select-error]="hasError('exp-' + $index + '-start')"
+                [(ngModel)]="exp.startDay"
+                (ngModelChange)="onChange('exp-' + $index + '-start')"
+              >
+                <option value="">Tanggal</option>
+                @for (d of days; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+
+              <select
+                class="select select-bordered"
+                [class.select-error]="hasError('exp-' + $index + '-start')"
+                [(ngModel)]="exp.startMonth"
+                (ngModelChange)="onChange('exp-' + $index + '-start')"
+              >
+                <option value="">Bulan</option>
+                @for (m of months; track m) {
+                  <option [value]="m">{{ m }}</option>
+                }
+              </select>
+
+              <select
+                class="select select-bordered"
+                [class.select-error]="hasError('exp-' + $index + '-start')"
+                [(ngModel)]="exp.startYear"
+                (ngModelChange)="onChange('exp-' + $index + '-start')"
+              >
+                <option value="">Tahun</option>
+                @for (y of years; track y) {
+                  <option [value]="y">{{ y }}</option>
+                }
+              </select>
+            </div>
+            @if (hasError('exp-' + $index + '-start')) {
+              <p class="text-xs text-error mt-1">{{ getError('exp-' + $index + '-start') }}</p>
+            }
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [(ngModel)]="exp.isCurrentJob"
+              (ngModelChange)="onCurrentJobChange($index)"
+            />
+            <span class="text-sm">Saya masih bekerja di sini</span>
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-end'">
+            <label class="text-sm font-medium text-base-content mb-1 block">Tanggal Selesai</label>
+            <div class="grid grid-cols-3 gap-3">
+              <select
+                class="select select-bordered"
+                [class.select-error]="hasError('exp-' + $index + '-end')"
+                [(ngModel)]="exp.endDay"
+                (ngModelChange)="onChange('exp-' + $index + '-end')"
+                [disabled]="exp.isCurrentJob"
+              >
+                <option value="">Tanggal</option>
+                @for (d of days; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+
+              <select
+                class="select select-bordered"
+                [class.select-error]="hasError('exp-' + $index + '-end')"
+                [(ngModel)]="exp.endMonth"
+                (ngModelChange)="onChange('exp-' + $index + '-end')"
+                [disabled]="exp.isCurrentJob"
+              >
+                <option value="">Bulan</option>
+                @for (m of months; track m) {
+                  <option [value]="m">{{ m }}</option>
+                }
+              </select>
+
+              <select
+                class="select select-bordered"
+                [class.select-error]="hasError('exp-' + $index + '-end')"
+                [(ngModel)]="exp.endYear"
+                (ngModelChange)="onChange('exp-' + $index + '-end')"
+                [disabled]="exp.isCurrentJob"
+              >
+                <option value="">Tahun</option>
+                @for (y of years; track y) {
+                  <option [value]="y">{{ y }}</option>
+                }
+              </select>
+            </div>
+            @if (hasError('exp-' + $index + '-end')) {
+              <p class="text-xs text-error mt-1">{{ getError('exp-' + $index + '-end') }}</p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-responsibilities'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Tanggungjawab Pekerjaan
+            </label>
+            <textarea
+              class="textarea textarea-bordered w-full h-24"
+              [class.textarea-error]="hasError('exp-' + $index + '-responsibilities')"
+              placeholder="Deskripsikan dengan jelas"
+              [(ngModel)]="exp.responsibilities"
+              (ngModelChange)="onChange('exp-' + $index + '-responsibilities')"
+            ></textarea>
+            @if (hasError('exp-' + $index + '-responsibilities')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-responsibilities') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-leaveReason'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Alasan keluar dari perusahaan
+            </label>
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="hasError('exp-' + $index + '-leaveReason')"
+              [(ngModel)]="exp.leaveReason"
+              (ngModelChange)="onChange('exp-' + $index + '-leaveReason')"
+              [disabled]="exp.isCurrentJob"
+            >
+              <option value="">Pilih alasan</option>
+              @for (r of leaveReasons; track r) {
+                <option [value]="r">{{ r }}</option>
+              }
+            </select>
+            @if (hasError('exp-' + $index + '-leaveReason')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-leaveReason') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-referenceName'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Nama referensi yang dapat kami hubungi di perusahaan tersebut
+            </label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [class.input-error]="hasError('exp-' + $index + '-referenceName')"
+              placeholder="Masukkan nama"
+              [(ngModel)]="exp.referenceName"
+              (ngModelChange)="onChange('exp-' + $index + '-referenceName')"
+            />
+            @if (hasError('exp-' + $index + '-referenceName')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-referenceName') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-referencePosition'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Jabatan pekerjaan dari referensi Anda
+            </label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [class.input-error]="hasError('exp-' + $index + '-referencePosition')"
+              placeholder="Masukkan jabatan"
+              [(ngModel)]="exp.referencePosition"
+              (ngModelChange)="onChange('exp-' + $index + '-referencePosition')"
+            />
+            @if (hasError('exp-' + $index + '-referencePosition')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-referencePosition') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-referencePhone'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Nomor telepon referensi Anda
+            </label>
+            <div class="flex gap-2">
+              <select
+                class="select select-bordered w-24"
+                [(ngModel)]="exp.referencePhoneCode"
+                (ngModelChange)="onChange('exp-' + $index + '-referencePhone')"
+              >
+                @for (code of phoneCodes; track code) {
+                  <option [value]="code">{{ code }}</option>
+                }
+              </select>
+
+              <input
+                type="text"
+                inputmode="numeric"
+                class="input input-bordered flex-1"
+                [class.input-error]="hasError('exp-' + $index + '-referencePhone')"
+                [ngModel]="exp.referencePhone"
+                (input)="onReferencePhoneInput($index, $event)"
+                placeholder="Masukkan nomor telepon"
+              />
+            </div>
+            @if (hasError('exp-' + $index + '-referencePhone')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-referencePhone') }}
+              </p>
+            }
+          </div>
+
+          <div [attr.data-field]="'exp-' + $index + '-referenceEmail'">
+            <label class="text-sm font-medium text-base-content mb-1 block">
+              Alamat email referensi Anda
+            </label>
+            <input
+              type="email"
+              class="input input-bordered w-full"
+              [class.input-error]="hasError('exp-' + $index + '-referenceEmail')"
+              placeholder="Masukkan alamat email"
+              [(ngModel)]="exp.referenceEmail"
+              (ngModelChange)="onChange('exp-' + $index + '-referenceEmail')"
+            />
+            @if (hasError('exp-' + $index + '-referenceEmail')) {
+              <p class="text-xs text-error mt-1">
+                {{ getError('exp-' + $index + '-referenceEmail') }}
+              </p>
+            }
+          </div>
+
+          @if (data.experiences.length > 1) {
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm text-error self-start"
+              (click)="confirmRemoveExperience($index)"
+            >
+              Hapus Pengalaman
+            </button>
+          }
+
+          @if ($index < data.experiences.length - 1) {
+            <div class="divider"></div>
+          }
+        </div>
+      }
+
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm color-blue-primary self-start gap-2"
+        (click)="addExperience()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Tambah Pengalaman Kerja
+      </button>
+    </div>
+  }
+
+  <app-confirm-modal
+    [isOpen]="showDeleteExpModal"
+    title="Hapus Pengalaman Kerja"
+    message="Apakah anda yakin ingin menghapus pengalaman kerja ini? Data yang sudah diisi akan hilang."
+    (confirmed)="onConfirmDeleteExp()"
+    (cancelled)="onCancelDeleteExp()"
+  />
+</div>
