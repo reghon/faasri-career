@@ -21,6 +21,7 @@ export type WorkExperience = {
   referencePhoneCode: string | null;
   referencePhone: string | null;
   referenceEmail: string | null;
+  isActive: boolean;
   createdAt: string;
   createdBy: string | null;
   updatedAt: string;
