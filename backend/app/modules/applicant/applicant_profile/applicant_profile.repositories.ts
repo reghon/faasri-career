@@ -14,6 +14,7 @@ export const applicantProfileRepository = {
   async update(userId: string, data: ApplicantProfilePayload, actorId: string): Promise<ApplicantProfile | null> {
     return queryCamelOne<ApplicantProfile>(applicantProfileQueries.update, [
       data.fullName,
+      data.email,
       data.birthPlace,
       data.birthDate,
       data.gender,
@@ -25,7 +26,6 @@ export const applicantProfileRepository = {
       data.city,
       data.province,
       data.postalCode,
-      data.isSameAddress,
       data.linkedinUrl,
       actorId,
       userId,
