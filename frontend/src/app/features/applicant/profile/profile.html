@@ -19,34 +19,27 @@
 
       <div class="px-6 pb-6">
         <div class="flex items-start justify-between py-4">
-          <div class="flex items-end gap-4">
-            <label class="cursor-pointer">
-              <div
-                class="w-16 h-16 rounded-full bg-base-300 border-4 border-base-100 overflow-hidden flex items-center justify-center"
-              >
-                @if (applicant.applicantProfile?.avatarUrl) {
-                  <img
-                    [src]="applicant.applicantProfile?.avatarUrl"
-                    alt="avatar"
-                    class="w-full h-full object-cover"
+          <div class="flex items-center gap-4">
+            <div class="relative w-24 h-24 rounded-full overflow-hidden bg-base-200">
+              @if (applicant.applicantProfile?.avatarUrl) {
+                <img
+                  [src]="getFileUrl(applicant.applicantProfile?.avatarUrl)"
+                  alt="avatar"
+                  class="w-full h-full object-cover"
+                />
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-8 h-8 text-base-content/30 m-auto"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.33 0-8 2.17-8 4.5V20h16v-1.5C20 16.17 16.33 14 12 14Z"
                   />
-                } @else {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-8 h-8 text-base-content/30"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-                    />
-                  </svg>
-                }
-              </div>
-              @if (isEditing) {
-                <input type="file" class="hidden" accept="image/*" />
+                </svg>
               }
-            </label>
+            </div>
 
             <div class="mb-1">
               <p class="font-bold text-base-content">
@@ -58,90 +51,67 @@
             </div>
           </div>
 
-          @if (applicant.applicantProfile) {
-            <button class="btn btn-primary-faasri btn-sm mt-10" (click)="toggleEdit()">
-              {{ isEditing ? 'Simpan' : 'Edit' }}
-            </button>
-          }
+          <div>
+            <button class="btn btn-primary-faasri btn-sm" (click)="editProfile()">Ubah Data</button>
+            <app-profile-modal
+              [open]="isProfileModalOpen"
+              [profile]="applicant.applicantProfile ?? null"
+              (close)="closeProfileModal()"
+              (saved)="loadApplicant()"
+            ></app-profile-modal>
+          </div>
         </div>
 
         @if (applicant.applicantProfile) {
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="text-xs text-base-content/50 mb-1 block">Tempat Lahir</label>
-              @if (isEditing) {
-                <input
-                  type="text"
-                  class="input input-bordered input-sm w-full"
-                  [(ngModel)]="applicant.applicantProfile.birthPlace"
-                />
-              } @else {
-                <div class="input input-bordered input-sm w-full flex items-center text-sm">
-                  {{ applicant.applicantProfile.birthPlace || '-' }}
-                </div>
-              }
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ applicant.applicantProfile.birthPlace || '-' }}
+              </div>
             </div>
 
             <div>
               <label class="text-xs text-base-content/50 mb-1 block">Tanggal Lahir</label>
-              @if (isEditing) {
-                <input
-                  type="text"
-                  class="input input-bordered input-sm w-full"
-                  [(ngModel)]="applicant.applicantProfile.birthDate"
-                />
-              } @else {
-                <div class="input input-bordered input-sm w-full flex items-center text-sm">
-                  {{ applicant.applicantProfile.birthDate || '-' }}
-                </div>
-              }
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ applicant.applicantProfile.birthDate || '-' }}
+              </div>
             </div>
 
             <div>
               <label class="text-xs text-base-content/50 mb-1 block">Jenis Kelamin</label>
-              @if (isEditing) {
-                <select
-                  class="select select-bordered select-sm w-full"
-                  [(ngModel)]="applicant.applicantProfile.gender"
-                >
-                  <option [ngValue]="null">Pilih</option>
-                  <option value="Laki-Laki">Laki-Laki</option>
-                  <option value="Perempuan">Perempuan</option>
-                </select>
-              } @else {
-                <div class="input input-bordered input-sm w-full flex items-center text-sm">
-                  {{ applicant.applicantProfile.gender || '-' }}
-                </div>
-              }
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ applicant.applicantProfile.gender || '-' }}
+              </div>
             </div>
 
             <div>
               <label class="text-xs text-base-content/50 mb-1 block">Nomor Telepon</label>
-              @if (isEditing) {
-                <input
-                  type="text"
-                  class="input input-bordered input-sm w-full"
-                  [(ngModel)]="applicant.applicantProfile.phone"
-                />
-              } @else {
-                <div class="input input-bordered input-sm w-full flex items-center text-sm">
-                  {{ applicant.applicantProfile.phone || '-' }}
-                </div>
-              }
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ applicant.applicantProfile.phone || '-' }}
+              </div>
             </div>
 
             <div>
               <label class="text-xs text-base-content/50 mb-1 block">URL Linkedin</label>
-              @if (isEditing) {
-                <input
-                  type="text"
-                  class="input input-bordered input-sm w-full"
-                  [(ngModel)]="applicant.applicantProfile.linkedinUrl"
-                />
+              <div class="input input-bordered input-sm w-full flex items-center text-sm">
+                {{ applicant.applicantProfile.linkedinUrl || '-' }}
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs text-base-content/50 mb-1 block">CV</label>
+              @if (applicant.applicantProfile.cvUrl) {
+                <a
+                  class="input input-bordered input-sm w-full flex items-center text-sm link link-primary"
+                  [href]="getFileUrl(applicant.applicantProfile.cvUrl)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ applicant.applicantProfile.cvFileName || 'Lihat CV' }}
+                </a>
               } @else {
-                <div class="input input-bordered input-sm w-full flex items-center text-sm">
-                  {{ applicant.applicantProfile.linkedinUrl || '-' }}
-                </div>
+                <div class="input input-bordered input-sm w-full flex items-center text-sm">-</div>
               }
             </div>
           </div>
@@ -153,7 +123,7 @@
       </div>
     </div>
 
-    <!-- SECTION LATAR BELAKANG -->
+    <!-- sisanya biarkan seperti sekarang -->
     <div class="card bg-base-100 overflow-hidden shadow-sm mt-6">
       <div
         class="h-14 w-full px-6 flex items-center"
@@ -167,9 +137,13 @@
       </div>
 
       <div class="px-6 py-4 flex flex-col divide-y divide-base-200">
-        <!-- PENGALAMAN KERJA -->
         <div class="py-4">
-          <h3 class="font-semibold text-base-content mb-3">Pengalaman Kerja</h3>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-base-content">Pengalaman Kerja</h3>
+            <button class="btn btn-primary-faasri btn-sm" (click)="editWorkExperience()">
+              Ubah Data
+            </button>
+          </div>
           @if (applicant.workExperiences.length === 0) {
             <p class="text-sm text-base-content/40 text-center mb-2">
               Tambahkan pengalaman kerja yang relevan untuk menunjukkan keahlian dan pencapaianmu.
@@ -189,19 +163,28 @@
                       : (exp.endMonth || '-') + ' ' + (exp.endYear || '-')
                   }}
                 </p>
-                <p class="text-sm text-base-content/60">{{ exp.responsibilities || '-' }}</p>
+                <p class="text-sm text-base-content/60">
+                  {{ exp.responsibilities || '-' }}
+                </p>
               </div>
             }
           }
-          <app-section-add-button
-            label="TAMBAHKAN PENGALAMAN KERJA"
-            (clicked)="onAddWorkExperience()"
-          />
+          <app-work-experience-modal
+            [open]="isWorkExperienceModalOpen"
+            [data]="applicant.workExperiences"
+            (close)="closeWorkExperienceModal()"
+            (saved)="loadApplicant()"
+          ></app-work-experience-modal>
         </div>
 
-        <!-- PENDIDIKAN -->
         <div class="py-4">
-          <h3 class="font-semibold text-base-content mb-3">Pendidikan</h3>
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="font-semibold text-base-content">Pendidikan</h3>
+            <button class="btn btn-primary-faasri btn-sm" (click)="editEducation()">
+              Ubah Data
+            </button>
+          </div>
+
           @if (applicant.educations.length === 0) {
             <p class="text-sm text-base-content/40 text-center mb-2">
               Masukan riwayat pendidikan yang pernah kamu tempuh.
@@ -223,64 +206,52 @@
               </div>
             }
           }
-          <app-section-add-button label="TAMBAHKAN PENDIDIKAN" (clicked)="onAddEducation()" />
-        </div>
-
-        <!-- CURRICULUM VITAE -->
-        <div class="py-4">
-          <h3 class="font-semibold text-base-content mb-3">Curriculum Vitae</h3>
-          @if (!applicant.applicantProfile?.cvFileName) {
-            <p class="text-sm text-base-content/40 text-center mb-2">
-              Unggah CV terbaru agar kami dapat melihat ringkasan pengalaman dan keahlianmu.
-            </p>
-            <app-section-add-button label="UNGGAH CV" (clicked)="onAddCV()" />
-          } @else {
-            <div class="flex items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <span class="text-sm text-base-content">{{
-                applicant.applicantProfile?.cvFileName || '-'
-              }}</span>
-              <label class="btn btn-ghost btn-xs text-primary cursor-pointer ml-auto">
-                Ganti
-                <input type="file" class="hidden" accept=".pdf,.docx" />
-              </label>
-            </div>
+          @if (applicant) {
+            <app-education-modal
+              [open]="isEducationModalOpen"
+              [educations]="applicant.educations"
+              (close)="closeEducationModal()"
+              (saved)="loadApplicant()"
+            ></app-education-modal>
           }
         </div>
 
-        <!-- KETERAMPILAN TEKNIS -->
         <div class="py-4">
-          <h3 class="font-semibold text-base-content mb-3">Keterampilan Teknis</h3>
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="font-semibold text-base-content">Keterampilan Teknis</h3>
+            <button class="btn btn-primary-faasri btn-sm" (click)="editTechnicalSkill()">
+              Ubah Data
+            </button>
+          </div>
+
           @if (applicant.technicalSkills.length === 0) {
             <p class="text-sm text-base-content/40 text-center mb-2">
               Tambahkan keahlian yang kamu miliki untuk membantu perekrut memahami kemampuanmu.
             </p>
           } @else {
-            <div class="flex flex-wrap gap-2 mb-3">
+            <div class="mb-3 flex flex-wrap gap-2">
               @for (skill of applicant.technicalSkills; track skill.id) {
                 <span class="badge badge-outline">{{ skill.skillName || '-' }}</span>
               }
             </div>
           }
-          <app-section-add-button label="TAMBAHKAN KEAHLIAN" (clicked)="onAddTechnicalSkill()" />
+          <app-technical-skill-modal
+            [open]="isTechnicalSkillModalOpen"
+            [technicalSkills]="applicant.technicalSkills"
+            [languages]="applicant.languages"
+            (close)="closeTechnicalSkillModal()"
+            (saved)="loadApplicant()"
+          ></app-technical-skill-modal>
         </div>
 
-        <!-- SERTIFIKASI -->
         <div class="py-4">
-          <h3 class="font-semibold text-base-content mb-3">Sertifikasi</h3>
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="font-semibold text-base-content">Sertifikasi</h3>
+            <button class="btn btn-primary-faasri btn-sm" (click)="editCertification()">
+              Ubah Data
+            </button>
+          </div>
+
           @if (applicant.certifications.length === 0) {
             <p class="text-sm text-base-content/40 text-center mb-2">
               Tambahkan sertifikasi atau pelatihan yang pernah kamu ikuti.
@@ -297,7 +268,12 @@
               </div>
             }
           }
-          <app-section-add-button label="TAMBAHKAN SERTIFIKASI" (clicked)="onAddCertification()" />
+          <app-certification-modal
+            [open]="isCertificationModalOpen"
+            [data]="applicant.certifications"
+            (close)="closeCertificationModal()"
+            (saved)="loadApplicant()"
+          ></app-certification-modal>
         </div>
       </div>
 
@@ -308,7 +284,7 @@
       </div>
     </div>
   </div>
-}  @else {
+} @else {
   <div class="text-center py-20">
     <p class="text-base-content/40">Gagal memuat profile</p>
   </div>
