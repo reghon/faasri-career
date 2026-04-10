@@ -9,12 +9,12 @@ const router: Router = Router();
 
 router.use(authenticate);
 
-router.get("/languages", asyncHandler(languageController.getAll));
+router.get("/", asyncHandler(languageController.getAll));
 
-router.post("/languages", validate({ body: languageBodySchema }), asyncHandler(languageController.create));
+router.post("/", validate({ body: languageBodySchema }), asyncHandler(languageController.create));
 
 router.put(
-  "/languages/:id",
+  "/:id",
   validate({
     params: languageParamsSchema,
     body: languageBodySchema,
@@ -22,6 +22,6 @@ router.put(
   asyncHandler(languageController.update),
 );
 
-router.delete("/languages/:id", validate({ params: languageParamsSchema }), asyncHandler(languageController.delete));
+router.delete("/:id", validate({ params: languageParamsSchema }), asyncHandler(languageController.delete));
 
 export default router;
