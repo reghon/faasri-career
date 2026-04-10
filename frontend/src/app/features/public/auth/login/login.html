@@ -21,20 +21,24 @@
       }
 
       <!-- INPUT FORM -->
-      <fieldset class="flex flex-col gap-4 mt-4">
+      <form class="flex flex-col gap-4 mt-4" (ngSubmit)="onLogin()">
         <input
           type="email"
           placeholder="Masukkan alamat email"
           class="input input-bordered w-full text-medium"
           [(ngModel)]="email"
+          name="email"
+          required
         />
         <input
           type="password"
           placeholder="Masukkan kata sandi"
           class="input input-bordered w-full text-medium"
           [(ngModel)]="password"
+          name="password"
+          required
         />
-        <button class="btn btn-primary-faasri w-full" [disabled]="isLoading" (click)="onLogin()">
+        <button  type="submit" class="btn btn-primary-faasri w-full" [disabled]="isLoading">
           @if (isLoading) {
             <span class="loading loading-spinner loading-sm"></span>
           } @else {
@@ -53,6 +57,6 @@
           <a href="#" class="text-link">Syarat Penggunaan</a> dan
           <a href="#" class="text-link">Kebijakan Privasi</a> kami.
         </p>
-      </fieldset>
+      </form>
     </div>
   </div>
