@@ -9,12 +9,12 @@ const router: Router = Router();
 
 router.use(authenticate);
 
-router.get("/certifications", asyncHandler(certificationController.getAll));
+router.get("/", asyncHandler(certificationController.getAll));
 
-router.post("/certifications", validate({ body: certificationBodySchema }), asyncHandler(certificationController.create));
+router.post("/", validate({ body: certificationBodySchema }), asyncHandler(certificationController.create));
 
 router.put(
-  "/certifications/:id",
+  "/:id",
   validate({
     params: certificationParamsSchema,
     body: certificationBodySchema,
@@ -22,6 +22,6 @@ router.put(
   asyncHandler(certificationController.update),
 );
 
-router.delete("/certifications/:id", validate({ params: certificationParamsSchema }), asyncHandler(certificationController.delete));
+router.delete("/:id", validate({ params: certificationParamsSchema }), asyncHandler(certificationController.delete));
 
 export default router;
