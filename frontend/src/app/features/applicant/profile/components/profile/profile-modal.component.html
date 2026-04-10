@@ -1,0 +1,25 @@
+@if (open) {
+  <app-generic-modal
+    [open]="open"
+    title="Ubah Profil"
+    [isSubmitting]="isSubmitting"
+    (close)="onClose()"
+    (save)="onSave()"
+  >
+    <app-step1-personal
+      [data]="formData"
+      [avatarFile]="avatarFile"
+      [avatarPreviewUrl]="avatarPreviewUrl"
+      [hasExistingAvatar]="!!profile?.avatarUrl && !removeAvatarFlag"
+      [cvFile]="cvFile"
+      [cvFileName]="cvFileName"
+      (dataChange)="onDataChange($event)"
+      (avatarFileChange)="onAvatarFileChange($event)"
+      (avatarPreviewUrlChange)="onAvatarPreviewUrlChange($event)"
+      (avatarRemoveChange)="onAvatarRemoveChange($event)"
+      (cvFileChange)="onCvFileChange($event)"
+      (cvFileNameChange)="onCvFileNameChange($event)"
+      (cvRemoveChange)="onCvRemoveChange($event)"
+    ></app-step1-personal>
+  </app-generic-modal>
+}
