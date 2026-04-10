@@ -9,10 +9,10 @@ const router: Router = Router();
 
 router.use(authenticate);
 
-router.get("/technical-skills", asyncHandler(technicalSkillController.getAll));
+router.get("/", asyncHandler(technicalSkillController.getAll));
 
-router.post("/technical-skills", validate({ body: technicalSkillBodySchema }), asyncHandler(technicalSkillController.create));
+router.post("/", validate({ body: technicalSkillBodySchema }), asyncHandler(technicalSkillController.create));
 
-router.delete("/technical-skills/:id", validate({ params: technicalSkillParamsSchema }), asyncHandler(technicalSkillController.delete));
+router.delete("/:id", validate({ params: technicalSkillParamsSchema }), asyncHandler(technicalSkillController.delete));
 
 export default router;
