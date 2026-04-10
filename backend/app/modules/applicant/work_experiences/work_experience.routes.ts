@@ -9,12 +9,12 @@ const router: Router = Router();
 
 router.use(authenticate);
 
-router.get("/work-experiences", asyncHandler(workExperienceController.getAll));
+router.get("/", asyncHandler(workExperienceController.getAll));
 
-router.post("/work-experiences", validate({ body: workExperienceBodySchema }), asyncHandler(workExperienceController.create));
+router.post("/", validate({ body: workExperienceBodySchema }), asyncHandler(workExperienceController.create));
 
 router.put(
-  "/work-experiences/:id",
+  "/:id",
   validate({
     params: workExperienceParamsSchema,
     body: workExperienceBodySchema,
@@ -22,6 +22,6 @@ router.put(
   asyncHandler(workExperienceController.update),
 );
 
-router.delete("/work-experiences/:id", validate({ params: workExperienceParamsSchema }), asyncHandler(workExperienceController.delete));
+router.delete("/:id", validate({ params: workExperienceParamsSchema }), asyncHandler(workExperienceController.delete));
 
 export default router;
