@@ -1,0 +1,17 @@
+@if (open) {
+  <app-generic-modal
+    [open]="open"
+    title="Ubah Keterampilan Teknis"
+    [isSubmitting]="isSubmitting"
+    (close)="onClose()"
+    (save)="onSave()"
+  >
+    <app-technical-skill-section
+      [data]="formData"
+      [technicalSkillOptions]="technicalSkillOptions"
+      [languageOptions]="languageOptions"
+      [proficiencyOptions]="proficiencyOptions"
+      (dataChange)="onDataChange($event)"
+    ></app-technical-skill-section>
+  </app-generic-modal>
+}
