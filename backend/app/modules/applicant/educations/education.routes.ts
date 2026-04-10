@@ -9,12 +9,12 @@ const router: Router = Router();
 
 router.use(authenticate);
 
-router.get("/educations", asyncHandler(educationController.getAll));
+router.get("/", asyncHandler(educationController.getAll));
 
-router.post("/educations", validate({ body: educationBodySchema }), asyncHandler(educationController.create));
+router.post("/", validate({ body: educationBodySchema }), asyncHandler(educationController.create));
 
 router.put(
-  "/educations/:id",
+  "/:id",
   validate({
     params: educationParamsSchema,
     body: educationBodySchema,
@@ -22,6 +22,6 @@ router.put(
   asyncHandler(educationController.update),
 );
 
-router.delete("/educations/:id", validate({ params: educationParamsSchema }), asyncHandler(educationController.delete));
+router.delete("/:id", validate({ params: educationParamsSchema }), asyncHandler(educationController.delete));
 
 export default router;
