@@ -6,23 +6,39 @@ import {
   ApplicantMasterService,
   ApplicantProfileService,
 } from '../../../domain/applicant/index';
-import { SectionAddButton } from './components/shared/section-add-button';
+import { ProfileModalComponent } from './components/profile/profile-modal.component';
+import { EducationModalComponent } from './components/education/education-modal.component';
+import { CertificationModalComponent } from './components/certifications/certification-modal.component';
+import { TechnicalSkillModalComponent } from './components/technical-skill/technical-skill-modal.component.';
+import { WorkExperienceModalComponent } from './components/work-experience/work-experience-modal.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [FormsModule, SectionAddButton, CommonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    ProfileModalComponent,
+    EducationModalComponent,
+    CertificationModalComponent,
+    TechnicalSkillModalComponent,
+    WorkExperienceModalComponent,
+  ],
   templateUrl: './profile.html',
 })
 export class Profile implements OnInit {
   applicant: ApplicantMaster | null = null;
-  isEditing = false;
+  isProfileModalOpen = false;
+  isEducationModalOpen = false;
+  isWorkExperienceModalOpen = false;
+  isCertificationModalOpen = false;
+  isTechnicalSkillModalOpen = false;
   isLoading = true;
 
   constructor(
-    private applicantMasterService: ApplicantMasterService,
-    private applicantProfileService: ApplicantProfileService,
-    private cdr: ChangeDetectorRef,
+    private readonly applicantMasterService: ApplicantMasterService,
+    private readonly applicantProfileService: ApplicantProfileService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +47,7 @@ export class Profile implements OnInit {
 
   loadApplicant(): void {
     this.isLoading = true;
+
     this.applicantMasterService.getMe().subscribe({
       next: (data) => {
         this.applicant = data;
@@ -45,61 +62,48 @@ export class Profile implements OnInit {
       },
     });
   }
-  toggleEdit(): void {
-    if (this.isEditing) {
-      this.saveProfile();
-      return;
-    }
 
-    this.isEditing = true;
+  getFileUrl(path: string | null | undefined): string {
+    return this.applicantProfileService.getFileUrl(path);
   }
 
-  saveProfile(): void {
-    if (!this.applicant?.applicantProfile) {
-      return;
-    }
-
-    const profile = this.applicant.applicantProfile;
-
-    this.applicantProfileService
-      .updateMe({
-        fullName: profile.fullName,
-        birthPlace: profile.birthPlace,
-        birthDate: profile.birthDate,
-        gender: profile.gender,
-        phoneCode: profile.phoneCode,
-        phone: profile.phone,
-        address: profile.address,
-        kelurahan: profile.kelurahan,
-        kecamatan: profile.kecamatan,
-        city: profile.city,
-        province: profile.province,
-        postalCode: profile.postalCode,
-        isSameAddress: profile.isSameAddress,
-        linkedinUrl: profile.linkedinUrl,
-      })
-      .subscribe({
-        next: () => {
-          this.isEditing = false;
-          this.loadApplicant();
-        },
-        error: (err) => {
-          console.error('Gagal menyimpan profil:', err);
-        },
-      });
+  editProfile(): void {
+    this.isProfileModalOpen = true;
   }
 
-  trackById(_index: number, item: { id: string }): string {
-    return item.id;
+  closeProfileModal(): void {
+    this.isProfileModalOpen = false;
   }
 
-  onAddWorkExperience(): void {}
+  editEducation(): void {
+    this.isEducationModalOpen = true;
+  }
 
-  onAddEducation(): void {}
+  closeEducationModal(): void {
+    this.isEducationModalOpen = false;
+  }
 
-  onAddCV(): void {}
+  editWorkExperience(): void {
+    this.isWorkExperienceModalOpen = true;
+  }
 
-  onAddTechnicalSkill(): void {}
+  closeWorkExperienceModal(): void {
+    this.isWorkExperienceModalOpen = false;
+  }
 
-  onAddCertification(): void {}
+  editCertification(): void {
+    this.isCertificationModalOpen = true;
+  }
+
+  closeCertificationModal(): void {
+    this.isCertificationModalOpen = false;
+  }
+
+  editTechnicalSkill(): void {
+    this.isTechnicalSkillModalOpen = true;
+  }
+
+  closeTechnicalSkillModal(): void {
+    this.isTechnicalSkillModalOpen = false;
+  }
 }
