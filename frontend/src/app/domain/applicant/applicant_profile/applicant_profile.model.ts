@@ -2,6 +2,7 @@ export interface ApplicantProfile {
   id: string;
   userId: string;
   fullName: string | null;
+  email: string | null;
   birthPlace: string | null;
   birthDate: string | null;
   gender: string | null;
@@ -13,12 +14,10 @@ export interface ApplicantProfile {
   city: string | null;
   province: string | null;
   postalCode: string | null;
-  isSameAddress: boolean;
   linkedinUrl: string | null;
   avatarUrl: string | null;
   cvUrl: string | null;
   cvFileName: string | null;
-  jobSource: string | null;
   isActive: boolean;
   createdAt: string;
   createdBy: string | null;
@@ -30,6 +29,7 @@ export interface ApplicantProfile {
 
 export interface ApplicantProfilePayload {
   fullName: string | null;
+  email: string | null;
   birthPlace: string | null;
   birthDate: string | null;
   gender: string | null;
@@ -41,6 +41,7 @@ export interface ApplicantProfilePayload {
   city: string | null;
   province: string | null;
   postalCode: string | null;
-  isSameAddress: boolean;
   linkedinUrl: string | null;
+  cvUrl: string | null;
+  cvFileName: string | null;
 }
