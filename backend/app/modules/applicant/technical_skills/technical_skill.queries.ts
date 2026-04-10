@@ -24,7 +24,7 @@ export const technicalSkillQueries = {
   `,
   softDelete: `
     UPDATE technical_skills
-    SET deleted_at = NOW(), deleted_by = $3, updated_at = NOW(), updated_by = $3
+    SET deleted_at = NOW(), deleted_by = $3, updated_at = NOW(), updated_by = $3, is_active = FALSE
     WHERE id = $1
       AND applicant_profile_id = $2
       AND deleted_at IS NULL
