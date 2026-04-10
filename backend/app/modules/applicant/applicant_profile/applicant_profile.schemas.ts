@@ -17,6 +17,7 @@ const nullableTrimmedString = (max: number, fieldName: string) =>
 
 export const applicantProfileBodySchema = z.object({
   fullName: nullableTrimmedString(255, "Full name"),
+  email: nullableTrimmedString(255, "Email"),
   birthPlace: nullableTrimmedString(255, "Birth place"),
   birthDate: nullableTrimmedString(255, "Birth date"),
   gender: nullableTrimmedString(255, "Gender"),
@@ -28,7 +29,6 @@ export const applicantProfileBodySchema = z.object({
   city: nullableTrimmedString(255, "City"),
   province: nullableTrimmedString(255, "Province"),
   postalCode: nullableTrimmedString(10, "Postal code"),
-  isSameAddress: z.boolean(),
   linkedinUrl: nullableTrimmedString(255, "LinkedIn URL"),
 });
 
