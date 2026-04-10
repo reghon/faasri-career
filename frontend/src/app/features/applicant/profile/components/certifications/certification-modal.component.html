@@ -1,0 +1,14 @@
+@if (open) {
+  <app-generic-modal
+    [open]="open"
+    title="Ubah Sertifikasi"
+    [isSubmitting]="isSubmitting"
+    (close)="onClose()"
+    (save)="onSave()"
+  >
+    <app-certification-section
+      [data]="formData"
+      (dataChange)="onDataChange($event)"
+    ></app-certification-section>
+  </app-generic-modal>
+}
