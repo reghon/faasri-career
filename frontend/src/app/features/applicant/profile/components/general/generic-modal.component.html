@@ -1,0 +1,40 @@
+@if (open) {
+  <dialog class="modal modal-open" (click)="onBackdropClick($event)">
+    <div class="modal-box w-11/12 max-w-4xl p-0">
+      <div class="flex items-center justify-between border-b px-6 py-4">
+        <h3 class="text-lg font-semibold">{{ title }}</h3>
+        <button
+          type="button"
+          class="btn btn-sm btn-circle btn-ghost"
+          [disabled]="isSubmitting"
+          (click)="close.emit()"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="max-h-[75vh] overflow-y-auto px-6 py-5">
+        <ng-content></ng-content>
+      </div>
+
+      <div class="modal-action m-0 justify-end border-t px-6 py-4">
+        <button
+          type="button"
+          class="btn btn-ghost"
+          [disabled]="isSubmitting"
+          (click)="close.emit()"
+        >
+          {{ cancelLabel }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary-faasri"
+          [disabled]="isSubmitting"
+          (click)="save.emit()"
+        >
+          {{ isSubmitting ? savingLabel : saveLabel }}
+        </button>
+      </div>
+    </div>
+  </dialog>
+}
