@@ -32,4 +32,10 @@ export class TechnicalSkillService {
       .delete<ApiResponse<null>>(`${API_ENDPOINTS.applicant.technicalSkills}/${id}`)
       .pipe(map(() => void 0));
   }
+
+  update(id: string, payload: TechnicalSkillPayload): Observable<TechnicalSkill> {
+    return this.http
+      .put<ApiResponse<TechnicalSkill>>(`${API_ENDPOINTS.applicant.technicalSkills}/${id}`, payload)
+      .pipe(map((response) => response.data));
+  }
 }
