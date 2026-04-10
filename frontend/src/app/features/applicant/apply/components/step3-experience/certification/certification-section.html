@@ -1,0 +1,229 @@
+<div class="flex flex-col gap-6">
+  <div>
+    <h3 class="font-semibold mb-1">Sertifikasi</h3>
+    <p class="text-sm text-base-content/60 mb-3">
+      Sertifikasi apa yang Anda miliki untuk mendukung Anda dalam melakukan pekerjaan yang ingin
+      dilamar? (Jika ada)
+    </p>
+
+    @for (cert of data.certifications; track $index) {
+      <div class="flex flex-col gap-4 mb-4">
+        <h4 class="font-semibold text-sm">Sertifikasi {{ $index + 1 }}</h4>
+
+        <div [attr.data-field]="'cert-' + $index + '-name'">
+          <label class="text-sm font-medium text-base-content mb-1 block">Nama Sertifikat</label>
+          <input
+            type="text"
+            class="input input-bordered w-full"
+            [class.input-error]="hasError('cert-' + $index + '-name')"
+            placeholder="Masukkan nama sertifikat"
+            [(ngModel)]="cert.name"
+            (ngModelChange)="clearError('cert-' + $index + '-name'); onChange()"
+          />
+          @if (hasError('cert-' + $index + '-name')) {
+            <p class="text-xs text-error mt-1">{{ getError('cert-' + $index + '-name') }}</p>
+          }
+        </div>
+
+        <div [attr.data-field]="'cert-' + $index + '-issuer'">
+          <label class="text-sm font-medium text-base-content mb-1 block"
+            >Penerbit Sertifikat</label
+          >
+          <input
+            type="text"
+            class="input input-bordered w-full"
+            [class.input-error]="hasError('cert-' + $index + '-issuer')"
+            placeholder="Masukkan penerbit sertifikat"
+            [(ngModel)]="cert.issuer"
+            (ngModelChange)="clearError('cert-' + $index + '-issuer'); onChange()"
+          />
+          @if (hasError('cert-' + $index + '-issuer')) {
+            <p class="text-xs text-error mt-1">{{ getError('cert-' + $index + '-issuer') }}</p>
+          }
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-base-content mb-1 block"
+            >Tanggal Diterbitkan</label
+          >
+          <div class="grid grid-cols-3 gap-3">
+            <div [attr.data-field]="'cert-' + $index + '-issuedDay'">
+              <select
+                class="select select-bordered w-full"
+                [class.select-error]="hasError('cert-' + $index + '-issuedDay')"
+                [(ngModel)]="cert.issuedDay"
+                (ngModelChange)="clearError('cert-' + $index + '-issuedDay'); onChange()"
+              >
+                <option value="">Tanggal</option>
+                @for (d of days; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+              @if (hasError('cert-' + $index + '-issuedDay')) {
+                <p class="text-xs text-error mt-1">
+                  {{ getError('cert-' + $index + '-issuedDay') }}
+                </p>
+              }
+            </div>
+
+            <div [attr.data-field]="'cert-' + $index + '-issuedMonth'">
+              <select
+                class="select select-bordered w-full"
+                [class.select-error]="hasError('cert-' + $index + '-issuedMonth')"
+                [(ngModel)]="cert.issuedMonth"
+                (ngModelChange)="clearError('cert-' + $index + '-issuedMonth'); onChange()"
+              >
+                <option value="">Bulan</option>
+                @for (m of months; track m) {
+                  <option [value]="m">{{ m }}</option>
+                }
+              </select>
+              @if (hasError('cert-' + $index + '-issuedMonth')) {
+                <p class="text-xs text-error mt-1">
+                  {{ getError('cert-' + $index + '-issuedMonth') }}
+                </p>
+              }
+            </div>
+
+            <div [attr.data-field]="'cert-' + $index + '-issuedYear'">
+              <select
+                class="select select-bordered w-full"
+                [class.select-error]="hasError('cert-' + $index + '-issuedYear')"
+                [(ngModel)]="cert.issuedYear"
+                (ngModelChange)="clearError('cert-' + $index + '-issuedYear'); onChange()"
+              >
+                <option value="">Tahun</option>
+                @for (y of years; track y) {
+                  <option [value]="y">{{ y }}</option>
+                }
+              </select>
+              @if (hasError('cert-' + $index + '-issuedYear')) {
+                <p class="text-xs text-error mt-1">
+                  {{ getError('cert-' + $index + '-issuedYear') }}
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div [attr.data-field]="'cert-' + $index + '-expiredDay'">
+          <label class="text-sm font-medium text-base-content mb-1 block">
+            Tanggal Kadaluwarsa
+          </label>
+
+          <div class="grid grid-cols-3 gap-3">
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="
+                hasError('cert-' + $index + '-expiredDay') ||
+                hasError('cert-' + $index + '-expiredMonth') ||
+                hasError('cert-' + $index + '-expiredYear')
+              "
+              [(ngModel)]="cert.expiredDay"
+              (ngModelChange)="
+                clearError('cert-' + $index + '-expiredDay');
+                clearError('cert-' + $index + '-expiredMonth');
+                clearError('cert-' + $index + '-expiredYear');
+                onChange()
+              "
+            >
+              <option value="">Tanggal</option>
+              @for (d of days; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="
+                hasError('cert-' + $index + '-expiredDay') ||
+                hasError('cert-' + $index + '-expiredMonth') ||
+                hasError('cert-' + $index + '-expiredYear')
+              "
+              [(ngModel)]="cert.expiredMonth"
+              (ngModelChange)="
+                clearError('cert-' + $index + '-expiredDay');
+                clearError('cert-' + $index + '-expiredMonth');
+                clearError('cert-' + $index + '-expiredYear');
+                onChange()
+              "
+            >
+              <option value="">Bulan</option>
+              @for (m of months; track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+
+            <select
+              class="select select-bordered w-full"
+              [class.select-error]="
+                hasError('cert-' + $index + '-expiredDay') ||
+                hasError('cert-' + $index + '-expiredMonth') ||
+                hasError('cert-' + $index + '-expiredYear')
+              "
+              [(ngModel)]="cert.expiredYear"
+              (ngModelChange)="
+                clearError('cert-' + $index + '-expiredDay');
+                clearError('cert-' + $index + '-expiredMonth');
+                clearError('cert-' + $index + '-expiredYear');
+                onChange()
+              "
+            >
+              <option value="">Tahun</option>
+              @for (y of years; track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </div>
+
+          @if (
+            hasError('cert-' + $index + '-expiredDay') ||
+            hasError('cert-' + $index + '-expiredMonth') ||
+            hasError('cert-' + $index + '-expiredYear')
+          ) {
+            <p class="text-xs text-error mt-1">
+              {{
+                getError('cert-' + $index + '-expiredDay') ||
+                  getError('cert-' + $index + '-expiredMonth') ||
+                  getError('cert-' + $index + '-expiredYear')
+              }}
+            </p>
+          }
+        </div>
+
+        @if (data.certifications.length > 1) {
+          <button
+            class="btn btn-ghost btn-sm text-error self-start"
+            (click)="confirmRemoveCertification($index)"
+          >
+            Hapus Sertifikasi
+          </button>
+        }
+      </div>
+    }
+
+    <button
+      class="btn btn-ghost btn-sm color-blue-primary self-start gap-2"
+      (click)="addCertification()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Tambah Sertifikasi
+    </button>
+  </div>
+
+  <app-confirm-modal
+    [isOpen]="showDeleteCertModal"
+    title="Hapus Sertifikasi"
+    message="Apakah anda yakin ingin menghapus sertifikasi ini? Data yang sudah diisi akan hilang."
+    (confirmed)="onConfirmDeleteCert()"
+    (cancelled)="onCancelDeleteCert()"
+  />
+</div>
