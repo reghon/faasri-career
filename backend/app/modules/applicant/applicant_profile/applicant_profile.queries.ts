@@ -1,8 +1,8 @@
 const SELECT_FIELDS = `
-  id, user_id, full_name, birth_place, birth_date, gender,
+  id, user_id, full_name, email, birth_place, birth_date, gender,
   phone_code, phone, address, kelurahan, kecamatan, city,
-  province, postal_code, is_same_address, linkedin_url,
-  avatar_url, cv_url, cv_file_name, job_source, is_active
+  province, postal_code, linkedin_url,
+  avatar_url, cv_url, cv_file_name, is_active
 `;
 
 const INSERT_FIELDS = `
@@ -28,18 +28,18 @@ export const applicantProfileQueries = {
     UPDATE applicant_profiles
     SET
       full_name = $1,
-      birth_place = $2,
-      birth_date = $3,
-      gender = $4,
-      phone_code = $5,
-      phone = $6,
-      address = $7,
-      kelurahan = $8,
-      kecamatan = $9,
-      city = $10,
-      province = $11,
-      postal_code = $12,
-      is_same_address = $13,
+      email = $2,
+      birth_place = $3,
+      birth_date = $4,
+      gender = $5,
+      phone_code = $6,
+      phone = $7,
+      address = $8,
+      kelurahan = $9,
+      kecamatan = $10,
+      city = $11,
+      province = $12,
+      postal_code = $13,
       linkedin_url = $14,
       updated_at = NOW(),
       updated_by = $15
