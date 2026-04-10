@@ -53,3 +53,5 @@ docker-compose.override.yml
 *.local
 temp/
 tmp/
+
+backend/uploads
