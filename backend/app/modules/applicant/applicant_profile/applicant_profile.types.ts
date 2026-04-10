@@ -2,6 +2,7 @@ export type ApplicantProfile = {
   id: string;
   userId: string;
   fullName: string | null;
+  email: string | null;
   birthPlace: string | null;
   birthDate: string | null;
   gender: string | null;
@@ -30,6 +31,7 @@ export type ApplicantProfile = {
 
 export type ApplicantProfilePayload = {
   fullName: string | null;
+  email: string | null;
   birthPlace: string | null;
   birthDate: string | null;
   gender: string | null;
@@ -41,6 +43,5 @@ export type ApplicantProfilePayload = {
   city: string | null;
   province: string | null;
   postalCode: string | null;
-  isSameAddress: boolean;
   linkedinUrl: string | null;
 };
