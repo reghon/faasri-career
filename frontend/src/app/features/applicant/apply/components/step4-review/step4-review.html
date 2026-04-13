@@ -1,8 +1,7 @@
 <div class="flex flex-col gap-6">
-
   <!-- INFORMASI PRIBADI -->
   <div>
-    <h3 class="font-semibold text-base-content mb-3">Informasi Pribadi</h3>
+    <h3 class="mb-3 font-semibold text-base-content">Informasi Pribadi</h3>
     <div class="grid grid-cols-2 gap-3 text-sm">
       <div>
         <span class="text-base-content/50">Nama Lengkap</span>
@@ -18,9 +17,7 @@
       </div>
       <div>
         <span class="text-base-content/50">Tanggal Lahir</span>
-        <p class="font-medium">
-          {{ personalInfo.birthDay }} {{ personalInfo.birthMonth }} {{ personalInfo.birthYear }}
-        </p>
+        <p class="font-medium">{{ formatBirthDate(personalInfo.birthDate) }}</p>
       </div>
       <div>
         <span class="text-base-content/50">Jenis Kelamin</span>
@@ -28,19 +25,45 @@
       </div>
       <div>
         <span class="text-base-content/50">Nomor Telepon</span>
-        <p class="font-medium">{{ personalInfo.phoneCode }} {{ personalInfo.phone }}</p>
+        <p class="font-medium">{{ formatPhone(personalInfo.phoneCode, personalInfo.phone) }}</p>
       </div>
       <div class="col-span-2">
         <span class="text-base-content/50">Alamat</span>
         <p class="font-medium">{{ personalInfo.address || '-' }}</p>
       </div>
+
+      <div>
+        <span class="text-base-content/50">Kelurahan</span>
+        <p class="font-medium">{{ personalInfo.kelurahan || '-' }}</p>
+      </div>
+
+      <div>
+        <span class="text-base-content/50">Kecamatan</span>
+        <p class="font-medium">{{ personalInfo.kecamatan || '-' }}</p>
+      </div>
+
+      <div>
+        <span class="text-base-content/50">Kota / Kabupaten</span>
+        <p class="font-medium">{{ personalInfo.city || '-' }}</p>
+      </div>
+
+      <div>
+        <span class="text-base-content/50">Provinsi</span>
+        <p class="font-medium">{{ personalInfo.province || '-' }}</p>
+      </div>
+
+      <div>
+        <span class="text-base-content/50">Kode Pos</span>
+        <p class="font-medium">{{ personalInfo.postalCode || '-' }}</p>
+      </div>
+
       <div>
         <span class="text-base-content/50">LinkedIn</span>
         <p class="font-medium">{{ personalInfo.linkedinUrl || '-' }}</p>
       </div>
       <div>
-        <span class="text-base-content/50">Sumber Info</span>
-        <p class="font-medium">{{ personalInfo.jobSource || '-' }}</p>
+        <span class="text-base-content/50">CV</span>
+        <p class="font-medium">{{ personalInfo.cvFileName || '-' }}</p>
       </div>
     </div>
   </div>
@@ -49,16 +72,20 @@
 
   <!-- PENDIDIKAN -->
   <div>
-    <h3 class="font-semibold text-base-content mb-3">Pendidikan</h3>
-    @for (edu of educationInfo.educations; track $index) {
-      <div class="text-sm mb-3">
-        <p class="font-medium">{{ edu.institution || '-' }} - {{ edu.major || '-' }}</p>
-        <p class="text-base-content/50">
-          {{ edu.level }} | {{ edu.startYear }} -
-          {{ edu.isStillStudying ? 'Sekarang' : edu.endYear }}
-        </p>
-        <p class="text-base-content/50">IPK: {{ edu.gpa || '-' }} / {{ edu.gpaScale || '-' }}</p>
-      </div>
+    <h3 class="mb-3 font-semibold text-base-content">Pendidikan</h3>
+
+    @if (educationInfo.educations.length === 0) {
+      <p class="text-sm text-base-content/50">Tidak ada data pendidikan</p>
+    } @else {
+      @for (edu of educationInfo.educations; track $index) {
+        <div class="mb-3 text-sm">
+          <p class="font-medium">{{ edu.institution || '-' }} - {{ edu.major || '-' }}</p>
+          <p class="text-base-content/50">
+            {{ edu.level || '-' }} | {{ formatEducationPeriod(edu) }}
+          </p>
+          <p class="text-base-content/50">IPK: {{ edu.gpa || '-' }} / {{ edu.gpaScale || '-' }}</p>
+        </div>
+      }
     }
   </div>
 
@@ -66,16 +93,16 @@
 
   <!-- PENGALAMAN -->
   <div>
-    <h3 class="font-semibold text-base-content mb-3">Pengalaman Kerja</h3>
-    @if (!experienceInfo.hasExperience) {
+    <h3 class="mb-3 font-semibold text-base-content">Pengalaman Kerja</h3>
+
+    @if (!experienceInfo.hasExperience || experienceInfo.experiences.length === 0) {
       <p class="text-sm text-base-content/50">Belum memiliki pengalaman kerja</p>
     } @else {
       @for (exp of experienceInfo.experiences; track $index) {
-        <div class="text-sm mb-3">
+        <div class="mb-3 text-sm">
           <p class="font-medium">{{ exp.position || '-' }} di {{ exp.company || '-' }}</p>
           <p class="text-base-content/50">
-            {{ exp.employmentType }} | {{ exp.startMonth }} {{ exp.startYear }} -
-            {{ exp.isCurrentJob ? 'Sekarang' : exp.endMonth + ' ' + exp.endYear }}
+            {{ exp.employmentType || '-' }} | {{ formatExperiencePeriod(exp) }}
           </p>
         </div>
       }
@@ -86,15 +113,24 @@
 
   <!-- KETERAMPILAN -->
   <div>
-    <h3 class="font-semibold text-base-content mb-3">Keterampilan Teknis</h3>
+    <h3 class="mb-3 font-semibold text-base-content">Keterampilan Teknis</h3>
+
     @if (experienceInfo.technicalSkills.length === 0) {
       <p class="text-sm text-base-content/50">Tidak ada keterampilan yang dipilih</p>
     } @else {
       <div class="flex flex-wrap gap-2">
-        @for (skill of experienceInfo.technicalSkills; track skill) {
-          <span class="badge badge-warning">{{ skill }}</span>
+        @for (skill of experienceInfo.technicalSkills; track trackBySkill($index, skill)) {
+          @if (skill.skillName) {
+            <span class="badge badge-warning">{{ skill.skillName }}</span>
+          }
         }
       </div>
+    }
+
+    @if (experienceInfo.technicalSkillsDescription) {
+      <p class="mt-2 text-sm text-base-content/70">
+        {{ experienceInfo.technicalSkillsDescription }}
+      </p>
     }
   </div>
 
@@ -102,15 +138,20 @@
 
   <!-- SERTIFIKASI -->
   <div>
-    <h3 class="font-semibold text-base-content mb-3">Sertifikasi</h3>
-    @for (cert of experienceInfo.certifications; track $index) {
-      @if (cert.name) {
-        <div class="text-sm mb-2">
-          <p class="font-medium">{{ cert.name }}</p>
-          <p class="text-base-content/50">
-            {{ cert.issuer || '-' }} | {{ cert.issuedMonth }} {{ cert.issuedYear }}
-          </p>
-        </div>
+    <h3 class="mb-3 font-semibold text-base-content">Sertifikasi</h3>
+
+    @if (!hasAnyCertification()) {
+      <p class="text-sm text-base-content/50">Tidak ada sertifikasi</p>
+    } @else {
+      @for (cert of experienceInfo.certifications; track $index) {
+        @if (cert.name) {
+          <div class="mb-2 text-sm">
+            <p class="font-medium">{{ cert.name }}</p>
+            <p class="text-base-content/50">
+              {{ cert.issuer || '-' }} | {{ cert.issuedMonth || '-' }} {{ cert.issuedYear || '-' }}
+            </p>
+          </div>
+        }
       }
     }
   </div>
@@ -119,13 +160,18 @@
 
   <!-- BAHASA -->
   <div>
-    <h3 class="font-semibold text-base-content mb-3">Bahasa</h3>
-    @for (lang of experienceInfo.languages; track $index) {
-      @if (lang.language) {
-        <div class="text-sm mb-2">
-          <p class="font-medium">{{ lang.language }}</p>
-          <p class="text-base-content/50">{{ lang.proficiency || '-' }}</p>
-        </div>
+    <h3 class="mb-3 font-semibold text-base-content">Bahasa</h3>
+
+    @if (!hasAnyLanguage()) {
+      <p class="text-sm text-base-content/50">Tidak ada data bahasa</p>
+    } @else {
+      @for (lang of experienceInfo.languages; track $index) {
+        @if (lang.language) {
+          <div class="mb-2 text-sm">
+            <p class="font-medium">{{ lang.language }}</p>
+            <p class="text-base-content/50">{{ lang.proficiency || '-' }}</p>
+          </div>
+        }
       }
     }
   </div>
