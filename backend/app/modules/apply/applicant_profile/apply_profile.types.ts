@@ -1,0 +1,45 @@
+export type ApplyProfile = {
+  id: string;
+  applyId: string;
+  fullName: string | null;
+  email: string | null;
+  birthPlace: string | null;
+  birthDate: string | null;
+  gender: string | null;
+  phoneCode: string | null;
+  phone: string | null;
+  address: string | null;
+  kelurahan: string | null;
+  kecamatan: string | null;
+  city: string | null;
+  province: string | null;
+  postalCode: string | null;
+  linkedinUrl: string | null;
+  cvUrl: string | null;
+  cvFileName: string | null;
+  createdAt: string;
+  createdBy: string | null;
+  updatedAt: string;
+  updatedBy: string | null;
+  deletedAt: string | null;
+  deletedBy: string | null;
+};
+
+export type ApplyProfilePayload = {
+  fullName: string | null;
+  email: string | null;
+  birthPlace: string | null;
+  birthDate: string | null;
+  gender: string | null;
+  phoneCode: string | null;
+  phone: string | null;
+  address: string | null;
+  kelurahan: string | null;
+  kecamatan: string | null;
+  city: string | null;
+  province: string | null;
+  postalCode: string | null;
+  linkedinUrl: string | null;
+  cvUrl: string | null;
+  cvFileName: string | null;
+};
