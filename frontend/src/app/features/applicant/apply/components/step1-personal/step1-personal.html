@@ -1,5 +1,58 @@
 <div class="flex flex-col gap-5">
-  <!-- CV -->
+  <!-- AVATAR -->
+  <div data-field="avatar">
+    <label class="text-sm font-medium text-base-content mb-2 block">Foto Profil</label>
+
+    <div class="flex items-center gap-3">
+      <div
+        class="w-20 h-20 rounded-full overflow-hidden bg-base-200 flex items-center justify-center"
+      >
+        @if (avatarPreviewUrl) {
+          <img [src]="avatarPreviewUrl" alt="avatar-preview" class="w-full h-full object-cover" />
+        } @else if (hasExistingAvatar) {
+          <div class="text-xs text-base-content/50 text-center px-2">Avatar tersimpan</div>
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-8 h-8 text-base-content/30"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.33 0-8 2.17-8 4.5V20h16v-1.5C20 16.17 16.33 14 12 14Z"
+            />
+          </svg>
+        }
+      </div>
+
+      <div class="flex gap-2">
+        <label class="btn btn-primary-faasri btn-sm cursor-pointer">
+          Pilih
+          <input
+            type="file"
+            class="hidden"
+            accept=".jpg,.jpeg,.png,.webp"
+            (change)="onAvatarChange($event)"
+          />
+        </label>
+
+        @if (avatarPreviewUrl || hasExistingAvatar) {
+          <button type="button" class="btn btn-outline btn-sm" (click)="onRemoveAvatar()">
+            Hapus
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (hasError('avatar')) {
+      <p class="text-xs text-error mt-1">{{ getError('avatar') }}</p>
+    } @else {
+      <p class="text-xs text-success mt-1">
+        Berkas harus berformat .jpg, .jpeg, .png, atau .webp dengan ukuran maksimum 2MB.
+      </p>
+    }
+  </div>
+
   <div data-field="cv">
     <label class="text-sm font-medium text-base-content mb-1 block">Curriculum Vitae (CV)</label>
     <div class="flex items-center gap-2">
@@ -7,7 +60,7 @@
         type="text"
         class="input input-bordered flex-1"
         [class.input-error]="hasError('cv')"
-        [value]="data.cvFile?.name || ''"
+        [value]="cvFileName || ''"
         placeholder="Pilih file"
         readonly
       />
@@ -15,6 +68,10 @@
         Pilih
         <input type="file" class="hidden" accept=".pdf,.docx" (change)="onCvChange($event)" />
       </label>
+
+      @if (cvFileName) {
+        <button type="button" class="btn btn-outline btn-sm" (click)="onRemoveCv()">Hapus</button>
+      }
     </div>
     @if (hasError('cv')) {
       <p class="text-xs text-error mt-1">{{ getError('cv') }}</p>
@@ -27,9 +84,9 @@
 
   <!-- NAMA LENGKAP -->
   <div data-field="fullName">
-    <label class="text-sm font-medium text-base-content mb-1 block"
-      >Nama Lengkap (sesuai KTP)</label
-    >
+    <label class="text-sm font-medium text-base-content mb-1 block">
+      Nama Lengkap (sesuai KTP)
+    </label>
     <input
       type="text"
       class="input input-bordered w-full"
@@ -43,7 +100,6 @@
     }
   </div>
 
-  <!-- TEMPAT LAHIR -->
   <div data-field="birthPlace">
     <label class="text-sm font-medium text-base-content mb-1 block">Tempat Lahir</label>
     <input
@@ -59,37 +115,38 @@
     }
   </div>
 
-  <!-- TANGGAL LAHIR -->
   <div data-field="birthDate">
     <label class="text-sm font-medium text-base-content mb-1 block">Tanggal Lahir</label>
     <div class="grid grid-cols-3 gap-3">
       <select
         class="select select-bordered"
         [class.select-error]="hasError('birthDate')"
-        [(ngModel)]="data.birthDay"
-        (ngModelChange)="onChange('birthDate')"
+        [(ngModel)]="selectedBirthDay"
+        (ngModelChange)="onBirthDayChange($event)"
       >
         <option value="">Tanggal</option>
         @for (d of days; track d) {
           <option [value]="d">{{ d }}</option>
         }
       </select>
+
       <select
         class="select select-bordered"
         [class.select-error]="hasError('birthDate')"
-        [(ngModel)]="data.birthMonth"
-        (ngModelChange)="onChange('birthDate')"
+        [(ngModel)]="selectedBirthMonth"
+        (ngModelChange)="onBirthMonthChange($event)"
       >
         <option value="">Bulan</option>
         @for (m of months; track m) {
           <option [value]="m">{{ m }}</option>
         }
       </select>
+
       <select
         class="select select-bordered"
         [class.select-error]="hasError('birthDate')"
-        [(ngModel)]="data.birthYear"
-        (ngModelChange)="onChange('birthDate')"
+        [(ngModel)]="selectedBirthYear"
+        (ngModelChange)="onBirthYearChange($event)"
       >
         <option value="">Tahun</option>
         @for (y of years; track y) {
@@ -97,12 +154,12 @@
         }
       </select>
     </div>
+
     @if (hasError('birthDate')) {
       <p class="text-xs text-error mt-1">{{ getError('birthDate') }}</p>
     }
   </div>
 
-  <!-- EMAIL -->
   <div data-field="email">
     <label class="text-sm font-medium text-base-content mb-1 block">Alamat Email</label>
     <input
@@ -122,7 +179,6 @@
     }
   </div>
 
-  <!-- NO.TELP -->
   <div data-field="phone">
     <label class="text-sm font-medium text-base-content mb-1 block">Nomor Telepon</label>
     <div class="flex gap-2">
@@ -145,7 +201,6 @@
     }
   </div>
 
-  <!-- JENIS KELAMIN -->
   <div data-field="gender">
     <label class="text-sm font-medium text-base-content mb-2 block">Jenis Kelamin</label>
     <div class="flex gap-6">
@@ -177,7 +232,6 @@
     }
   </div>
 
-  <!-- ALAMAT -->
   <div data-field="address">
     <label class="text-sm font-medium text-base-content mb-1 block">Alamat (sesuai KTP)</label>
     <textarea
@@ -192,7 +246,6 @@
     }
   </div>
 
-  <!-- KELURAHAN - KECAMATAN -->
   <div class="grid grid-cols-2 gap-3">
     <div data-field="kelurahan">
       <label class="text-sm font-medium text-base-content mb-1 block">Kelurahan (sesuai KTP)</label>
@@ -224,12 +277,11 @@
     </div>
   </div>
 
-  <!-- KOTA - PROVINSI -->
   <div class="grid grid-cols-2 gap-3">
     <div data-field="city">
-      <label class="text-sm font-medium text-base-content mb-1 block"
-        >Kota / Kabupaten (sesuai KTP)</label
-      >
+      <label class="text-sm font-medium text-base-content mb-1 block">
+        Kota / Kabupaten (sesuai KTP)
+      </label>
       <input
         type="text"
         class="input input-bordered w-full"
@@ -258,7 +310,6 @@
     </div>
   </div>
 
-  <!-- KODE POS -->
   <div data-field="postalCode">
     <label class="text-sm font-medium text-base-content mb-1 block">Pos Kode (sesuai KTP)</label>
     <input
@@ -274,36 +325,6 @@
     }
   </div>
 
-  <!-- KONFIRMASI -->
-  <div data-field="isSameAddress">
-    <label class="text-sm font-medium text-base-content mb-2 block">
-      Apakah alamat pada KTP sama dengan alamat tempat tinggal anda saat ini?
-    </label>
-    <div class="flex gap-6">
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input
-          type="radio"
-          class="radio color-blue-primary"
-          name="sameAddress"
-          [value]="true"
-          [(ngModel)]="data.isSameAddress"
-        />
-        <span class="text-sm">Ya</span>
-      </label>
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input
-          type="radio"
-          class="radio color-blue-primary"
-          name="sameAddress"
-          [value]="false"
-          [(ngModel)]="data.isSameAddress"
-        />
-        <span class="text-sm">Tidak</span>
-      </label>
-    </div>
-  </div>
-
-  <!-- LinkedIn -->
   <div>
     <label class="text-sm font-medium text-base-content mb-1 block">URL Linkedin</label>
     <input
@@ -311,28 +332,8 @@
       class="input input-bordered w-full"
       placeholder="Masukkan link"
       [(ngModel)]="data.linkedinUrl"
+      (ngModelChange)="onChange('linkedinUrl')"
     />
     <p class="text-xs text-base-content/40 mt-1">Contoh: https://www.linkedin.com/in/..</p>
-  </div>
-
-  <!-- SUMBER INFORMASI -->
-  <div data-field="jobSource">
-    <label class="text-sm font-medium text-base-content mb-1 block">
-      Dari mana anda mendapatkan informasi pekerjaan ini?
-    </label>
-    <select
-      class="select select-bordered w-full"
-      [class.select-error]="hasError('jobSource')"
-      [(ngModel)]="data.jobSource"
-      (ngModelChange)="onChange('jobSource')"
-    >
-      <option value="">Pilih saluran</option>
-      @for (s of jobSources; track s) {
-        <option [value]="s">{{ s }}</option>
-      }
-    </select>
-    @if (hasError('jobSource')) {
-      <p class="text-xs text-error mt-1">{{ getError('jobSource') }}</p>
-    }
   </div>
 </div>
