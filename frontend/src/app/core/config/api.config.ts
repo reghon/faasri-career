@@ -24,4 +24,7 @@ export const API_ENDPOINTS = {
     list: `${API_URL}/api/job/jobs`,
     detail: (id: string) => `${API_URL}/api/job/jobs/${id}`,
   },
+  apply: {
+    root: `${API_URL}/api/apply`,
+  },
 };
