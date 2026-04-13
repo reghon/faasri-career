@@ -1,10 +1,86 @@
-import { Component, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ElementRef,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PersonalInfo } from '../../../../../core/mock/application.mock';
+import { ApplicantProfile, ApplicantProfilePayload } from '../../../../../domain/applicant/index';
+import {
+  FieldError,
+  ErrorMap,
+  checkError,
+  scrollToFirstError,
+  MONTHS,
+  DAYS,
+  YEARS,
+  PHONE_CODES,
+} from '../../../../../shared/utils';
 
-export interface FieldError {
-  field: string;
-  message: string;
+export function createApplicantProfileForm(): ApplicantProfilePayload {
+  return {
+    fullName: '',
+    email: '',
+    birthPlace: '',
+    birthDate: null,
+    gender: '',
+    phoneCode: '+62',
+    phone: '',
+    address: '',
+    kelurahan: '',
+    kecamatan: '',
+    city: '',
+    province: '',
+    postalCode: '',
+    linkedinUrl: '',
+  };
+}
+
+export function mapApplicantProfileToForm(
+  profile: ApplicantProfile | null,
+): ApplicantProfilePayload {
+  if (!profile) return createApplicantProfileForm();
+
+  return {
+    fullName: profile.fullName || '',
+    email: profile.email || '',
+    birthPlace: profile.birthPlace || '',
+    birthDate: profile.birthDate || null,
+    gender: profile.gender || '',
+    phoneCode: profile.phoneCode || '+62',
+    phone: profile.phone || '',
+    address: profile.address || '',
+    kelurahan: profile.kelurahan || '',
+    kecamatan: profile.kecamatan || '',
+    city: profile.city || '',
+    province: profile.province || '',
+    postalCode: profile.postalCode || '',
+    linkedinUrl: profile.linkedinUrl || '',
+  };
+}
+
+export function normalizeApplicantProfileForm(
+  form: ApplicantProfilePayload,
+): ApplicantProfilePayload {
+  return {
+    fullName: form.fullName || null,
+    email: form.email || null,
+    birthPlace: form.birthPlace || null,
+    birthDate: form.birthDate || null,
+    gender: form.gender || null,
+    phoneCode: form.phoneCode || null,
+    phone: form.phone || null,
+    address: form.address || null,
+    kelurahan: form.kelurahan || null,
+    kecamatan: form.kecamatan || null,
+    city: form.city || null,
+    province: form.province || null,
+    postalCode: form.postalCode || null,
+    linkedinUrl: form.linkedinUrl || null,
+  };
 }
 
 @Component({
@@ -13,34 +89,140 @@ export interface FieldError {
   imports: [FormsModule],
   templateUrl: './step1-personal.html',
 })
-export class Step1Personal {
-  @Input() data!: PersonalInfo;
-  @Input() months: string[] = [];
-  @Input() days: string[] = [];
-  @Input() years: string[] = [];
-  @Input() phoneCodes: string[] = [];
-  @Input() jobSources: string[] = [];
-  @Output() dataChange = new EventEmitter<PersonalInfo>();
+export class Step1Personal implements OnChanges {
+  @Input() data!: ApplicantProfilePayload;
 
-  errors: Record<string, string> = {};
+  @Input() avatarFile: File | null = null;
+  @Input() avatarPreviewUrl: string | null = null;
+  @Input() hasExistingAvatar = false;
 
-  constructor(private el: ElementRef) {}
+  @Input() cvFile: File | null = null;
+  @Input() cvFileName: string | null = null;
 
-  onCvChange(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.data.cvFile = file;
-      this.clearError('cv');
-      this.dataChange.emit(this.data);
+  @Output() dataChange = new EventEmitter<ApplicantProfilePayload>();
+
+  @Output() avatarFileChange = new EventEmitter<File | null>();
+  @Output() avatarPreviewUrlChange = new EventEmitter<string | null>();
+  @Output() avatarRemoveChange = new EventEmitter<boolean>();
+
+  @Output() cvFileChange = new EventEmitter<File | null>();
+  @Output() cvFileNameChange = new EventEmitter<string | null>();
+  @Output() cvRemoveChange = new EventEmitter<boolean>();
+
+  errors: ErrorMap = {};
+
+  selectedBirthDay = '';
+  selectedBirthMonth = '';
+  selectedBirthYear = '';
+
+  readonly months = MONTHS;
+  readonly days = DAYS;
+  readonly years = YEARS;
+  readonly phoneCodes = PHONE_CODES;
+
+  constructor(private readonly el: ElementRef) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.syncBirthDateParts();
     }
   }
 
-  onChange(field?: string) {
+  onAvatarChange(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!allowedExtensions.includes(extension)) {
+      this.errors['avatar'] = 'Avatar harus berformat .jpg, .jpeg, .png, atau .webp';
+      return;
+    }
+
+    if (file.size > maxSize) {
+      this.errors['avatar'] = 'Ukuran avatar maksimal 2MB';
+      return;
+    }
+
+    this.avatarFile = file;
+    this.avatarPreviewUrl = URL.createObjectURL(file);
+    this.clearError('avatar');
+
+    this.avatarFileChange.emit(this.avatarFile);
+    this.avatarPreviewUrlChange.emit(this.avatarPreviewUrl);
+    this.avatarRemoveChange.emit(false);
+  }
+
+  onRemoveAvatar(): void {
+    this.avatarFile = null;
+    this.avatarPreviewUrl = null;
+    this.clearError('avatar');
+
+    this.avatarFileChange.emit(null);
+    this.avatarPreviewUrlChange.emit(null);
+    this.avatarRemoveChange.emit(true);
+  }
+
+  onCvChange(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const allowedExtensions = ['pdf', 'docx'];
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedExtensions.includes(extension)) {
+      this.errors['cv'] = 'CV harus berformat .pdf atau .docx';
+      return;
+    }
+
+    if (file.size > maxSize) {
+      this.errors['cv'] = 'Ukuran CV maksimal 5MB';
+      return;
+    }
+
+    this.cvFile = file;
+    this.cvFileName = file.name;
+    this.clearError('cv');
+
+    this.cvFileChange.emit(this.cvFile);
+    this.cvFileNameChange.emit(this.cvFileName);
+    this.cvRemoveChange.emit(false);
+  }
+
+  onRemoveCv(): void {
+    this.cvFile = null;
+    this.cvFileName = null;
+    this.clearError('cv');
+
+    this.cvFileChange.emit(null);
+    this.cvFileNameChange.emit(null);
+    this.cvRemoveChange.emit(true);
+  }
+
+  onBirthDayChange(day: string): void {
+    this.selectedBirthDay = day;
+    this.updateBirthDate();
+  }
+
+  onBirthMonthChange(month: string): void {
+    this.selectedBirthMonth = month;
+    this.updateBirthDate();
+  }
+
+  onBirthYearChange(year: string): void {
+    this.selectedBirthYear = year;
+    this.updateBirthDate();
+  }
+
+  onChange(field?: string): void {
     if (field) this.clearError(field);
     this.dataChange.emit(this.data);
   }
 
-  clearError(field: string) {
+  clearError(field: string): void {
     delete this.errors[field];
   }
 
@@ -55,22 +237,13 @@ export class Step1Personal {
   validate(): FieldError[] {
     this.errors = {};
     const errs: FieldError[] = [];
+    const check = (condition: boolean, field: string, message: string) =>
+      checkError(this.errors, errs, condition, field, message);
 
-    const check = (condition: boolean, field: string, message: string) => {
-      if (condition) {
-        this.errors[field] = message;
-        errs.push({ field, message });
-      }
-    };
-
-    check(!this.data.cvFile, 'cv', 'CV wajib diunggah');
+    check(!this.cvFile && !this.cvFileName, 'cv', 'CV wajib diunggah');
     check(!this.data.fullName, 'fullName', 'Nama lengkap wajib diisi');
     check(!this.data.birthPlace, 'birthPlace', 'Tempat lahir wajib diisi');
-    check(
-      !this.data.birthDay || !this.data.birthMonth || !this.data.birthYear,
-      'birthDate',
-      'Tanggal lahir wajib diisi lengkap',
-    );
+    check(!this.data.birthDate, 'birthDate', 'Tanggal lahir wajib diisi lengkap');
     check(!this.data.email, 'email', 'Email wajib diisi');
     check(!!this.data.email && !this.data.email.includes('@'), 'email', 'Format email tidak valid');
     check(!this.data.phone, 'phone', 'Nomor telepon wajib diisi');
@@ -81,16 +254,39 @@ export class Step1Personal {
     check(!this.data.city, 'city', 'Kota/Kabupaten wajib diisi');
     check(!this.data.province, 'province', 'Provinsi wajib diisi');
     check(!this.data.postalCode, 'postalCode', 'Kode pos wajib diisi');
-    check(!this.data.jobSource, 'jobSource', 'Sumber informasi wajib dipilih');
 
-    if (errs.length > 0) this.scrollToFirstError(errs[0].field);
+    if (errs.length > 0) scrollToFirstError(this.el, errs[0].field);
+
     return errs;
   }
 
-  scrollToFirstError(field: string) {
-    setTimeout(() => {
-      const el = this.el.nativeElement.querySelector(`[data-field="${field}"]`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
+  private syncBirthDateParts(): void {
+    if (!this.data?.birthDate) {
+      this.selectedBirthDay = '';
+      this.selectedBirthMonth = '';
+      this.selectedBirthYear = '';
+      return;
+    }
+
+    const [year, month, day] = this.data.birthDate.split('-');
+    this.selectedBirthYear = year || '';
+    this.selectedBirthMonth = month || '';
+    this.selectedBirthDay = day || '';
+  }
+
+  private updateBirthDate(): void {
+    if (!this.selectedBirthDay || !this.selectedBirthMonth || !this.selectedBirthYear) {
+      this.data.birthDate = null;
+      this.onChange('birthDate');
+      return;
+    }
+
+    this.data.birthDate = [
+      this.selectedBirthYear,
+      this.selectedBirthMonth.padStart(2, '0'),
+      this.selectedBirthDay.padStart(2, '0'),
+    ].join('-');
+
+    this.onChange('birthDate');
   }
 }
