@@ -6,7 +6,6 @@ import pool from "./configurations/database";
 import { config } from "./configurations/env";
 import path from "path";
 
-
 import userRoutes from "./modules/users/user.routes";
 import applicantProfileRoutes from "./modules/applicant/applicant_profile/applicant_profile.routes";
 import workExperienceRoutes from "./modules/applicant/work_experiences/work_experience.routes";
@@ -23,6 +22,7 @@ import workModeRoutes from "./modules/job/masters/work_modes/work_mode.routes";
 import educationLevelRoutes from "./modules/job/masters/education_levels/education_level.routes";
 import departmentRoutes from "./modules/job/masters/departments/department.routes";
 import jobRoutes from "./modules/job/job.routes";
+import applyRoutes from "./modules/apply/apply.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -69,6 +69,7 @@ app.use("/api/job/education-levels", educationLevelRoutes);
 app.use("/api/job/departments", departmentRoutes);
 app.use("/api/job/jobs", jobRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/api/apply", applyRoutes);
 
 app.use(errorMiddleware);
 
