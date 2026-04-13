@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS apply_education_snapshots (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  apply_id UUID NOT NULL REFERENCES applies(id) ON DELETE CASCADE,
+
+  level VARCHAR(255) NOT NULL,
+  country VARCHAR(255) NOT NULL,
+  institution VARCHAR(255) NOT NULL,
+  major VARCHAR(255) NOT NULL,
+  is_still_studying BOOLEAN DEFAULT false,
+  start_day VARCHAR(10) NOT NULL,
+  start_month VARCHAR(10) NOT NULL,
+  start_year VARCHAR(10) NOT NULL,
+  end_day VARCHAR(10),
+  end_month VARCHAR(10),
+  end_year VARCHAR(10),
+  gpa VARCHAR(10),
+  gpa_scale VARCHAR(10),
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  created_by UUID REFERENCES users(id),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_by UUID REFERENCES users(id),
+  deleted_at TIMESTAMP,
+  deleted_by UUID REFERENCES users(id)
+);
