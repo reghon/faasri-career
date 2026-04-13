@@ -1,0 +1,117 @@
+export interface Apply {
+  id: string;
+  applicantProfileId: string;
+  jobId: string;
+  statusId: string;
+  applicationCode: string | null;
+  notes: string | null;
+  appliedAt: string;
+  isActive: boolean;
+  createdAt: string;
+  createdBy: string | null;
+  updatedAt: string;
+  updatedBy: string | null;
+  deletedAt: string | null;
+  deletedBy: string | null;
+}
+
+/**
+ * Payload untuk create apply
+ */
+export interface CreateApplyPayload {
+  jobId: string;
+
+  personalInfo: {
+    fullName: string | null;
+    email: string | null;
+    birthPlace: string | null;
+    birthDate: string | null;
+    gender: string | null;
+    phoneCode: string | null;
+    phone: string | null;
+    address: string | null;
+    kelurahan: string | null;
+    kecamatan: string | null;
+    city: string | null;
+    province: string | null;
+    postalCode: string | null;
+    linkedinUrl: string | null;
+    cvUrl: string | null;
+    cvFileName: string | null;
+  };
+
+  educationInfo: {
+    educations: {
+      level: string | null;
+      country: string | null;
+      institution: string | null;
+      major: string | null;
+      isStillStudying: boolean;
+      startDay: string | null;
+      startMonth: string | null;
+      startYear: string | null;
+      endDay: string | null;
+      endMonth: string | null;
+      endYear: string | null;
+      gpa: string | null;
+      gpaScale: string | null;
+    }[];
+  };
+
+  experienceInfo: {
+    hasExperience: boolean;
+    currentSalary: string | null;
+    technicalSkillsDescription: string | null;
+
+    technicalSkills: {
+      skillName: string | null;
+    }[];
+
+    certifications: {
+      name: string | null;
+      issuer: string | null;
+      issuedDay: string | null;
+      issuedMonth: string | null;
+      issuedYear: string | null;
+      expiredDay: string | null;
+      expiredMonth: string | null;
+      expiredYear: string | null;
+    }[];
+
+    languages: {
+      language: string | null;
+      proficiency: string | null;
+    }[];
+
+    experiences: {
+      company: string | null;
+      industry: string | null;
+      position: string | null;
+      employmentType: string | null;
+      jobLevel: string | null;
+      teamSize: string | null;
+      startDay: string | null;
+      startMonth: string | null;
+      startYear: string | null;
+      endDay: string | null;
+      endMonth: string | null;
+      endYear: string | null;
+      isCurrentJob: boolean;
+      responsibilities: string | null;
+      leaveReason: string | null;
+      referenceName: string | null;
+      referencePosition: string | null;
+      referencePhoneCode: string | null;
+      referencePhone: string | null;
+      referenceEmail: string | null;
+    }[];
+  };
+}
+
+/**
+ * Update status (HR)
+ */
+export interface UpdateApplyStatusPayload {
+  statusId: string;
+  notes: string | null;
+}
