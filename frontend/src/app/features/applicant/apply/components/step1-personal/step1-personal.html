@@ -1,57 +1,59 @@
 <div class="flex flex-col gap-5">
   <!-- AVATAR -->
-  <div data-field="avatar">
-    <label class="text-sm font-medium text-base-content mb-2 block">Foto Profil</label>
+  @if (showAvatar) {
+    <div data-field="avatar">
+      <label class="text-sm font-medium text-base-content mb-2 block">Foto Profil</label>
 
-    <div class="flex items-center gap-3">
-      <div
-        class="w-20 h-20 rounded-full overflow-hidden bg-base-200 flex items-center justify-center"
-      >
-        @if (avatarPreviewUrl) {
-          <img [src]="avatarPreviewUrl" alt="avatar-preview" class="w-full h-full object-cover" />
-        } @else if (hasExistingAvatar) {
-          <div class="text-xs text-base-content/50 text-center px-2">Avatar tersimpan</div>
-        } @else {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-8 h-8 text-base-content/30"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.33 0-8 2.17-8 4.5V20h16v-1.5C20 16.17 16.33 14 12 14Z"
+      <div class="flex items-center gap-3">
+        <div
+          class="w-20 h-20 rounded-full overflow-hidden bg-base-200 flex items-center justify-center"
+        >
+          @if (avatarPreviewUrl) {
+            <img [src]="avatarPreviewUrl" alt="avatar-preview" class="w-full h-full object-cover" />
+          } @else if (hasExistingAvatar) {
+            <div class="text-xs text-base-content/50 text-center px-2">Avatar tersimpan</div>
+          } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-8 h-8 text-base-content/30"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.33 0-8 2.17-8 4.5V20h16v-1.5C20 16.17 16.33 14 12 14Z"
+              />
+            </svg>
+          }
+        </div>
+
+        <div class="flex gap-2">
+          <label class="btn btn-primary-faasri btn-sm cursor-pointer">
+            Pilih
+            <input
+              type="file"
+              class="hidden"
+              accept=".jpg,.jpeg,.png,.webp"
+              (change)="onAvatarChange($event)"
             />
-          </svg>
-        }
+          </label>
+
+          @if (avatarPreviewUrl || hasExistingAvatar) {
+            <button type="button" class="btn btn-outline btn-sm" (click)="onRemoveAvatar()">
+              Hapus
+            </button>
+          }
+        </div>
       </div>
 
-      <div class="flex gap-2">
-        <label class="btn btn-primary-faasri btn-sm cursor-pointer">
-          Pilih
-          <input
-            type="file"
-            class="hidden"
-            accept=".jpg,.jpeg,.png,.webp"
-            (change)="onAvatarChange($event)"
-          />
-        </label>
-
-        @if (avatarPreviewUrl || hasExistingAvatar) {
-          <button type="button" class="btn btn-outline btn-sm" (click)="onRemoveAvatar()">
-            Hapus
-          </button>
-        }
-      </div>
+      @if (hasError('avatar')) {
+        <p class="text-xs text-error mt-1">{{ getError('avatar') }}</p>
+      } @else {
+        <p class="text-xs text-success mt-1">
+          Berkas harus berformat .jpg, .jpeg, .png, atau .webp dengan ukuran maksimum 2MB.
+        </p>
+      }
     </div>
-
-    @if (hasError('avatar')) {
-      <p class="text-xs text-error mt-1">{{ getError('avatar') }}</p>
-    } @else {
-      <p class="text-xs text-success mt-1">
-        Berkas harus berformat .jpg, .jpeg, .png, atau .webp dengan ukuran maksimum 2MB.
-      </p>
-    }
-  </div>
+  }
 
   <div data-field="cv">
     <label class="text-sm font-medium text-base-content mb-1 block">Curriculum Vitae (CV)</label>

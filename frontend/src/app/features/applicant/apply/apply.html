@@ -18,6 +18,7 @@
           @if (currentStep === 1) {
             <app-step1-personal
               [data]="personalInfo"
+              [showAvatar]="false"  
               [cvFile]="cvFile"
               [cvFileName]="personalInfo.cvFileName"
               (dataChange)="onPersonalInfoChange($event)"
@@ -56,7 +57,14 @@
             @if (currentStep < totalSteps) {
               <button class="btn btn-primary-faasri" (click)="nextStep()">Selanjutnya</button>
             } @else {
-              <button class="btn btn-primary-faasri" (click)="submit()">Kirim Lamaran</button>
+              <button class="btn btn-primary-faasri" (click)="submit()" [disabled]="isSubmitting">
+                @if (isSubmitting) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                  Mengirim...
+                } @else {
+                  Kirim Lamaran
+                }
+              </button>
             }
           </div>
         }

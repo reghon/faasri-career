@@ -42,6 +42,8 @@ import {
   createTechnicalSkillSectionValue,
   mapTechnicalSkillSectionToForm,
 } from './components/step3-experience/technical-skill/technical-skill-section';
+import { ApplyService } from '../../../domain/apply/apply.service';
+import { CreateApplyPayload } from '../../../domain/apply/apply.model';
 
 interface EducationInfoPayload {
   educations: EducationPayload[];
@@ -75,6 +77,7 @@ export class Apply implements OnInit {
   isDirty = false;
   isLoading = false;
   private isInitializing = true;
+  isSubmitting = false;
 
   currentStep = 1;
   totalSteps = 4;
@@ -116,6 +119,7 @@ export class Apply implements OnInit {
     private readonly router: Router,
     private readonly applicantMasterService: ApplicantMasterService,
     private readonly cdr: ChangeDetectorRef,
+    private readonly applyService: ApplyService,
   ) {}
 
   canDeactivate(): boolean {
@@ -238,20 +242,20 @@ export class Apply implements OnInit {
   }
 
   nextStep(): void {
-  const errors = this.validateCurrentStep();
-  if (errors.length > 0) return;
+    const errors = this.validateCurrentStep();
+    if (errors.length > 0) return;
 
-  if (this.currentStep < this.totalSteps) {
-    this.currentStep++;
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
 
-    setTimeout(() => {
-      document.documentElement.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }, 0);
+      setTimeout(() => {
+        document.documentElement.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }, 0);
+    }
   }
-}
 
   prevStep(): void {
     if (this.currentStep > 1) {
@@ -396,13 +400,43 @@ export class Apply implements OnInit {
   }
 
   submit(): void {
-    const payload: ApplicationPayload = {
+    const errors = this.validateCurrentStep();
+    if (errors.length > 0) return;
+
+    if (!this.jobId || this.isSubmitting) return;
+
+    const payload: CreateApplyPayload = {
+      jobId: this.jobId,
       personalInfo: this.normalizePersonalInfo(this.personalInfo),
       educationInfo: this.normalizeEducationInfo(this.educationInfo),
       experienceInfo: this.normalizeExperienceInfo(this.experienceInfo),
     };
 
-    console.log('submitted', payload, this.cvFile);
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    this.applyService
+      .create(payload)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.isDirty = false;
+          this.cdr.detectChanges();
+
+          alert('Lamaran berhasil dikirim');
+          this.router.navigate(['/jobs']);
+        },
+        error: (error) => {
+          console.error('Failed to submit apply', error);
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+
+          const message = error?.error?.message || error?.message || 'Gagal mengirim lamaran';
+
+          alert(message);
+        },
+      });
   }
 
   private normalizePersonalInfo(data: ApplyPersonalInfo): ApplyPersonalInfo {

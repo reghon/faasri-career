@@ -98,6 +98,7 @@ export class Step1Personal implements OnChanges {
 
   @Input() cvFile: File | null = null;
   @Input() cvFileName: string | null = null;
+  @Input() showAvatar = true;
 
   @Output() dataChange = new EventEmitter<ApplicantProfilePayload>();
 
