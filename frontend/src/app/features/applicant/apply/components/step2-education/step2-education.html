@@ -14,11 +14,11 @@
           class="select select-bordered w-full"
           [class.select-error]="hasError('edu-' + $index + '-level')"
           [(ngModel)]="edu.level"
-          (ngModelChange)="clearError('edu-' + $index + '-level'); onChange()"
+          (ngModelChange)="onChange('edu-' + $index + '-level')"
         >
-          <option value="">Pilih saluran</option>
-          @for (l of educationLevels; track l) {
-            <option [value]="l">{{ l }}</option>
+          <option value="">Pilih tingkat pendidikan</option>
+          @for (level of educationLevels; track level) {
+            <option [value]="level">{{ level }}</option>
           }
         </select>
         @if (hasError('edu-' + $index + '-level')) {
@@ -27,7 +27,7 @@
       </div>
 
       <!-- NEGARA TEMPAT STUDI -->
-      <div>
+      <div [attr.data-field]="'edu-' + $index + '-country'">
         <label class="text-sm font-medium text-base-content mb-2 block">Negara Tempat Studi</label>
         <div class="flex gap-6">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -37,7 +37,7 @@
               [name]="'country' + $index"
               value="Indonesia"
               [(ngModel)]="edu.country"
-              (ngModelChange)="onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-country')"
             />
             <span class="text-sm">Indonesia</span>
           </label>
@@ -48,11 +48,14 @@
               [name]="'country' + $index"
               value="Lainnya"
               [(ngModel)]="edu.country"
-              (ngModelChange)="onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-country')"
             />
             <span class="text-sm">Lainnya</span>
           </label>
         </div>
+        @if (hasError('edu-' + $index + '-country')) {
+          <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-country') }}</p>
+        }
       </div>
 
       <!-- INSTITUSI -->
@@ -64,7 +67,7 @@
           [class.input-error]="hasError('edu-' + $index + '-institution')"
           placeholder="Masukkan nama institusi"
           [(ngModel)]="edu.institution"
-          (ngModelChange)="clearError('edu-' + $index + '-institution'); onChange()"
+          (ngModelChange)="onChange('edu-' + $index + '-institution')"
         />
         @if (hasError('edu-' + $index + '-institution')) {
           <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-institution') }}</p>
@@ -80,7 +83,7 @@
           [class.input-error]="hasError('edu-' + $index + '-major')"
           placeholder="Masukkan jurusan"
           [(ngModel)]="edu.major"
-          (ngModelChange)="clearError('edu-' + $index + '-major'); onChange()"
+          (ngModelChange)="onChange('edu-' + $index + '-major')"
         />
         @if (hasError('edu-' + $index + '-major')) {
           <p class="text-xs text-error mt-1">{{ getError('edu-' + $index + '-major') }}</p>
@@ -100,10 +103,11 @@
               [name]="'studying' + $index"
               [value]="true"
               [(ngModel)]="edu.isStillStudying"
-              (ngModelChange)="onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-end')"
             />
             <span class="text-sm">Ya</span>
           </label>
+
           <label class="flex items-center gap-2 cursor-pointer">
             <input
               type="radio"
@@ -111,7 +115,7 @@
               [name]="'studying' + $index"
               [value]="false"
               [(ngModel)]="edu.isStillStudying"
-              (ngModelChange)="onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-end')"
             />
             <span class="text-sm">Tidak</span>
           </label>
@@ -126,33 +130,33 @@
             class="select select-bordered"
             [class.select-error]="hasError('edu-' + $index + '-start')"
             [(ngModel)]="edu.startDay"
-            (ngModelChange)="onChange()"
+            (ngModelChange)="onChange('edu-' + $index + '-start')"
           >
             <option value="">Tanggal</option>
-            @for (d of days; track d) {
-              <option [value]="d">{{ d }}</option>
+            @for (day of days; track day) {
+              <option [value]="day">{{ day }}</option>
             }
           </select>
           <select
             class="select select-bordered"
             [class.select-error]="hasError('edu-' + $index + '-start')"
             [(ngModel)]="edu.startMonth"
-            (ngModelChange)="clearError('edu-' + $index + '-start'); onChange()"
+            (ngModelChange)="onChange('edu-' + $index + '-start')"
           >
             <option value="">Bulan</option>
-            @for (m of months; track m) {
-              <option [value]="m">{{ m }}</option>
+            @for (month of months; track month) {
+              <option [value]="month">{{ month }}</option>
             }
           </select>
           <select
             class="select select-bordered"
             [class.select-error]="hasError('edu-' + $index + '-start')"
             [(ngModel)]="edu.startYear"
-            (ngModelChange)="clearError('edu-' + $index + '-start'); onChange()"
+            (ngModelChange)="onChange('edu-' + $index + '-start')"
           >
             <option value="">Tahun</option>
-            @for (y of years; track y) {
-              <option [value]="y">{{ y }}</option>
+            @for (year of years; track year) {
+              <option [value]="year">{{ year }}</option>
             }
           </select>
         </div>
@@ -170,33 +174,33 @@
               class="select select-bordered"
               [class.select-error]="hasError('edu-' + $index + '-end')"
               [(ngModel)]="edu.endDay"
-              (ngModelChange)="onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-end')"
             >
               <option value="">Tanggal</option>
-              @for (d of days; track d) {
-                <option [value]="d">{{ d }}</option>
+              @for (day of days; track day) {
+                <option [value]="day">{{ day }}</option>
               }
             </select>
             <select
               class="select select-bordered"
               [class.select-error]="hasError('edu-' + $index + '-end')"
               [(ngModel)]="edu.endMonth"
-              (ngModelChange)="clearError('edu-' + $index + '-end'); onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-end')"
             >
               <option value="">Bulan</option>
-              @for (m of months; track m) {
-                <option [value]="m">{{ m }}</option>
+              @for (month of months; track month) {
+                <option [value]="month">{{ month }}</option>
               }
             </select>
             <select
               class="select select-bordered"
               [class.select-error]="hasError('edu-' + $index + '-end')"
               [(ngModel)]="edu.endYear"
-              (ngModelChange)="clearError('edu-' + $index + '-end'); onChange()"
+              (ngModelChange)="onChange('edu-' + $index + '-end')"
             >
               <option value="">Tahun</option>
-              @for (y of years; track y) {
-                <option [value]="y">{{ y }}</option>
+              @for (year of years; track year) {
+                <option [value]="year">{{ year }}</option>
               }
             </select>
           </div>
@@ -216,7 +220,7 @@
             [class.input-error]="hasError('edu-' + $index + '-gpa')"
             placeholder="Masukkan nilai akhir"
             [(ngModel)]="edu.gpa"
-            (ngModelChange)="clearError('edu-' + $index + '-gpa'); onChange()"
+            (ngModelChange)="onChange('edu-' + $index + '-gpa')"
           />
           <span class="text-sm text-base-content/60">dari</span>
           <input
@@ -225,7 +229,7 @@
             [class.input-error]="hasError('edu-' + $index + '-gpaScale')"
             placeholder="Masukkan skala"
             [(ngModel)]="edu.gpaScale"
-            (ngModelChange)="clearError('edu-' + $index + '-gpaScale'); onChange()"
+            (ngModelChange)="onChange('edu-' + $index + '-gpaScale')"
           />
         </div>
         @if (hasError('edu-' + $index + '-gpa')) {
@@ -238,6 +242,7 @@
 
       @if (data.educations.length > 1) {
         <button
+          type="button"
           class="btn btn-ghost btn-sm text-error self-start"
           (click)="confirmRemoveEducation($index)"
         >
@@ -251,7 +256,11 @@
     </div>
   }
 
-  <button class="btn btn-ghost btn-sm color-blue-primary self-start gap-2" (click)="addEducation()">
+  <button
+    type="button"
+    class="btn btn-ghost btn-sm color-blue-primary self-start gap-2"
+    (click)="addEducation()"
+  >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       class="w-4 h-4"
