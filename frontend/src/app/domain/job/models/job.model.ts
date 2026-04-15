@@ -42,9 +42,9 @@ export interface JobDetail {
   isActive: boolean;
 
   aboutRole: string;
-  responsibilities: string[];
-  qualifications: string[];
-  benefits: string[];
+  responsibilities: string;
+  qualifications: string;
+  benefits: string;
 
   department: string;
   educationLevel: string;
@@ -54,4 +54,29 @@ export interface JobDetail {
   maxSalary: number;
   currencyCode: string;
   salaryType: string;
+}
+
+export interface JobPayload {
+  categoryId: string;
+  employmentTypeId: string;
+  statusId: string;
+  jobLocationId: string;
+  educationLevelId: string;
+  departmentId: string;
+  workModeId: string;
+  title: string;
+  slug: string;
+  description: string;
+  requirements: string;
+  responsibilities: string;
+  benefits: string;
+  minSalary: number;
+  maxSalary: number;
+  currencyCode: string;
+  salaryType: string;
+  vacancyCount: number;
+  experienceMinYears: number;
+  publishedAt: string;
+  closeAt: string;
+  isActive: boolean;
 }
