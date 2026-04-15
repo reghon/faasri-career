@@ -17,7 +17,7 @@ import {
   TechnicalSkillPayload,
   TechnicalSkillService,
 } from '../../../../../domain/applicant';
-import { GenericModalComponent } from '../general/generic-modal.component';
+import { GenericModalComponent } from '../../../../../shared/components/general/generic-modal.component';
 import {
   LANGUAGE_OPTIONS,
   PROFICIENCY_OPTIONS,
