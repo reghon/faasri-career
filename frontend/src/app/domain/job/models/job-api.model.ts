@@ -32,9 +32,9 @@ export interface JobDetailApi {
   title: string;
   slug: string;
   description: string;
-  requirements: string[];
-  responsibilities: string[];
-  benefits: string | null;
+  requirements: string;
+  responsibilities: string;
+  benefits: string;
   minSalary: string;
   maxSalary: string;
   currencyCode: string;
