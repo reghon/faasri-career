@@ -23,6 +23,7 @@ import educationLevelRoutes from "./modules/job/masters/education_levels/educati
 import departmentRoutes from "./modules/job/masters/departments/department.routes";
 import jobRoutes from "./modules/job/job.routes";
 import applyRoutes from "./modules/apply/apply.routes";
+import applyStatusRoutes from "./modules/apply/statuses/apply_status.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -70,6 +71,7 @@ app.use("/api/job/departments", departmentRoutes);
 app.use("/api/job/jobs", jobRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/apply", applyRoutes);
+app.use("/api/apply/status", applyStatusRoutes);
 
 app.use(errorMiddleware);
 
