@@ -26,23 +26,6 @@ const nullableTrimmedString = (max: number, fieldName: string) =>
       message: `${fieldName} must be at most ${max} characters`,
     });
 
-const requiredStringArray = (fieldName: string, maxItems = 50, maxItemLength = 1000) =>
-  z
-    .array(
-      z
-        .string()
-        .transform((value) => value.trim())
-        .refine((value) => value.length > 0, {
-          message: `${fieldName} item is required`,
-        })
-        .refine((value) => value.length <= maxItemLength, {
-          message: `${fieldName} item must be at most ${maxItemLength} characters`,
-        }),
-    )
-    .min(1, `${fieldName} must contain at least 1 item`)
-    .max(maxItems, `${fieldName} must contain at most ${maxItems} items`)
-    .transform((items) => items.filter(Boolean));
-
 export const jobBodySchema = z
   .object({
     categoryId: z.string().uuid("Invalid category id"),
@@ -56,8 +39,8 @@ export const jobBodySchema = z
     title: requiredTrimmedString(200, "Title"),
     slug: requiredTrimmedString(220, "Slug"),
     description: requiredTrimmedString(100000, "Description"),
-    requirements: requiredStringArray("Requirements"),
-    responsibilities: requiredStringArray("Responsibilities"),
+    requirements: requiredTrimmedString(100000, "Requirements"),
+    responsibilities: requiredTrimmedString(100000, "Responsibilities"),
     benefits: nullableTrimmedString(100000, "Benefits"),
 
     minSalary: z.coerce.number().min(0, "Minimum salary must be at least 0"),
