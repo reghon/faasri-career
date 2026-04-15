@@ -14,7 +14,7 @@ import {
   WorkExperiencePayload,
   WorkExperienceService,
 } from '../../../../../domain/applicant';
-import { GenericModalComponent } from '../general/generic-modal.component';
+import { GenericModalComponent } from '../../../../../shared/components/general/generic-modal.component';
 import {
   WorkExperienceFormItem,
   WorkExperienceSectionComponent,

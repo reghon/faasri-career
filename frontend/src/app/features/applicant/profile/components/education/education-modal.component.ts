@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
-import { GenericModalComponent } from '../general/generic-modal.component';
+import { GenericModalComponent } from '../../../../../shared/components/general/generic-modal.component';
 import {
   Step2Education,
   EducationFormValue,

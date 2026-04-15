@@ -20,7 +20,7 @@ import {
   normalizeApplicantProfileForm,
 } from '../../../apply/components/step1-personal/step1-personal';
 import { FieldError } from '../../../../../shared/utils';
-import { GenericModalComponent } from '../general/generic-modal.component';
+import { GenericModalComponent } from '../../../../../shared/components/general/generic-modal.component';
 
 @Component({
   selector: 'app-profile-modal',

@@ -20,7 +20,7 @@ import {
   createCertificationSectionValue,
   normalizeCertificationSectionValue,
 } from '../../../apply/components/step3-experience/certification/certification-section';
-import { GenericModalComponent } from '../general/generic-modal.component';
+import { GenericModalComponent } from '../../../../../shared/components/general/generic-modal.component';
 
 interface CertificationFormItem extends CertificationPayload {
   id?: string;
