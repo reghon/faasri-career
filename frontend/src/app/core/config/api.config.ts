@@ -23,8 +23,19 @@ export const API_ENDPOINTS = {
   job: {
     list: `${API_URL}/api/job/jobs`,
     detail: (id: string) => `${API_URL}/api/job/jobs/${id}`,
+    jobs: `${API_URL}/api/job/jobs`,
   },
   apply: {
     root: `${API_URL}/api/apply`,
+  },
+  master: {
+    employmentTypes: `${API_URL}/api/job/employment-types`,
+    jobCategories: `${API_URL}/api/job/job-categories`,
+    jobLocations: `${API_URL}/api/job/job-locations`,
+    jobStatuses: `${API_URL}/api/job/job-statuses`,
+    workModes: `${API_URL}/api/job/work-modes`,
+    educationLevels: `${API_URL}/api/job/education-levels`,
+    departments: `${API_URL}/api/job/departments`,
+    applyStatuses: `${API_URL}/api/apply/status`,
   },
 };
