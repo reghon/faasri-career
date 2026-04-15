@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthLayout } from './layouts/auth-layout/auth-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 import { ApplicantLayout } from './layouts/applicant-layout/applicant-layout';
+import { ManagementLayout } from './layouts/management-layout/management-layout';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes-guard';
 import { guestGuard } from './core/guards/guest.guard';
 
@@ -33,6 +34,21 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/applicant/profile/profile').then((m) => m.Profile),
+      },
+    ],
+  },
+  {
+    path: 'management',
+    component: ManagementLayout,
+    children: [
+      {
+        path: 'job',
+        loadComponent: () => import('./features/management/job/job').then((m) => m.Job),
+      },
+      {
+        path: 'master-data',
+        loadComponent: () =>
+          import('./features/management/master-data/master-data').then((m) => m.MasterData),
       },
     ],
   },
