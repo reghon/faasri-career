@@ -10,8 +10,8 @@ export type Job = {
   title: string;
   slug: string;
   description: string;
-  requirements: string[];
-  responsibilities: string[];
+  requirements: string;
+  responsibilities: string;
   benefits: string | null;
   minSalary: string;
   maxSalary: string;
@@ -73,8 +73,8 @@ export type JobPayload = {
   title: string;
   slug: string;
   description: string;
-  requirements: string[];
-  responsibilities: string[];
+  requirements: string;
+  responsibilities: string;
   benefits: string | null;
   minSalary: number;
   maxSalary: number;
