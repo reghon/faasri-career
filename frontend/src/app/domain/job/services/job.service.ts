@@ -8,7 +8,7 @@ import {
   JobListItemApi,
   PaginatedJobsApi,
 } from '../models/job-api.model';
-import { JobDetail, JobListItem } from '../models/job.model';
+import { JobDetail, JobListItem, JobPayload } from '../models/job.model';
 
 export interface GetJobsParams {
   page?: number;
@@ -55,6 +55,17 @@ export class JobService {
       .pipe(map((response) => this.mapToDetailItem(response.data)));
   }
 
+  createJob(payload: JobPayload): Observable<JobDetail> {
+    return this.http
+      .post<ApiResponse<JobDetailApi>>(API_ENDPOINTS.job.jobs, payload)
+      .pipe(map((response) => this.mapToDetailItem(response.data)));
+  }
+  updateJob(id: string, payload: JobPayload): Observable<JobDetail> {
+    return this.http
+      .put<ApiResponse<JobDetailApi>>(API_ENDPOINTS.job.detail(id), payload)
+      .pipe(map((response) => this.mapToDetailItem(response.data)));
+  }
+
   private mapToListItem(item: JobListItemApi): JobListItem {
     const minSalary = Number(item.minSalary || 0);
     const maxSalary = Number(item.maxSalary || 0);
@@ -80,7 +91,7 @@ export class JobService {
       status: item.statusName,
       vacancyCount: item.vacancyCount,
       minSalary,
-      maxSalary, 
+      maxSalary,
       currencyCode: item.currencyCode,
       salaryType: item.salaryType,
     };
@@ -110,7 +121,7 @@ export class JobService {
       aboutRole: item.description,
       responsibilities: item.responsibilities,
       qualifications: item.requirements,
-      benefits: this.toBulletList(item.benefits),
+      benefits: item.benefits,
 
       department: item.departmentName,
       educationLevel: item.educationLevelName,
@@ -121,15 +132,6 @@ export class JobService {
       currencyCode: item.currencyCode,
       salaryType: item.salaryType,
     };
-  }
-
-  private toBulletList(value: string | null | undefined): string[] {
-    if (!value) return [];
-
-    return value
-      .split('\n')
-      .map((item) => item.replace(/^[-*•]\s*/, '').trim())
-      .filter(Boolean);
   }
 
   private formatExperience(experienceMinYears: string): string {
