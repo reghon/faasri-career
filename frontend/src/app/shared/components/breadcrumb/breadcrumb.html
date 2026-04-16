@@ -1,0 +1,26 @@
+@if (items.length) {
+  <div class="text-sm breadcrumbs text-base-content/60">
+    <ul>
+      @for (item of items; track $index; let isLast = $last) {
+        <li>
+          @if (item.route && !isLast) {
+            <a
+              [routerLink]="item.route"
+              class="no-underline hover:no-underline transition-colors duration-200 hover-color-blue-primary"
+            >
+              {{ item.label }}
+            </a>
+          } @else {
+            <span
+              class="no-underline"
+              [class.font-medium]="isLast"
+              [class.text-base-content]="isLast"
+            >
+              {{ item.label }}
+            </span>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+}
