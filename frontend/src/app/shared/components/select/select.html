@@ -1,0 +1,33 @@
+<div class="form-control md:col-span-2">
+  <label class="faasri-label">
+    <span>{{ label }}</span>
+  </label>
+
+  <select
+    class="select select-bordered w-full"
+    [ngModel]="model"
+    (ngModelChange)="modelChange.emit($event)"
+    [name]="name"
+    [ngClass]="{
+      'text-base-content/50': !model,
+      'text-base-content': model,
+      'select-error': error,
+    }"
+  >
+    <option value="" disabled>{{ placeholder }}</option>
+
+    @for (item of options; track item.value) {
+      <option [value]="item.value">
+        {{ item.label }}
+      </option>
+    }
+  </select>
+
+  @if (error) {
+    <label class="label">
+      <span class="label-text-alt text-error">
+        {{ error }}
+      </span>
+    </label>
+  }
+</div>
