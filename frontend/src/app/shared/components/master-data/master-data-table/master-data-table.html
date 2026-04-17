@@ -1,0 +1,92 @@
+<div class="overflow-hidden rounded-xl border border-base-300">
+  <div class="overflow-x-auto">
+    <table class="table table-zebra">
+      <thead class="bg-base-200/60">
+        <tr>
+          <th class="w-14">No</th>
+          @for (column of columns; track column.key) {
+            <th>{{ column.label }}</th>
+          }
+          <th class="w-32 text-center">Status</th>
+          <th class="w-40 text-right">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (isLoading) {
+          <tr>
+            <td [attr.colspan]="columns.length + 3" class="py-12 text-center">
+              <span class="loading loading-spinner loading-md"></span>
+              <p class="mt-2 text-sm text-base-content/60">Loading data...</p>
+            </td>
+          </tr>
+        } @else if (!items.length) {
+          <tr>
+            <td [attr.colspan]="columns.length + 3" class="py-12 text-center">
+              <div class="mx-auto max-w-sm">
+                <div class="mb-3 text-4xl">📂</div>
+                <h3 class="text-base font-semibold">Belum ada data</h3>
+                <p class="mt-1 text-sm text-base-content/60">
+                  Data untuk {{ label }} belum tersedia atau tidak cocok dengan pencarian.
+                </p>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (item of paginatedItems; track item['id']; let i = $index) {
+            <tr class="hover">
+              <td>{{ startEntry + i }}</td>
+
+              @for (column of columns; track column.key) {
+                <td>
+                  @if (column.key === 'description') {
+                    <div class="max-w-xs whitespace-pre-wrap text-sm text-base-content/80">
+                      {{ item[column.key] || '-' }}
+                    </div>
+                  } @else {
+                    <div class="font-medium">
+                      {{ item[column.key] || '-' }}
+                    </div>
+                  }
+                </td>
+              }
+
+              <td class="text-center">
+                <div
+                  class="badge rounded-xl px-3 py-3 text-xs font-semibold"
+                  [class.badge-success]="item['isActive']"
+                  [class.badge-ghost]="!item['isActive']"
+                >
+                  {{ item['isActive'] ? 'Active' : 'Inactive' }}
+                </div>
+              </td>
+
+              <td>
+                <app-table-action
+                  [showEdit]="true"
+                  [showDelete]="true"
+                  (edit)="onEdit(item)"
+                  (delete)="onDelete(item)"
+                ></app-table-action>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (!isLoading && items.length) {
+    <app-pagination
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
+      [startEntry]="startEntry"
+      [endEntry]="endEntry"
+      [totalItems]="items.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      (pageChange)="goToPage($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    ></app-pagination>
+  }
+</div>
