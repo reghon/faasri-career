@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
     list: `${API_URL}/api/job/jobs`,
     detail: (id: string) => `${API_URL}/api/job/jobs/${id}`,
     jobs: `${API_URL}/api/job/jobs`,
+    slug: (slug: string) => `${API_URL}/api/job/jobs/slug/${slug}`,
   },
   apply: {
     root: `${API_URL}/api/apply`,
@@ -37,5 +38,9 @@ export const API_ENDPOINTS = {
     educationLevels: `${API_URL}/api/job/education-levels`,
     departments: `${API_URL}/api/job/departments`,
     applyStatuses: `${API_URL}/api/apply/status`,
+  },
+  admin: {
+    users: `${API_URL}/api/auth`,
+    roles: `${API_URL}/api/role`
   },
 };
