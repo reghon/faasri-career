@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-generic-modal',
+  standalone: true,
   templateUrl: './generic-modal.component.html',
 })
 export class GenericModalComponent {
@@ -15,7 +16,7 @@ export class GenericModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<void>();
 
-  onBackdropClick(event: MouseEvent) {
+  onBackdropClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).tagName === 'DIALOG') {
       this.close.emit();
     }
