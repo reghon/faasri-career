@@ -55,6 +55,12 @@ export class JobService {
       .pipe(map((response) => this.mapToDetailItem(response.data)));
   }
 
+   getJobBySlug(slug: string): Observable<JobDetail> {
+    return this.http
+      .get<ApiResponse<JobDetailApi>>(API_ENDPOINTS.job.slug(slug))
+      .pipe(map((response) => this.mapToDetailItem(response.data)));
+  }
+
   createJob(payload: JobPayload): Observable<JobDetail> {
     return this.http
       .post<ApiResponse<JobDetailApi>>(API_ENDPOINTS.job.jobs, payload)
