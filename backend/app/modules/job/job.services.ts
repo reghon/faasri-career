@@ -31,6 +31,16 @@ export const jobService = {
     return job;
   },
 
+  async getBySlug(slug: string) {
+    const job = await jobRepository.getBySlug(slug);
+
+    if (!job) {
+      throw new AppError(404, "Job not found");
+    }
+
+    return job;
+  },
+
   async create(data: JobPayload, actorId: string) {
     const existingJob = await jobRepository.getBySlug(data.slug);
 

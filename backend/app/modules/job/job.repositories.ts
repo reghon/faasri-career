@@ -15,8 +15,8 @@ export const jobRepository = {
     return queryCamelOne<JobDetail>(jobQueries.getById, [id]);
   },
 
-  async getBySlug(slug: string): Promise<Job | null> {
-    return queryCamelOne<Job>(jobQueries.getBySlug, [slug]);
+  async getBySlug(slug: string): Promise<JobDetail | null> {
+    return queryCamelOne<JobDetail>(jobQueries.getBySlug, [slug]);
   },
 
   async create(data: JobPayload, actorId: string): Promise<Job | null> {

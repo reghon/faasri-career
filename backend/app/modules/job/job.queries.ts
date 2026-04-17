@@ -66,9 +66,9 @@ export const jobQueries = {
 
   getBySlug: `
     SELECT ${BASE_FIELDS}
-    FROM jobs
-    WHERE slug = $1
-      AND deleted_at IS NULL
+    FROM jobs j
+    WHERE j.slug = $1
+      AND j.deleted_at IS NULL
     LIMIT 1
   `,
 

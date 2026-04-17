@@ -71,6 +71,11 @@ export const jobQuerySchema = z.object({
   limit: z.coerce.number().int("Limit must be an integer").min(1, "Limit must be at least 1").max(100, "Limit must be at most 100").default(10),
 });
 
+export const jobSlugParamsSchema = z.object({
+  slug: z.string().trim().min(1, "Slug is required").max(220, "Slug must be at most 220 characters"),
+});
+
 export type JobBodyInput = z.infer<typeof jobBodySchema>;
 export type JobParamsInput = z.infer<typeof jobParamsSchema>;
 export type JobQueryInput = z.infer<typeof jobQuerySchema>;
+export type JobSlugParamsInput = z.infer<typeof jobSlugParamsSchema>;
