@@ -3,6 +3,8 @@ CREATE TABLE IF NOT EXISTS users (
   role_id UUID REFERENCES roles(id),
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
+  otp VARCHAR(6),
+  otp_expired_at TIMESTAMP,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   created_by UUID REFERENCES users(id),
