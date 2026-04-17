@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   education_level_id UUID REFERENCES education_levels(id) NOT NULL,
   department_id UUID REFERENCES departments(id) NOT NULL,
   work_mode_id UUID REFERENCES work_modes(id) NOT NULL,
+  management_profile_id UUID REFERENCES management_profiles(id),
   title VARCHAR(200) NOT NULL,
   slug VARCHAR(220) NOT NULL UNIQUE,
   description TEXT NOT NULL,
