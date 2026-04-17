@@ -50,6 +50,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/management/master-data/master-data').then((m) => m.MasterData),
       },
+      {
+        path: 'job/:slug',
+        loadComponent: () =>
+          import('./features/management/job-detail/job-detail').then((m) => m.JobDetail),
+      },
+      {
+        path: 'admin',
+        loadComponent: () =>
+          import('./features/management/admin/admin-master-data').then((m) => m.AdminMasterData),
+      },
     ],
   },
   {
@@ -81,6 +91,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    loadComponent: () => import('./features/common/not-found/not-found.component').then((m) => m.NotFound),
+    loadComponent: () =>
+      import('./features/common/not-found/not-found.component').then((m) => m.NotFound),
   },
 ];
