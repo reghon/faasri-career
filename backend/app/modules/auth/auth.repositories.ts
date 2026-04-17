@@ -1,6 +1,6 @@
 import { queryCamelOne } from "../../utils/db.util";
-import { userQueries } from "./user.queries";
-import { RefreshTokenRecord, User, UserMe, UserRegisterResult } from "./user.types";
+import { userQueries } from "./auth.queries";
+import { RefreshTokenRecord, User, UserMe, UserRegisterResult } from "./auth.types";
 
 export const userRepository = {
   async findByEmail(email: string): Promise<User | null> {

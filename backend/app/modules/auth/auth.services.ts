@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { AppError } from "../../errors/app-error";
 import { config } from "../../configurations/env";
-import { userRepository } from "./user.repositories";
+import { userRepository } from "./auth.repositories";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../utils/jwt.util";
 import { sendOtpEmail } from "../../utils/mailer.util";
 

@@ -2,8 +2,8 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { asyncHandler } from "../../utils/async-handler";
-import { userController } from "./user.controllers";
-import { loginBodySchema, registerBodySchema, verifyOtpBodySchema } from "./user.schemas";
+import { userController } from "./auth.controllers";
+import { loginBodySchema, registerBodySchema, verifyOtpBodySchema } from "./auth.schemas";
 
 const router: Router = Router();
 

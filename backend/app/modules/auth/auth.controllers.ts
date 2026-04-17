@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { requireUserId } from "../../utils/request-user.util";
 import { getValidatedBody } from "../../utils/validated-request.util";
-import { LoginBodyInput, RegisterBodyInput, VerifyOtpBodyInput } from "./user.schemas";
-import { userService } from "./user.services";
+import { LoginBodyInput, RegisterBodyInput, VerifyOtpBodyInput } from "./auth.schemas";
+import { userService } from "./auth.services";
 
 const refreshCookieOptions = {
   httpOnly: true,
