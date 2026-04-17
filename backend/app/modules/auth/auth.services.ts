@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { AppError } from "../../errors/app-error";
 import { config } from "../../configurations/env";
-import { userRepository } from "./auth.repositories";
+import { authRepository } from "./auth.repositories";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../utils/jwt.util";
 import { sendOtpEmail } from "../../utils/mailer.util";
 
@@ -11,15 +11,15 @@ const generateOtp = (): string => {
 
 const DEFAULT_REGISTER_ROLE = "applicant";
 
-export const userService = {
+export const authService = {
   async register(email: string, password: string) {
-    const existingUser = await userRepository.findByEmail(email);
+    const existingUser = await authRepository.findByEmail(email);
 
     if (existingUser) {
       throw new AppError(409, "Email already registered");
     }
 
-    const defaultRole = await userRepository.findRoleByName(DEFAULT_REGISTER_ROLE);
+    const defaultRole = await authRepository.findRoleByName(DEFAULT_REGISTER_ROLE);
 
     if (!defaultRole) {
       throw new AppError(500, "Default role not found");
@@ -30,7 +30,7 @@ export const userService = {
     const otp = generateOtp();
     const otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    const user = await userRepository.create(email, hashedPassword, defaultRole.id, otp, otpExpiredAt);
+    const user = await authRepository.create(email, hashedPassword, defaultRole.id, otp, otpExpiredAt);
 
     if (!user) {
       throw new AppError(500, "Failed to register user");
@@ -42,7 +42,7 @@ export const userService = {
   },
 
   async verifyOtp(email: string, otp: string) {
-    const user = await userRepository.findByEmail(email);
+    const user = await authRepository.findByEmail(email);
 
     if (!user) {
       throw new AppError(404, "User not found");
@@ -65,7 +65,7 @@ export const userService = {
       throw new AppError(500, "User role not found");
     }
 
-    await userRepository.activateUser(user.id);
+    await authRepository.activateUser(user.id);
 
     const accessToken = signAccessToken({
       userId: user.id,
@@ -80,13 +80,13 @@ export const userService = {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await userRepository.storeRefreshToken(user.id, refreshToken, expiresAt);
+    await authRepository.storeRefreshToken(user.id, refreshToken, expiresAt);
 
     return { accessToken, refreshToken };
   },
 
   async login(email: string, password: string) {
-    const user = await userRepository.findByEmail(email);
+    const user = await authRepository.findByEmail(email);
 
     if (!user) {
       throw new AppError(401, "Invalid email or password");
@@ -119,17 +119,17 @@ export const userService = {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await userRepository.storeRefreshToken(user.id, refreshToken, expiresAt);
+    await authRepository.storeRefreshToken(user.id, refreshToken, expiresAt);
 
     return { accessToken, refreshToken };
   },
 
   async logout(refreshToken: string) {
-    await userRepository.deleteRefreshToken(refreshToken);
+    await authRepository.deleteRefreshToken(refreshToken);
   },
 
   async refreshAccessToken(refreshToken: string) {
-    const storedRefreshToken = await userRepository.findRefreshToken(refreshToken);
+    const storedRefreshToken = await authRepository.findRefreshToken(refreshToken);
 
     if (!storedRefreshToken) {
       throw new AppError(401, "Invalid or expired refresh token");
@@ -137,7 +137,7 @@ export const userService = {
 
     const payload = verifyRefreshToken(refreshToken);
 
-    const user = await userRepository.findById(payload.userId);
+    const user = await authRepository.findById(payload.userId);
 
     if (!user) {
       throw new AppError(404, "User not found");
@@ -156,7 +156,7 @@ export const userService = {
   },
 
   async getMe(userId: string) {
-    const user = await userRepository.findById(userId);
+    const user = await authRepository.findById(userId);
 
     if (!user) {
       throw new AppError(404, "User not found");

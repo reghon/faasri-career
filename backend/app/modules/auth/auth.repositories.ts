@@ -1,37 +1,37 @@
 import { queryCamelOne } from "../../utils/db.util";
-import { userQueries } from "./auth.queries";
-import { RefreshTokenRecord, User, UserMe, UserRegisterResult } from "./auth.types";
+import { authQueries } from "./auth.queries";
+import { RefreshTokenRecord, Auth, AuthMe, AuthRegisterResult } from "./auth.types";
 
-export const userRepository = {
-  async findByEmail(email: string): Promise<User | null> {
-    return queryCamelOne<User>(userQueries.findByEmail, [email]);
+export const authRepository = {
+  async findByEmail(email: string): Promise<Auth | null> {
+    return queryCamelOne<Auth>(authQueries.findByEmail, [email]);
   },
 
-  async findById(id: string): Promise<UserMe | null> {
-    return queryCamelOne<UserMe>(userQueries.findById, [id]);
+  async findById(id: string): Promise<AuthMe | null> {
+    return queryCamelOne<AuthMe>(authQueries.findById, [id]);
   },
 
-  async create(email: string, hashedPassword: string, roleId: string, otp: string, otpExpiredAt: Date): Promise<UserRegisterResult | null> {
-    return queryCamelOne<UserRegisterResult>(userQueries.create, [roleId, email, hashedPassword, otp, otpExpiredAt]);
+  async create(email: string, hashedPassword: string, roleId: string, otp: string, otpExpiredAt: Date): Promise<AuthRegisterResult | null> {
+    return queryCamelOne<AuthRegisterResult>(authQueries.create, [roleId, email, hashedPassword, otp, otpExpiredAt]);
   },
 
   async activateUser(id: string): Promise<void> {
-    await queryCamelOne(userQueries.activateUser, [id]);
+    await queryCamelOne(authQueries.activateUser, [id]);
   },
 
   async findRoleByName(name: string): Promise<{ id: string; name: string } | null> {
-    return queryCamelOne<{ id: string; name: string }>(userQueries.findRoleByName, [name]);
+    return queryCamelOne<{ id: string; name: string }>(authQueries.findRoleByName, [name]);
   },
 
   async storeRefreshToken(userId: string, token: string, expiresAt: Date): Promise<void> {
-    await queryCamelOne(userQueries.storeRefreshToken, [userId, token, expiresAt]);
+    await queryCamelOne(authQueries.storeRefreshToken, [userId, token, expiresAt]);
   },
 
   async findRefreshToken(token: string): Promise<RefreshTokenRecord | null> {
-    return queryCamelOne<RefreshTokenRecord>(userQueries.findRefreshToken, [token]);
+    return queryCamelOne<RefreshTokenRecord>(authQueries.findRefreshToken, [token]);
   },
 
   async deleteRefreshToken(token: string): Promise<void> {
-    await queryCamelOne(userQueries.deleteRefreshToken, [token]);
+    await queryCamelOne(authQueries.deleteRefreshToken, [token]);
   },
 };

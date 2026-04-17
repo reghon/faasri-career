@@ -1,4 +1,4 @@
-export type User = {
+export type Auth = {
   id: string;
   roleId: string | null;
   email: string;
@@ -15,7 +15,7 @@ export type User = {
   roleName: string | null;
 };
 
-export type UserMe = {
+export type AuthMe = {
   id: string;
   email: string;
   isActive: boolean;
@@ -23,7 +23,7 @@ export type UserMe = {
   roleName: string | null;
 };
 
-export type UserRegisterResult = {
+export type AuthRegisterResult = {
   id: string;
   email: string;
   isActive: boolean;

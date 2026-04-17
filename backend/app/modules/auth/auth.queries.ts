@@ -1,4 +1,4 @@
-export const userQueries = {
+export const authQueries = {
   findByEmail: `
     SELECT
       u.id, u.role_id, u.email, u.password, u.is_active, u.otp,
