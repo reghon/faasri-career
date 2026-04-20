@@ -40,7 +40,7 @@ export const API_ENDPOINTS = {
     applyStatuses: `${API_URL}/api/apply/status`,
   },
   admin: {
-    users: `${API_URL}/api/auth`,
+    users: `${API_URL}/api/user`,
     roles: `${API_URL}/api/role`
   },
 };
