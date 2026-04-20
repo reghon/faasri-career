@@ -1,4 +1,4 @@
-import { userRepository } from "../users/user.repositories";
+import { authRepository } from "../auth/auth.repositories";
 import { applicantProfileRepository } from "./applicant_profile/applicant_profile.repositories";
 import { workExperienceRepository } from "./work_experiences/work_experience.repositories";
 import { educationRepository } from "./educations/education.repositories";
@@ -9,7 +9,7 @@ import { ApplicantMaster } from "./applicant_master.types";
 
 export const applicantMasterRepository = {
   async getByUserId(userId: string): Promise<ApplicantMaster | null> {
-    const user = await userRepository.findById(userId);
+    const user = await authRepository.findById(userId);
 
     if (!user) {
       return null;
