@@ -6,7 +6,7 @@ import pool from "./configurations/database";
 import { config } from "./configurations/env";
 import path from "path";
 
-import userRoutes from "./modules/users/user.routes";
+import authRoutes from "./modules/auth/auth.routes";
 import applicantProfileRoutes from "./modules/applicant/applicant_profile/applicant_profile.routes";
 import workExperienceRoutes from "./modules/applicant/work_experiences/work_experience.routes";
 import educationRoutes from "./modules/applicant/educations/education.routes";
@@ -25,6 +25,7 @@ import jobRoutes from "./modules/job/job.routes";
 import applyRoutes from "./modules/apply/apply.routes";
 import applyStatusRoutes from "./modules/apply/statuses/apply_status.routes";
 import roleRoutes from "./modules/role/role.routes";
+import userRoutes from "./modules/user/user.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -54,7 +55,7 @@ app.get("/", (_req, res) => {
   res.status(200).send("Backend is running");
 });
 
-app.use("/api/auth", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/applicant/profile", applicantProfileRoutes);
 app.use("/api/applicant/work-experiences", workExperienceRoutes);
 app.use("/api/applicant/educations", educationRoutes);
@@ -74,6 +75,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/apply", applyRoutes);
 app.use("/api/apply/status", applyStatusRoutes);
 app.use("/api/role", roleRoutes);
+app.use("/api/user", userRoutes);
 
 app.use(errorMiddleware);
 
