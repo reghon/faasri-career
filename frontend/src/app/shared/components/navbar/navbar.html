@@ -1,13 +1,14 @@
 <nav
-  class="navbar border-b border-base-200 px-6 shadow-elevation-3 fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  class="navbar fixed left-0 right-0 top-0 z-50 border-b border-base-300 px-6 transition-all duration-300 h-[72px]"
   [class.bg-base-100]="isWhite"
   [class.bg-transparent]="!isWhite"
   [class.border-transparent]="!isWhite"
-  [class.shadow-none]="!isWhite"
+  [class.shadow-none]="isManagement || !isWhite"
+  [class.shadow-elevation-3]="isWhite"
 >
-  <div class="container-app flex items-center w-full">
+  <div class="container-app flex w-full items-center justify-between">
     <!-- LOGO -->
-    <div class="flex-1">
+    <div class="flex items-center">
       <a href="/" class="inline-flex items-center gap-2">
         <img
           [src]="isWhite ? 'faasri_career_logo.png' : 'faasri_career_logo_light.png'"
@@ -15,6 +16,65 @@
           class="h-10"
         />
       </a>
+    </div>
+
+    <div class="flex justify-center flex-1" *ngIf="isManagement">
+      <ul class="flex h-14 items-center gap-8 text-[15px] font-medium text-base-content">
+        <li>
+          <a
+            routerLink="/management/dashboard"
+            routerLinkActive="color-blue-primary"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/management/applicant"
+            routerLinkActive="color-blue-primary"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Applicant
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/management/job"
+            routerLinkActive="color-blue-primary"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Job
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/management/applications"
+            routerLinkActive="color-blue-primary"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Applications
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/management/master-data"
+            routerLinkActive="color-blue-primary"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Master Data
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/management/admin"
+            routerLinkActive="color-blue-primary"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Admin
+          </a>
+        </li>
+      </ul>
     </div>
 
     <!-- MENU: belum login -->
@@ -29,32 +89,33 @@
 
     <!-- MENU: sudah login -->
     <div class="flex items-center gap-4" *ngIf="isLoggedIn">
-      <a routerLink="/" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite"> Home </a>
+      <a
+        *ngIf="!isManagement"
+        routerLink="/"
+        class="btn btn-ghost font-semibold"
+        [class.text-white]="!isWhite"
+      >
+        Home
+      </a>
 
-      <!-- Notifikasi -->
       <button class="btn btn-ghost btn-circle" [class.text-white]="!isWhite">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="none"
+          class="h-5 w-5"
+          fill="currentColor"
           viewBox="0 0 24 24"
-          stroke="currentColor"
         >
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+            d="M12 2a6 6 0 0 0-6 6v3.586L4.293 13.293A1 1 0 0 0 5 15h14a1 1 0 0 0 .707-1.707L18 11.586V8a6 6 0 0 0-6-6zm0 20a3 3 0 0 0 2.995-2.824L15 19h-6a3 3 0 0 0 3 3z"
           />
         </svg>
       </button>
 
-      <!-- User dropdown -->
       <div class="dropdown dropdown-end">
         <div
           tabindex="0"
           role="button"
-          class="flex items-center gap-2 cursor-pointer px-2 py-1 rounded-lg hover:bg-base-200 transition"
+          class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-base-200"
         >
           <div class="avatar">
             <div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
@@ -70,7 +131,9 @@
               </svg>
             </div>
           </div>
-          <span class="font-semibold text-sm" [class.text-white]="!isWhite">{{ displayName }}</span>
+
+          <span class="text-sm font-semibold" [class.text-white]="!isWhite">{{ displayName }}</span>
+
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="w-4 h-4"
@@ -87,12 +150,23 @@
             />
           </svg>
         </div>
+
         <ul
           tabindex="0"
-          class="dropdown-content menu bg-base-100 rounded-box shadow-lg w-48 p-2 mt-2 z-50"
+          class="dropdown-content menu z-50 mt-2 w-48 rounded-box bg-base-100 p-2 shadow-lg"
         >
           <li><a routerLink="/profile">Profile</a></li>
-          <li><a routerLink="/settings">Settings</a></li>
+
+          <ng-container *ngIf="isManagement; else publicMenu">
+            <li><a routerLink="/settings">Settings</a></li>
+          </ng-container>
+
+          <ng-template #publicMenu>
+            <li><a routerLink="/settings">Lamaran Disimpan</a></li>
+            <li><a routerLink="/settings">Riwayat Lamaran</a></li>
+            <li><a routerLink="/settings">Settings</a></li>
+          </ng-template>
+
           <li><hr class="my-1" /></li>
           <li><a class="text-error" (click)="logout()">Logout</a></li>
         </ul>
