@@ -1,0 +1,67 @@
+<div class="min-h-screen bg-base-200/40">
+  <div class="mx-auto flex max-w-7xl flex-col gap-4 p-4 md:p-6">
+    <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+
+    <div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
+      <div class="border-b border-base-300 p-5">
+        <h1 class="text-2xl font-bold text-base-content">Job Detail</h1>
+        <p class="mt-1 text-sm text-base-content/70">Detail informasi lowongan pekerjaan.</p>
+      </div>
+
+      <div class="p-5">
+        @if (isLoading) {
+          <div class="py-12 text-center">
+            <span class="loading loading-spinner loading-md"></span>
+            <p class="mt-2 text-sm text-base-content/60">Loading job detail...</p>
+          </div>
+        } @else if (errorMessage) {
+          <div class="alert alert-error rounded-xl">
+            <span>{{ errorMessage }}</span>
+          </div>
+        } @else if (job) {
+          <div class="grid gap-4 md:grid-cols-2">
+            <div>
+              <p class="text-sm text-base-content/60">Title</p>
+              <p class="font-semibold text-base-content">{{ job.title || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-sm text-base-content/60">Slug</p>
+              <p class="font-medium text-base-content">{{ job.slug || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-sm text-base-content/60">Department</p>
+              <p class="font-medium text-base-content">{{ job.department || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-sm text-base-content/60">Location</p>
+              <p class="font-medium text-base-content">{{ job.location || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-sm text-base-content/60">Work Type</p>
+              <p class="font-medium text-base-content">{{ job.workType || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-sm text-base-content/60">Job Type</p>
+              <p class="font-medium text-base-content">{{ job.jobType || '-' }}</p>
+            </div>
+
+            <div>
+              <p class="text-sm text-base-content/60">Status</p>
+              <p class="font-medium text-base-content">{{ job.status || '-' }}</p>
+            </div>
+
+          </div>
+        } @else {
+          <div class="py-12 text-center">
+            <p class="text-sm text-base-content/60">Data job tidak ditemukan.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
