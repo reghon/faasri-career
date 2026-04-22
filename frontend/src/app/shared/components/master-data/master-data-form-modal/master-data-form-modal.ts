@@ -5,6 +5,19 @@ import { GenericModalComponent } from '../../general/generic-modal.component';
 
 type FieldType = 'text' | 'textarea' | 'switch' | 'number';
 
+export interface MasterDataFieldConfig {
+  key: string;
+  label: string;
+  type: FieldType;
+  required?: boolean;
+  placeholder?: string;
+  rows?: number;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: RegExp;
+  patternMessage?: string;
+}
+
 @Component({
   selector: 'app-master-data-form-modal',
   standalone: true,
@@ -15,14 +28,7 @@ export class MasterDataFormModal {
   @Input() open = false;
   @Input() title = '';
   @Input() description = '';
-  @Input() fields: Array<{
-    key: string;
-    label: string;
-    type: FieldType;
-    required?: boolean;
-    placeholder?: string;
-    rows?: number;
-  }> = [];
+  @Input() fields: MasterDataFieldConfig[] = [];
   @Input() form: Record<string, any> = {};
   @Input() errors: Record<string, string> = {};
   @Input() isSubmitting = false;
@@ -30,14 +36,24 @@ export class MasterDataFormModal {
   @Input() feedbackMessage = '';
   @Input() submitLabel = 'Save';
 
-  @Output() formChange = new EventEmitter<Record<string, any>>();
+  @Output() formChange = new EventEmitter<{
+    key: string;
+    value: any;
+    form: Record<string, any>;
+  }>();
   @Output() close = new EventEmitter<void>();
   @Output() submit = new EventEmitter<void>();
 
   updateField(key: string, value: any): void {
-    this.formChange.emit({
+    const nextForm = {
       ...this.form,
       [key]: value,
+    };
+
+    this.formChange.emit({
+      key,
+      value,
+      form: nextForm,
     });
   }
 
