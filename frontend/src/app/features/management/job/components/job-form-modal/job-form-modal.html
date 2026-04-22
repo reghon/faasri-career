@@ -1,0 +1,503 @@
+<app-generic-modal
+  [open]="open"
+  [title]="isEditMode ? 'Ubah Lowongan' : 'Buat Lowongan'"
+  [isSubmitting]="isSubmitting"
+  cancelLabel="Batal"
+  [saveLabel]="isEditMode ? 'Simpan Perubahan' : 'Simpan'"
+  savingLabel="Menyimpan..."
+  (close)="handleClose()"
+  (save)="onSave()"
+>
+  @if (errors['general']) {
+    <div class="alert alert-error mb-4 rounded-xl">
+      <span>{{ errors['general'] }}</span>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else {
+    <form class="space-y-10" (submit)="$event.preventDefault()">
+      <section class="space-y-4 pt-1">
+        <div>
+          <h3 class="text-base font-semibold text-base-content">Informasi Dasar</h3>
+          <p class="mt-1 text-sm text-base-content/60">
+            Data utama lowongan yang akan tampil di sistem.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+          <div class="form-control md:col-span-4">
+            <label class="faasri-label">
+              <span>
+                Judul Lowongan
+                <span class="text-error">*</span>
+              </span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.title"
+              [class.input-error]="!!errors['title']"
+              placeholder="Contoh: Frontend Developer"
+            />
+            @if (errors['title']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['title'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Slug</span>
+            </label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.slug"
+              name="slug"
+              [class.input-error]="!!errors['slug']"
+              placeholder="frontend-developer"
+            />
+            @if (errors['slug']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['slug'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <app-select
+              label="Kategori"
+              name="categoryId"
+              [(model)]="form.categoryId"
+              [options]="categories.map(c => ({ label: c.name, value: c.id }))"
+              placeholder="Pilih kategori"
+              [error]="errors['categoryId']"
+            />
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <app-select
+              label="Tipe Pekerjaan"
+              name="employmentTypeId"
+              [(model)]="form.employmentTypeId"
+              [options]="employmentTypes.map(et => ({ label: et.name, value: et.id }))"
+              placeholder="Pilih tipe pekerjaan"
+              [error]="errors['employmentTypeId']"
+            />
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <app-select
+              label="Status"
+              name="statusId"
+              [(model)]="form.statusId"
+              [options]="statuses.map(s => ({ label: s.name, value: s.id }))"
+              placeholder="Pilih status"
+              [error]="errors['statusId']"
+            />
+          </div>
+
+          <div class="form-control md:col-span-3">
+            <app-select
+              label="Departemen"
+              name="departmentId"
+              [(model)]="form.departmentId"
+              [options]="departments.map(d => ({ label: d.name, value: d.id }))"
+              placeholder="Pilih departemen"
+              [error]="errors['departmentId']"
+            />
+          </div>
+
+          <div class="form-control md:col-span-3">
+            <app-select
+              label="Minimum Pendidikan"
+              name="educationLevelId"
+              [(model)]="form.educationLevelId"
+              [options]="educationLevels.map(el => ({ label: el.name, value: el.id }))"
+              placeholder="Pilih pendidikan"
+              [error]="errors['educationLevelId']"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-4 border-t border-base-300 pt-6">
+        <div>
+          <h3 class="text-base font-semibold text-base-content">Lokasi & Pola Kerja</h3>
+          <p class="mt-1 text-sm text-base-content/60">
+            Atur lokasi kerja dan mode pelaksanaan pekerjaan.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+          <div class="form-control md:col-span-3">
+            <app-select
+              label="Lokasi Kerja"
+              name="jobLocationId"
+              [(model)]="form.jobLocationId"
+              [options]="jobLocations.map(jl => ({ label: jl.name, value: jl.id }))"
+              placeholder="Pilih lokasi kerja"
+              [error]="errors['jobLocationId']"
+            />
+          </div>
+
+          <div class="form-control md:col-span-3">
+            <app-select
+              label="Mode Kerja"
+              name="workModeId"
+              [(model)]="form.workModeId"
+              [options]="workModes.map(jl => ({ label: jl.name, value: jl.id }))"
+              placeholder="Pilih Mode Kerja"
+              [error]="errors['workModeId']"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-4 border-t border-base-300 pt-6">
+        <div>
+          <h3 class="text-base font-semibold text-base-content">Kompensasi & Kebutuhan</h3>
+          <p class="mt-1 text-sm text-base-content/60">
+            Tentukan kisaran gaji, jumlah posisi, dan pengalaman minimum.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Currency Code</span>
+            </label>
+            <input
+              disabled
+              type="text"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.currencyCode"
+              name="currencyCode"
+              [class.input-error]="!!errors['currencyCode']"
+              placeholder="IDR"
+            />
+            @if (errors['currencyCode']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['currencyCode'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Minimum Gaji</span>
+            </label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [ngModel]="formatRupiah(form.minSalary)"
+              (ngModelChange)="onSalaryChange($event, 'minSalary')"
+              (keypress)="onlyNumber($event, 'minSalary')"
+              (paste)="onPaste($event, 'minSalary')"
+              name="minSalary"
+              [class.input-error]="!!errors['minSalary']"
+              placeholder="Rp. 0"
+            />
+            @if (errors['minSalary']) {
+              <span class="text-xs text-error mt-1">
+                {{ errors['minSalary'] }}
+              </span>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Maksimum Gaji</span>
+            </label>
+            <input
+              type="text"
+              class="input input-bordered w-full"
+              [ngModel]="formatRupiah(form.maxSalary)"
+              (ngModelChange)="onSalaryChange($event, 'maxSalary')"
+              (keypress)="onlyNumber($event, 'maxSalary')"
+              (paste)="onPaste($event, 'maxSalary')"
+              name="maxSalary"
+              [class.input-error]="!!errors['maxSalary']"
+              placeholder="Rp. 0"
+            />
+            @if (errors['maxSalary']) {
+              <span class="text-xs text-error mt-1">
+                {{ errors['maxSalary'] }}
+              </span>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Salary Type</span>
+            </label>
+
+            <select
+              class="select select-bordered w-full"
+              [(ngModel)]="form.salaryType"
+              name="salaryType"
+              [ngClass]="{
+                'text-base-content/50': !form.salaryType,
+                'text-base-content': form.salaryType,
+                'select-error': errors['salaryType'],
+              }"
+            >
+              <option value="" disabled>Pilih Tipe Gaji</option>
+              <option value="month">Bulan</option>
+              <option value="year">Tahun</option>
+            </select>
+
+            @if (errors['salaryType']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['salaryType'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Jumlah Lowongan</span>
+            </label>
+            <input
+              type="number"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.vacancyCount"
+              name="vacancyCount"
+              [class.input-error]="!!errors['vacancyCount']"
+              placeholder="1"
+            />
+            @if (errors['vacancyCount']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['vacancyCount'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control md:col-span-2">
+            <label class="faasri-label">
+              <span>Minimum Pengalaman (Tahun)</span>
+            </label>
+            <input
+              type="number"
+              step="0.5"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.experienceMinYears"
+              name="experienceMinYears"
+              [class.input-error]="!!errors['experienceMinYears']"
+              placeholder="0"
+            />
+            @if (errors['experienceMinYears']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['experienceMinYears'] }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-4 border-t border-base-300 pt-6">
+        <div>
+          <h3 class="text-base font-semibold text-base-content">Publikasi</h3>
+          <p class="mt-1 text-sm text-base-content/60">
+            Atur jadwal tayang lowongan dan status aktifnya.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+          <div class="form-control md:col-span-3">
+            <label class="faasri-label">
+              <span>Tanggal Publish</span>
+            </label>
+            <input
+              type="datetime-local"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.publishedAt"
+              name="publishedAt"
+              [class.input-error]="!!errors['publishedAt']"
+              placeholder="Tanggal Publish"
+            />
+            @if (errors['publishedAt']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['publishedAt'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control md:col-span-3">
+            <label class="faasri-label">
+              <span>Tanggal Tutup</span>
+            </label>
+            <input
+              type="datetime-local"
+              class="input input-bordered w-full"
+              [(ngModel)]="form.closeAt"
+              name="closeAt"
+              [class.input-error]="!!errors['closeAt']"
+              placeholder="Tanggal Tutup"
+            />
+            @if (errors['closeAt']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['closeAt'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="md:col-span-6">
+            <div class="flex items-start justify-between gap-4 border-t border-base-300/60 pt-4">
+              <div>
+                <p class="text-sm font-medium text-base-content">Status Aktif</p>
+                <p class="mt-1 text-sm text-base-content/60">
+                  Aktifkan jika lowongan siap digunakan atau ditampilkan di sistem.
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                class="toggle toggle-faasri mt-1 shrink-0"
+                [(ngModel)]="form.isActive"
+                name="isActive"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-4 border-t border-base-300 pt-6">
+        <div>
+          <h3 class="text-base font-semibold text-base-content">Konten Lowongan</h3>
+          <p class="mt-1 text-sm text-base-content/60">
+            Isi deskripsi, kebutuhan, tanggung jawab, dan benefit lowongan.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="form-control">
+            <label class="faasri-label">
+              <span>Deskripsi</span>
+            </label>
+            <div
+              class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+              [class.border-error]="!!errors['description']"
+            >
+              <quill-editor
+                [(ngModel)]="form.description"
+                name="description"
+                [modules]="modules"
+                theme="snow"
+                class="quill-faasri block w-full bg-base-100"
+              >
+              </quill-editor>
+            </div>
+            @if (errors['description']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['description'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control">
+            <label class="faasri-label">
+              <span>Requirements</span>
+            </label>
+            <div
+              class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+              [class.border-error]="!!errors['requirements']"
+            >
+              <quill-editor
+                [(ngModel)]="form.requirements"
+                name="requirements"
+                [modules]="modules"
+                theme="snow"
+                class="quill-faasri block w-full bg-base-100"
+              >
+              </quill-editor>
+            </div>
+            @if (errors['requirements']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['requirements'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control">
+            <label class="faasri-label">
+              <span>Responsibilities</span>
+            </label>
+            <div
+              class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+              [class.border-error]="!!errors['responsibilities']"
+            >
+              <quill-editor
+                [(ngModel)]="form.responsibilities"
+                name="responsibilities"
+                [modules]="modules"
+                theme="snow"
+                class="quill-faasri block w-full bg-base-100"
+              >
+              </quill-editor>
+            </div>
+            @if (errors['responsibilities']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['responsibilities'] }}
+                </span>
+              </label>
+            }
+          </div>
+
+          <div class="form-control">
+            <label class="faasri-label">
+              <span>Benefits</span>
+            </label>
+            <div
+              class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+              [class.border-error]="!!errors['benefits']"
+            >
+              <quill-editor
+                [(ngModel)]="form.benefits"
+                name="benefits"
+                [modules]="modules"
+                theme="snow"
+                class="quill-faasri block w-full bg-base-100"
+              >
+              </quill-editor>
+            </div>
+            @if (errors['benefits']) {
+              <label class="label">
+                <span class="label-text-alt text-error">
+                  {{ errors['benefits'] }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+      </section>
+    </form>
+  }
+</app-generic-modal>
