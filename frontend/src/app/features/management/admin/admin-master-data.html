@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-base-200/40">
+  <div class="mx-auto flex max-w-7xl flex-col gap-6 p-4 md:p-6">
+    <div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
+      <div
+        class="flex flex-col gap-4 border-b border-base-300 p-5 md:flex-row md:items-center md:justify-between"
+      >
+        <div>
+          <h1 class="text-2xl font-bold text-base-content">Admin Management</h1>
+          <p class="mt-1 text-sm text-base-content/70">
+            Kelola data admin seperti role dan user dengan tampilan yang konsisten.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-4 md:p-5">
+        <div class="no-scrollbar mb-5 overflow-x-auto">
+          <div class="tabs tabs-boxed inline-flex rounded-xl bg-base-200 p-1">
+            @for (config of configs; track config.key) {
+              <button
+                type="button"
+                class="tab h-11 rounded-xl px-4 text-sm font-medium"
+                [class.tab-active]="activeKey === config.key"
+                (click)="setActiveTab(config.key)"
+              >
+                {{ config.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 class="text-lg font-semibold">{{ activeConfig.label }}</h2>
+              <p class="mt-1 text-sm text-base-content/70">
+                {{ activeConfig.description }}
+              </p>
+            </div>
+
+            <button class="btn btn-primary-faasri btn-sm" type="button" (click)="openCreateModal()">
+              Tambah Baru
+            </button>
+          </div>
+
+          @if (pageFeedbackMessage) {
+            <div
+              class="alert mt-4 rounded-xl"
+              [class.alert-success]="pageFeedbackType === 'success'"
+              [class.alert-error]="pageFeedbackType === 'error'"
+            >
+              <span>{{ pageFeedbackMessage }}</span>
+            </div>
+          }
+
+          <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <label
+              class="input input-bordered flex w-full items-center gap-2 rounded-xl md:max-w-md"
+            >
+              <input
+                type="text"
+                class="grow"
+                placeholder="Cari data..."
+                [(ngModel)]="search"
+                (ngModelChange)="applyFilter()"
+              />
+            </label>
+
+            <button class="btn btn-ghost rounded-xl" type="button" (click)="loadData()">
+              Refresh
+            </button>
+          </div>
+
+          <div class="mt-5">
+            <app-master-data-table
+              [columns]="activeConfig.columns"
+              [items]="filteredItems"
+              [isLoading]="isLoading"
+              [label]="activeConfig.label"
+              (edit)="openEditModal($event)"
+              (delete)="openDeleteModal($event)"
+              [pageSize]="5"
+              [pageSizeOptions]="[5, 10, 20, 50]"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-master-data-form-modal
+      [open]="isFormModalOpen"
+      [title]="(isEditMode ? 'Edit ' : 'Tambah ') + activeConfig.label"
+      [description]="'Isi data dengan lengkap agar konsisten dan mudah dikelola.'"
+      [fields]="activeConfig.fields"
+      [form]="form"
+      [errors]="formErrors"
+      [isSubmitting]="isSubmitting"
+      [feedbackType]="formFeedbackType"
+      [feedbackMessage]="formFeedbackType === 'error' ? formFeedbackMessage : ''"
+      (formChange)="onFormChange($event)"
+      [submitLabel]="isEditMode ? 'Update' : 'Create'"
+      (close)="closeFormModal()"
+      (submit)="submitForm()"
+    />
+
+    <app-master-data-delete-modal
+      [open]="isDeleteModalOpen"
+      [label]="activeConfig.label"
+      [item]="selectedItem"
+      [isDeleting]="isDeleting"
+      [feedbackType]="feedbackType"
+      [feedbackMessage]="feedbackType === 'error' ? feedbackMessage : ''"
+      (close)="closeDeleteModal()"
+      (confirm)="deleteSelected()"
+    />
+  </div>
+</div>
