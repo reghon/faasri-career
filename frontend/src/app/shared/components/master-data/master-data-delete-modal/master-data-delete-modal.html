@@ -1,0 +1,64 @@
+@if (open) {
+  <dialog class="modal modal-open" (click)="onBackdropClick($event)">
+    <div class="modal-box max-w-md rounded-xl p-0" (click)="$event.stopPropagation()">
+      <div class="px-6 py-6">
+        <div
+          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-error/10 text-error"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+            />
+          </svg>
+        </div>
+
+        <h3 class="text-lg font-bold">Delete {{ label }}</h3>
+        <p class="mt-2 text-sm text-base-content/70">
+          Kamu yakin ingin menghapus
+          <span class="font-semibold">{{ item?.['name'] || '-' }}</span>
+          dengan code
+          <span class="font-semibold">{{ item?.['code'] || '-' }}</span
+          >?
+        </p>
+
+        @if (feedbackType === 'error' && feedbackMessage) {
+          <div class="alert alert-error mt-4 rounded-xl">
+            <span>{{ feedbackMessage }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="flex items-center justify-end gap-3 border-t border-base-300 px-6 py-4">
+        <button
+          type="button"
+          class="btn btn-ghost rounded-xl"
+          [disabled]="isDeleting"
+          (click)="onClose()"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-error rounded-xl"
+          [disabled]="isDeleting"
+          (click)="onConfirm()"
+        >
+          @if (isDeleting) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          Delete
+        </button>
+      </div>
+    </div>
+  </dialog>
+}
