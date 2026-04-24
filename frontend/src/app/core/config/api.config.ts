@@ -41,6 +41,10 @@ export const API_ENDPOINTS = {
   },
   admin: {
     users: `${API_URL}/api/user`,
-    roles: `${API_URL}/api/role`
+    roles: `${API_URL}/api/role`,
+    permissionActions: `${API_URL}/api/permission-actions`,
+    modules: `${API_URL}/api/modules`,
+    permissions: `${API_URL}/api/permissions`,
+    rolePermissions: `${API_URL}/api/role-permissions`,
   },
 };
