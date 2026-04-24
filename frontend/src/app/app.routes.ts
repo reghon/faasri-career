@@ -5,6 +5,7 @@ import { ApplicantLayout } from './layouts/applicant-layout/applicant-layout';
 import { ManagementLayout } from './layouts/management-layout/management-layout';
 import { unsavedChangesGuard } from './core/guards/unsaved-changes-guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { managementGuard } from './core/guards/management.guard';
 
 export const routes: Routes = [
   {
@@ -40,6 +41,8 @@ export const routes: Routes = [
   {
     path: 'management',
     component: ManagementLayout,
+    canActivate: [managementGuard],
+    canActivateChild: [managementGuard],
     children: [
       {
         path: 'job',
