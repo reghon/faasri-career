@@ -7,25 +7,23 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      next(new AppError(401, "Access token required"));
-      return;
+      return next(new AppError(401, "Access token required"));
     }
 
     const token = authHeader.slice(7).trim();
 
     if (!token) {
-      next(new AppError(401, "Access token required"));
-      return;
+      return next(new AppError(401, "Access token required"));
     }
 
     const payload = verifyAccessToken(token);
-
-    if (!payload.userId || !payload.roleId) {
-      next(new AppError(401, "Invalid access token payload"));
-      return;
+    if (!payload.userId) {
+      return next(new AppError(401, "Invalid access token payload"));
     }
+    req.user = {
+      userId: payload.userId,
+    };
 
-    req.user = payload;
     next();
   } catch {
     next(new AppError(401, "Invalid or expired access token"));

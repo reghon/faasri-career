@@ -8,9 +8,9 @@ import { ToastService } from '../../core/services/toast/toast.service';
 export interface User {
   id: string;
   email: string;
-  is_active: boolean;
-  role_name: string;
-  created_at: string;
+  isActive: boolean;
+  roleId: string;
+  roleName: string;
 }
 
 @Injectable({ providedIn: 'root' })

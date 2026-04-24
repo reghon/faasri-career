@@ -48,8 +48,7 @@ export const authService = {
       throw new AppError(404, "User not found");
     }
 
-    if (!user.isActive) {
-    } else {
+    if (user.isActive) {
       throw new AppError(400, "Account already verified");
     }
 
@@ -61,20 +60,14 @@ export const authService = {
       throw new AppError(400, "OTP expired");
     }
 
-    if (!user.roleId) {
-      throw new AppError(500, "User role not found");
-    }
-
     await authRepository.activateUser(user.id);
 
     const accessToken = signAccessToken({
       userId: user.id,
-      roleId: user.roleId,
     });
 
     const refreshToken = signRefreshToken({
       userId: user.id,
-      roleId: user.roleId,
     });
 
     const expiresAt = new Date();
@@ -102,18 +95,12 @@ export const authService = {
       throw new AppError(401, "Invalid email or password");
     }
 
-    if (!user.roleId) {
-      throw new AppError(500, "User role not found");
-    }
-
     const accessToken = signAccessToken({
       userId: user.id,
-      roleId: user.roleId,
     });
 
     const refreshToken = signRefreshToken({
       userId: user.id,
-      roleId: user.roleId,
     });
 
     const expiresAt = new Date();
@@ -143,14 +130,13 @@ export const authService = {
       throw new AppError(404, "User not found");
     }
 
-    if (!payload.roleId) {
-      throw new AppError(401, "Invalid refresh token payload");
+    if (!user.isActive) {
+      throw new AppError(403, "User is inactive");
     }
 
     return {
       accessToken: signAccessToken({
         userId: user.id,
-        roleId: payload.roleId,
       }),
     };
   },

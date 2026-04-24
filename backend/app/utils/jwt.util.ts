@@ -3,7 +3,6 @@ import { config } from "../configurations/env";
 
 export interface JwtPayloadCustom {
   userId: string;
-  roleId: string;
 }
 
 export const signAccessToken = (payload: JwtPayloadCustom): string => {
