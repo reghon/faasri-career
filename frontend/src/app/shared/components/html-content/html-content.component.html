@@ -1,0 +1,12 @@
+<div>
+  @if (title) {
+    <h3 class="mb-2 text-base font-semibold text-base-content">
+      {{ title }}
+    </h3>
+  }
+
+  <div
+    class="prose max-w-none break-words overflow-hidden [&_*]:max-w-full [&_ul]:list-disc [&_ul]:pl-6 [&_li]:pl-1"
+    [innerHTML]="content || '-'"
+  ></div>
+</div>
