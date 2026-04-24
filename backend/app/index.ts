@@ -26,6 +26,10 @@ import applyRoutes from "./modules/apply/apply.routes";
 import applyStatusRoutes from "./modules/apply/statuses/apply_status.routes";
 import roleRoutes from "./modules/role/role.routes";
 import userRoutes from "./modules/user/user.routes";
+import moduleRoutes from "./modules/rbac/modules/module.routes";
+import permissionActionRoutes from "./modules/rbac/permission_actions/permission_action.routes";
+import rolePermissionRoutes from "./modules/rbac/role_permission/role_permission.routes";
+import permissionRoutes from "./modules/rbac/permissions/permission.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -76,6 +80,10 @@ app.use("/api/apply", applyRoutes);
 app.use("/api/apply/status", applyStatusRoutes);
 app.use("/api/role", roleRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/modules", moduleRoutes);
+app.use("/api/permission-actions", permissionActionRoutes);
+app.use("/api/permissions", permissionRoutes);
+app.use("/api/role-permissions", rolePermissionRoutes);
 
 app.use(errorMiddleware);
 
