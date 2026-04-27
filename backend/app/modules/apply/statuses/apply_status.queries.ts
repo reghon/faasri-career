@@ -86,4 +86,25 @@ export const applyStatusQueries = {
       AND deleted_at IS NULL
     RETURNING ${DETAIL_FIELDS}
   `,
+
+  getDefault: `
+  SELECT
+    id,
+    code,
+    name,
+    description,
+    sort_order,
+    is_active,
+    created_at,
+    created_by,
+    updated_at,
+    updated_by,
+    deleted_at,
+    deleted_by
+  FROM apply_statuses
+  WHERE is_active = true
+    AND deleted_at IS NULL
+  ORDER BY sort_order ASC, created_at ASC
+  LIMIT 1
+`,  
 };
