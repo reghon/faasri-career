@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/config/api.config';
-import { Apply, CreateApplyPayload, UpdateApplyStatusPayload } from './apply.model';
+import { Apply, CreateApplyPayload, UpdateApplyStatusPayload, ApplyByJobItem } from './apply.model';
 
 interface ApiResponse<T> {
   message: string;
@@ -29,6 +29,11 @@ export class ApplyService {
   getMine(): Observable<Apply[]> {
     return this.http
       .get<ApiResponse<Apply[]>>(`${API_ENDPOINTS.apply.root}/me`)
+      .pipe(map((response) => response.data));
+  }
+  getByJobId(jobId: string): Observable<ApplyByJobItem[]> {
+    return this.http
+      .get<ApiResponse<ApplyByJobItem[]>>(`${API_ENDPOINTS.apply.root}/job/${jobId}`)
       .pipe(map((response) => response.data));
   }
 }
