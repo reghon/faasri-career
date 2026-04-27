@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { requireUserId } from "../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams } from "../../utils/validated-request.util";
 import { applyService } from "./apply.services";
-import { ApplyParamsInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
+import { ApplyJobParamsInput, ApplyParamsInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
 
 export const applyController = {
   async getMine(req: Request, res: Response) {
@@ -13,7 +13,7 @@ export const applyController = {
       data,
     });
   },
-  
+
   async create(req: Request, res: Response) {
     const body = getValidatedBody<CreateApplyBodyInput>(req);
 
@@ -33,6 +33,17 @@ export const applyController = {
 
     res.status(200).json({
       message: "Apply status updated successfully",
+      data,
+    });
+  },
+
+  async getByJobId(req: Request, res: Response) {
+    const params = getValidatedParams<ApplyJobParamsInput>(req);
+
+    const data = await applyService.getByJobId(params.jobId);
+
+    res.status(200).json({
+      message: "Apply list by job fetched successfully",
       data,
     });
   },

@@ -1,7 +1,7 @@
 import { PoolClient } from "pg";
 import { queryCamel, queryCamelOne } from "../../utils/db.util";
 import { applyQueries } from "./apply.queries";
-import { Apply, CreateApplyPayload, UpdateApplyStatusPayload } from "./apply.types";
+import { Apply, CreateApplyPayload, UpdateApplyStatusPayload, ApplyByJobItem } from "./apply.types";
 
 export const applyRepository = {
   async getMine(client: PoolClient, applicantProfileId: string): Promise<Apply[]> {
@@ -21,5 +21,8 @@ export const applyRepository = {
 
   async updateStatus(client: PoolClient, id: string, data: UpdateApplyStatusPayload, actorId: string): Promise<Apply | null> {
     return queryCamelOne<Apply>(client, applyQueries.updateStatus, [data.statusId, data.notes, actorId, id]);
+  },
+  async getByJobId(client: PoolClient, jobId: string): Promise<ApplyByJobItem[]> {
+    return queryCamel<ApplyByJobItem>(client, applyQueries.getByJobId, [jobId]);
   },
 };

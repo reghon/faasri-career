@@ -31,3 +31,16 @@ export type UpdateApplyStatusPayload = {
 export type ApplyParams = {
   id: string;
 };
+
+export type ApplyByJobItem = Apply & {
+  applicantName: string | null;
+  email: string | null;
+  phoneCode: string | null;
+  phone: string | null;
+  cvUrl: string | null;
+  cvFileName: string | null;
+  linkedinUrl: string | null;
+  statusCode: string | null;
+  statusName: string | null;
+  statusSortOrder: number | null;
+};

@@ -43,7 +43,11 @@ export const updateApplyStatusBodySchema = z.object({
 export const applyParamsSchema = z.object({
   id: z.string().uuid("Invalid apply id"),
 });
+export const applyJobParamsSchema = z.object({
+  jobId: z.string().uuid("Invalid job id"),
+});
 
+export type ApplyJobParamsInput = z.infer<typeof applyJobParamsSchema>;
 export type CreateApplyBodyInput = z.infer<typeof createApplyBodySchema>;
 export type UpdateApplyStatusBodyInput = z.infer<typeof updateApplyStatusBodySchema>;
 export type ApplyParamsInput = z.infer<typeof applyParamsSchema>;

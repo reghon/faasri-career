@@ -133,4 +133,14 @@ export const applyService = {
       client.release();
     }
   },
+
+  async getByJobId(jobId: string) {
+    const client = await pool.connect();
+
+    try {
+      return applyRepository.getByJobId(client, jobId);
+    } finally {
+      client.release();
+    }
+  },
 };
