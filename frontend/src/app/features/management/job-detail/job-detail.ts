@@ -7,11 +7,20 @@ import {
 } from '../../../shared/components/breadcrumb/breadcrumb';
 import { JobService } from '../../../domain/job/services/job.service';
 import { JobDetail as JobDetailModel } from '../../../domain/job/models/job.model';
+import { JobDetailHeaderComponent } from './components/job-detail-header/job-detail-header';
+import { JobDetailOverviewComponent } from './components/job-detail-overview/job-detail-overview';
+
+type JobDetailTab = 'detail' | 'candidate' | 'pipeline' | 'activity';
 
 @Component({
   selector: 'app-job-detail',
   standalone: true,
-  imports: [CommonModule, BreadcrumbComponent],
+  imports: [
+    CommonModule,
+    BreadcrumbComponent,
+    JobDetailHeaderComponent,
+    JobDetailOverviewComponent,
+  ],
   templateUrl: './job-detail.html',
 })
 export class JobDetail implements OnInit {
@@ -24,11 +33,19 @@ export class JobDetail implements OnInit {
   isLoading = false;
   errorMessage = '';
 
+  activeTab: JobDetailTab = 'detail';
+
   breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Management', route: '/management' },
+    { label: 'Home', route: '/' },
     { label: 'Job', route: '/management/job' },
     { label: 'Detail' },
   ];
+
+  applicantsCount = 42;
+  rejectedCount = 23;
+  inProgressCount = 18;
+  hiredCount = 1;
+  hiringManager = 'User PIC Manager';
 
   ngOnInit(): void {
     this.slug = this.route.snapshot.paramMap.get('slug') || '';
@@ -50,9 +67,9 @@ export class JobDetail implements OnInit {
       next: (job) => {
         this.job = job;
         this.breadcrumbItems = [
-          { label: 'Management', route: '/management' },
+          { label: 'Home', route: '/' },
           { label: 'Job', route: '/management/job' },
-          { label: job.title || this.slug },
+          { label: job.title || 'Detail' },
         ];
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -67,13 +84,7 @@ export class JobDetail implements OnInit {
     });
   }
 
-  formatDate(value: string | null | undefined): string {
-    if (!value) return '-';
-
-    return new Intl.DateTimeFormat('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }).format(new Date(value));
+  setActiveTab(tab: JobDetailTab): void {
+    this.activeTab = tab;
   }
 }
