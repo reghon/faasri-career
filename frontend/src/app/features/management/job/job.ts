@@ -4,12 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { JobListItem } from '../../../domain/job/models/job.model';
 import { JobService } from '../../../domain/job/services/job.service';
 import { JobFormModalComponent } from './components/job-form-modal/job-form-modal';
-import { PaginationComponent } from '../../../shared/components/pagination/pagination';
-import { TableActionComponent } from '../../../shared/components/table-action/table-action';
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
 } from '../../../shared/components/breadcrumb/breadcrumb';
+import {
+  DataTableColumn,
+  DataTableComponent,
+  DataTablePagination,
+} from '../../../shared/components/data-table/data-table';
 import { Router } from '@angular/router';
 
 type SortField = 'publishedAt' | 'title' | 'status';
@@ -22,9 +25,8 @@ type SortDirection = 'asc' | 'desc';
     CommonModule,
     FormsModule,
     JobFormModalComponent,
-    PaginationComponent,
-    TableActionComponent,
     BreadcrumbComponent,
+    DataTableComponent,
   ],
   templateUrl: './job.html',
 })
@@ -57,6 +59,38 @@ export class Job implements OnInit {
 
   sortField: SortField = 'publishedAt';
   sortDirection: SortDirection = 'desc';
+
+  jobColumns: DataTableColumn<JobListItem>[] = [
+    { key: 'title', label: 'Job Title', minWidth: '220px' },
+    { key: 'department', label: 'Department' },
+    { key: 'location', label: 'Location' },
+    { key: 'workType', label: 'Work Type' },
+    { key: 'jobType', label: 'Job Type' },
+    {
+      key: 'vacancyCount',
+      label: 'Vacancy',
+      type: 'number',
+      align: 'center',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'badge',
+      align: 'center',
+      valueGetter: (job) => this.getDisplayStatus(job),
+    },
+    {
+      key: 'publishedAt',
+      label: 'Posted Date',
+      type: 'date',
+    },
+    {
+      key: 'action',
+      label: 'Action',
+      type: 'action',
+      align: 'right',
+    },
+  ];
 
   ngOnInit(): void {
     this.loadJobs();
@@ -315,5 +349,17 @@ export class Job implements OnInit {
     this.selectedJobId = null;
     this.loadJobs();
     this.cdr.detectChanges();
+  }
+
+  get tablePagination(): DataTablePagination {
+    return {
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      startEntry: this.startEntry,
+      endEntry: this.endEntry,
+      totalItems: this.filteredJobs.length,
+      pageSize: this.pageSize,
+      pageSizeOptions: this.pageSizeOptions,
+    };
   }
 }
