@@ -1,3 +1,4 @@
+import { PoolClient } from "pg";
 import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { applyStatusQueries } from "./apply_status.queries";
 import { ApplyStatus, ApplyStatusDetail, ApplyStatusPayload } from "./apply_status.types";
@@ -5,6 +6,10 @@ import { ApplyStatus, ApplyStatusDetail, ApplyStatusPayload } from "./apply_stat
 type ApplyStatusLookup = Pick<ApplyStatus, "id" | "name" | "code">;
 
 export const applyStatusRepository = {
+  async getDefault(client: PoolClient): Promise<ApplyStatus | null> {
+    return queryCamelOne<ApplyStatus>(client, applyStatusQueries.getDefault);
+  },
+  
   async getAll(): Promise<ApplyStatus[]> {
     return queryCamel<ApplyStatus>(applyStatusQueries.getAll);
   },
