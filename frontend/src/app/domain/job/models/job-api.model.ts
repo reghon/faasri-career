@@ -57,6 +57,7 @@ export interface JobDetailApi {
   educationLevelName: string;
   departmentName: string;
   workModeName: string;
+  managementProfileName: string;
 }
 
 export interface PaginationMetaApi {

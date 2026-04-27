@@ -48,6 +48,7 @@ export interface JobDetail {
 
   department: string;
   educationLevel: string;
+  managementProfile: string;
   status: string;
   vacancyCount: number;
   minSalary: number;
