@@ -60,6 +60,7 @@ export type JobDetail = Job & {
   educationLevelName: string;
   departmentName: string;
   workModeName: string;
+  managementProfileName: string;
 };
 
 export type JobPayload = {

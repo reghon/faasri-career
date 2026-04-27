@@ -25,7 +25,7 @@ const DETAIL_BASE_FIELDS = `
 const DETAIL_FIELDS = `
   ${DETAIL_BASE_FIELDS},jc.name AS category_name,et.name AS employment_type_name,
   js.name AS status_name,jl.name AS job_location_name,el.name AS education_level_name,
-  d.name AS department_name,wm.name AS work_mode_name
+  d.name AS department_name,wm.name AS work_mode_name, mp.full_name AS management_profile_name
 `;
 export const jobQueries = {
   countAll: `
@@ -59,14 +59,23 @@ export const jobQueries = {
     JOIN education_levels el ON el.id = j.education_level_id
     JOIN departments d ON d.id = j.department_id
     JOIN work_modes wm ON wm.id = j.work_mode_id
+    JOIN management_profiles mp ON mp.id = j.management_profile_id
     WHERE j.id = $1
       AND j.deleted_at IS NULL
     LIMIT 1
   `,
 
   getBySlug: `
-    SELECT ${BASE_FIELDS}
+    SELECT ${DETAIL_FIELDS}
     FROM jobs j
+    JOIN job_categories jc ON jc.id = j.category_id
+    JOIN employment_types et ON et.id = j.employment_type_id
+    JOIN job_statuses js ON js.id = j.status_id
+    JOIN job_locations jl ON jl.id = j.job_location_id
+    JOIN education_levels el ON el.id = j.education_level_id
+    JOIN departments d ON d.id = j.department_id
+    JOIN work_modes wm ON wm.id = j.work_mode_id
+    JOIN management_profiles mp ON mp.id = j.management_profile_id
     WHERE j.slug = $1
       AND j.deleted_at IS NULL
     LIMIT 1
