@@ -36,6 +36,10 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./features/applicant/profile/profile').then((m) => m.Profile),
       },
+      {
+        path: 'saved-jobs',
+        loadComponent: () => import('./features/applicant/job/saved-job/saved-job').then((m) => m.SavedJob),
+      },
     ],
   },
   {
