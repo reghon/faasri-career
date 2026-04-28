@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
   },
   apply: {
     root: `${API_URL}/api/apply`,
+    applyStatusHistories: `${API_URL}/api/apply/statusHistories`
   },
   master: {
     employmentTypes: `${API_URL}/api/job/employment-types`,
