@@ -15,9 +15,7 @@ const nullableTrimmedString = (max: number, fieldName: string) =>
   z
     .union([z.string(), z.null()])
     .transform((value) => {
-      if (value === null) {
-        return null;
-      }
+      if (value === null) return null;
 
       const trimmed = value.trim();
       return trimmed === "" ? null : trimmed;
@@ -30,9 +28,6 @@ export const applyStatusBodySchema = z.object({
   code: requiredTrimmedString(100, "Code"),
   name: requiredTrimmedString(255, "Name"),
   description: nullableTrimmedString(1000, "Description"),
-  sortOrder: z.number().int("Sort order must be an integer"),
-  isDefault: z.boolean(),
-  isFinal: z.boolean(),
   isActive: z.boolean(),
 });
 

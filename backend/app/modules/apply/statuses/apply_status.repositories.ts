@@ -1,21 +1,21 @@
-import { PoolClient } from "pg";
 import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { applyStatusQueries } from "./apply_status.queries";
 import { ApplyStatus, ApplyStatusDetail, ApplyStatusPayload } from "./apply_status.types";
+import { PoolClient } from "pg";
 
 type ApplyStatusLookup = Pick<ApplyStatus, "id" | "name" | "code">;
 
 export const applyStatusRepository = {
-  async getDefault(client: PoolClient): Promise<ApplyStatus | null> {
-    return queryCamelOne<ApplyStatus>(client, applyStatusQueries.getDefault);
-  },
-  
   async getAll(): Promise<ApplyStatus[]> {
     return queryCamel<ApplyStatus>(applyStatusQueries.getAll);
   },
 
   async getById(id: string): Promise<ApplyStatus | null> {
     return queryCamelOne<ApplyStatus>(applyStatusQueries.getById, [id]);
+  },
+  
+  async getDefaultByJobId(client: PoolClient, jobId: string): Promise<ApplyStatusLookup | null> {
+    return queryCamelOne<ApplyStatusLookup>(client, applyStatusQueries.getDefaultByJobId, [jobId]);
   },
 
   async getDetailById(id: string): Promise<ApplyStatusDetail | null> {
@@ -31,11 +31,11 @@ export const applyStatusRepository = {
   },
 
   async create(data: ApplyStatusPayload, actorId: string): Promise<ApplyStatus | null> {
-    return queryCamelOne<ApplyStatus>(applyStatusQueries.create, [data.code, data.name, data.description, data.sortOrder, data.isDefault, data.isFinal, data.isActive, actorId]);
+    return queryCamelOne<ApplyStatus>(applyStatusQueries.create, [data.code, data.name, data.description, data.isActive, actorId]);
   },
 
   async update(id: string, data: ApplyStatusPayload, actorId: string): Promise<ApplyStatus | null> {
-    return queryCamelOne<ApplyStatus>(applyStatusQueries.update, [data.code, data.name, data.description, data.sortOrder, data.isDefault, data.isFinal, data.isActive, actorId, id]);
+    return queryCamelOne<ApplyStatus>(applyStatusQueries.update, [data.code, data.name, data.description, data.isActive, actorId, id]);
   },
 
   async softDelete(id: string, actorId: string): Promise<ApplyStatusDetail | null> {

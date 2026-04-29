@@ -1,14 +1,14 @@
 const SELECT_FIELDS = `
-  id, code, name, description, sort_order, is_default, is_final, is_active
+  id, code, name, description, is_active
 `;
 
 const DETAIL_FIELDS = `
-  id, code, name, description, sort_order, is_default, is_final, is_active,
+  id, code, name, description, is_active,
   created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
 `;
 
 const INSERT_FIELDS = `
-  code, name, description, sort_order, is_default, is_final, is_active,
+  code, name, description, is_active,
   created_at, created_by, updated_at, updated_by
 `;
 
@@ -17,7 +17,7 @@ export const applyStatusQueries = {
     SELECT ${SELECT_FIELDS}
     FROM apply_statuses
     WHERE deleted_at IS NULL
-    ORDER BY sort_order ASC, name ASC
+    ORDER BY name ASC
   `,
 
   getById: `
@@ -54,7 +54,7 @@ export const applyStatusQueries = {
 
   create: `
     INSERT INTO apply_statuses (${INSERT_FIELDS})
-    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, NOW(), $8)
+    VALUES ($1, $2, $3, $4, NOW(), $5, NOW(), $5)
     RETURNING ${SELECT_FIELDS}
   `,
 
@@ -64,13 +64,10 @@ export const applyStatusQueries = {
       code = $1,
       name = $2,
       description = $3,
-      sort_order = $4,
-      is_default = $5,
-      is_final = $6,
-      is_active = $7,
+      is_active = $4,
       updated_at = NOW(),
-      updated_by = $8
-    WHERE id = $9
+      updated_by = $5
+    WHERE id = $6
       AND deleted_at IS NULL
     RETURNING ${SELECT_FIELDS}
   `,
@@ -87,24 +84,19 @@ export const applyStatusQueries = {
     RETURNING ${DETAIL_FIELDS}
   `,
 
-  getDefault: `
+  getDefaultByJobId: `
   SELECT
-    id,
-    code,
-    name,
-    description,
-    sort_order,
-    is_active,
-    created_at,
-    created_by,
-    updated_at,
-    updated_by,
-    deleted_at,
-    deleted_by
-  FROM apply_statuses
-  WHERE is_active = true
-    AND deleted_at IS NULL
-  ORDER BY sort_order ASC, created_at ASC
+    jas.apply_status_id AS id,
+    aps.code,
+    aps.name
+  FROM job_apply_statuses jas
+  JOIN apply_statuses aps
+    ON aps.id = jas.apply_status_id
+   AND aps.deleted_at IS NULL
+  WHERE jas.job_id = $1
+    AND jas.is_default = true
+    AND jas.is_active = true
+    AND jas.deleted_at IS NULL
   LIMIT 1
-`,  
+`,
 };
