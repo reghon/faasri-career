@@ -5,11 +5,12 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { JobService } from '../../../domain/job/services/job.service';
 import { JobDetail, JobListItem } from '../../../domain/job/models/job.model';
 import { JobCard } from '../../../shared/components/job-card/job-card';
+import { HtmlContentComponent } from '../../../shared/components/html-content/html-content.component';
 
 @Component({
   selector: 'app-job',
   standalone: true,
-  imports: [RouterLink, JobCard],
+  imports: [RouterLink, JobCard, HtmlContentComponent],
   templateUrl: './job-detail.html',
 })
 export class JobDetailComponent implements OnInit, OnDestroy {
