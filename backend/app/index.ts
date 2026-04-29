@@ -30,7 +30,9 @@ import moduleRoutes from "./modules/rbac/modules/module.routes";
 import permissionActionRoutes from "./modules/rbac/permission_actions/permission_action.routes";
 import rolePermissionRoutes from "./modules/rbac/role_permission/role_permission.routes";
 import permissionRoutes from "./modules/rbac/permissions/permission.routes";
-import applyStatusHistoryRoutes from "./modules/apply/status_histories/apply_status_history.routes"
+import applyStatusHistoryRoutes from "./modules/apply/status_histories/apply_status_history.routes";
+import savedJobRoutes from "./modules/job/saved_job/saved_job.routes";
+import jobApplyStatusRoutes from "./modules/job/masters/job_apply_statuses/job_apply_status.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -76,6 +78,8 @@ app.use("/api/job/work-modes", workModeRoutes);
 app.use("/api/job/education-levels", educationLevelRoutes);
 app.use("/api/job/departments", departmentRoutes);
 app.use("/api/job/jobs", jobRoutes);
+app.use("/api/job/saved-jobs", savedJobRoutes);
+app.use("/api/job/apply-job-statuses", jobApplyStatusRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/apply", applyRoutes);
 app.use("/api/apply/status", applyStatusRoutes);
