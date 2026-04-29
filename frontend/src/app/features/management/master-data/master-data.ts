@@ -274,7 +274,7 @@ export class MasterData implements OnInit {
     {
       key: 'applyStatuses',
       label: 'Apply Statuses',
-      description: 'Kelola status lamaran yang digunakan pada proses rekrutmen.',
+      description: 'Kelola status lamaran yang digunakan pada flow rekrutmen per job.',
       fields: [
         {
           key: 'code',
@@ -298,23 +298,6 @@ export class MasterData implements OnInit {
           placeholder: 'Optional description',
         },
         {
-          key: 'sortOrder',
-          label: 'Sort Order',
-          type: 'number',
-          required: true,
-          placeholder: '0',
-        },
-        {
-          key: 'isDefault',
-          label: 'Default',
-          type: 'switch',
-        },
-        {
-          key: 'isFinal',
-          label: 'Final',
-          type: 'switch',
-        },
-        {
           key: 'isActive',
           label: 'Active',
           type: 'switch',
@@ -324,9 +307,6 @@ export class MasterData implements OnInit {
         { key: 'code', label: 'Code' },
         { key: 'name', label: 'Name' },
         { key: 'description', label: 'Description' },
-        { key: 'sortOrder', label: 'Sort Order' },
-        { key: 'isDefault', label: 'Default' },
-        { key: 'isFinal', label: 'Final' },
       ],
     },
   ];
@@ -481,8 +461,18 @@ export class MasterData implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onFormChange(nextForm: Record<string, any>): void {
-    this.form = { ...nextForm };
+  onFormChange(event: { key: string; value: any; form: Record<string, any> }): void {
+    this.form = { ...event.form };
+
+    if (this.formErrors[event.key]) {
+      const nextErrors = { ...this.formErrors };
+      delete nextErrors[event.key];
+      this.formErrors = nextErrors;
+    }
+
+    this.feedbackMessage = '';
+    this.feedbackType = '';
+    this.cdr.detectChanges();
   }
 
   submitForm(): void {
@@ -654,6 +644,11 @@ export class MasterData implements OnInit {
     for (const field of this.activeConfig.fields) {
       if (field.type === 'switch') {
         payload[field.key] = Boolean(this.form[field.key]);
+        continue;
+      }
+
+      if (field.type === 'number') {
+        payload[field.key] = Number(this.form[field.key] ?? 0);
         continue;
       }
 
