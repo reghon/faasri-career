@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
 } from '../../../shared/components/breadcrumb/breadcrumb';
+
 import { JobService } from '../../../domain/job/services/job.service';
 import { JobDetail as JobDetailModel } from '../../../domain/job/models/job.model';
 import { JobDetailHeaderComponent } from './components/job-detail-header/job-detail-header';
 import { JobDetailOverviewComponent } from './components/job-detail-overview/job-detail-overview';
+import {
+  JobApplicationListComponent,
+} from './components/application/job-application-list';
 
 type JobDetailTab = 'detail' | 'candidate' | 'pipeline' | 'activity';
 
@@ -20,6 +25,7 @@ type JobDetailTab = 'detail' | 'candidate' | 'pipeline' | 'activity';
     BreadcrumbComponent,
     JobDetailHeaderComponent,
     JobDetailOverviewComponent,
+    JobApplicationListComponent,
   ],
   templateUrl: './job-detail.html',
 })
@@ -40,11 +46,6 @@ export class JobDetail implements OnInit {
     { label: 'Job', route: '/management/job' },
     { label: 'Detail' },
   ];
-
-  applicantsCount = 42;
-  rejectedCount = 23;
-  inProgressCount = 18;
-  hiredCount = 1;
   hiringManager = 'User PIC Manager';
 
   ngOnInit(): void {
@@ -71,6 +72,7 @@ export class JobDetail implements OnInit {
           { label: 'Job', route: '/management/job' },
           { label: job.title || 'Detail' },
         ];
+
         this.isLoading = false;
         this.cdr.detectChanges();
       },

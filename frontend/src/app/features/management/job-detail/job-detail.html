@@ -16,22 +16,17 @@
         <app-job-detail-header
           [job]="job"
           [activeTab]="activeTab"
-          [hiringManager]="hiringManager"
-          [applicantsCount]="applicantsCount"
-          [rejectedCount]="rejectedCount"
-          [inProgressCount]="inProgressCount"
-          [hiredCount]="hiredCount"
           (tabChange)="setActiveTab($event)"
         />
 
         @if (activeTab === 'detail') {
-          <app-job-detail-overview [job]="job" [hiringManager]="hiringManager" />
+          <app-job-detail-overview [job]="job" />
         }
 
         @if (activeTab === 'candidate') {
-          <div class="rounded-xl border border-base-300 bg-base-100 p-8 shadow-sm">
-            Candidate tab nanti di sini.
-          </div>
+          <app-job-application-list
+            [jobId]="job.id"
+          />
         }
 
         @if (activeTab === 'pipeline') {
