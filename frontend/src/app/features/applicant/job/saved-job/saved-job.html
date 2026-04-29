@@ -1,0 +1,33 @@
+<section class="container-app">
+  <div class="mt-8">
+    <h1 class="text-2xl font-bold text-base-content">Lamaran Disimpan</h1>
+    <p class="mt-1 text-sm text-base-content/60">Daftar pekerjaan yang sudah kamu simpan.</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+        <div class="h-52 animate-pulse rounded-xl bg-base-200"></div>
+      }
+    </div>
+  } @else if (errorMessage) {
+    <div class="alert alert-error mt-6">
+      <span>{{ errorMessage }}</span>
+    </div>
+  } @else if (savedJobs.length === 0) {
+    <div class="mt-6 rounded-xl border border-dashed border-base-300 bg-base-100 p-8 text-center">
+      <h2 class="text-lg font-semibold text-base-content">Belum ada lamaran yang disimpan</h2>
+      <p class="mt-2 text-sm text-base-content/60">
+        Simpan pekerjaan yang kamu minati agar mudah ditemukan kembali.
+      </p>
+    </div>
+  } @else {
+    <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      @for (item of savedJobs; track item.savedJobId) {
+        <a [routerLink]="['/job', item.job.id]" class="block">
+          <app-job-card [job]="item.job" />
+        </a>
+      }
+    </div>
+  }
+</section>
