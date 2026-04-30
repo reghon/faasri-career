@@ -1,0 +1,128 @@
+<section class="space-y-4 border-t border-base-300 pt-6" [class.opacity-60]="isLocked">
+  <div>
+    <h3 class="text-base font-semibold text-base-content">Tahapan Lowongan</h3>
+    <p class="mt-1 text-sm text-base-content/60">
+      Atur tahapan seleksi untuk lowongan ini. Urutan di kolom kanan akan menjadi sort order.
+    </p>
+  </div>
+
+  @if (lockMessage) {
+    <div class="alert alert-warning rounded-xl">
+      <span>{{ lockMessage }}</span>
+    </div>
+  }
+
+  @if (error) {
+    <div class="alert alert-error rounded-xl">
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div class="rounded-xl border border-base-300 bg-base-100 p-4">
+      <div class="mb-3">
+        <h4 class="font-semibold text-base-content">Master Apply Status</h4>
+        <p class="mt-1 text-sm text-base-content/60">
+          Klik status untuk memasukkan ke tahapan lowongan.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        @if (availableApplyStatuses.length === 0) {
+          <div
+            class="rounded-lg border border-dashed border-base-300 p-4 text-sm text-base-content/60"
+          >
+            Semua status sudah dipilih.
+          </div>
+        } @else {
+          @for (status of availableApplyStatuses; track status.id) {
+            <button
+              type="button"
+              class="flex w-full items-start justify-between gap-3 rounded-lg border border-base-300 bg-base-100 p-3 text-left transition hover:border-primary hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="isLocked"
+              (click)="addStatusToFlow(status)"
+            >
+              <div>
+                <p class="font-medium text-base-content">{{ status.name }}</p>
+
+                @if (status.description) {
+                  <p class="mt-1 text-xs text-base-content/50">
+                    {{ status.description }}
+                  </p>
+                }
+              </div>
+
+              <span class="text-lg font-bold text-primary">+</span>
+            </button>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-base-300 bg-base-100 p-4">
+      <div class="mb-3">
+        <h4 class="font-semibold text-base-content">Tahapan Terpilih</h4>
+        <p class="mt-1 text-sm text-base-content/60">
+          Drag untuk mengubah urutan. Status Submitted/Rejected/Hired/Withdrawn dikunci.
+        </p>
+      </div>
+
+      <div cdkDropList class="space-y-2" (cdkDropListDropped)="dropJobFlowStatus($event)">
+        @if (jobFlowStatuses.length === 0) {
+          <div
+            class="rounded-lg border border-dashed border-base-300 p-4 text-sm text-base-content/60"
+          >
+            Belum ada tahapan lowongan.
+          </div>
+        } @else {
+          @for (status of jobFlowStatuses; track status.applyStatusId; let i = $index) {
+            <div
+              cdkDrag
+              [cdkDragDisabled]="isLocked || isLockedDefaultStatus(status)"
+              class="rounded-lg border border-base-300 bg-base-100 p-3 shadow-sm"
+            >
+              <div class="flex items-start gap-3">
+                <div
+                  cdkDragHandle
+                  class="select-none pt-1 text-base-content/40"
+                  [class.cursor-grab]="!isLocked && !isLockedDefaultStatus(status)"
+                  [class.cursor-not-allowed]="isLocked || isLockedDefaultStatus(status)"
+                  title="Drag"
+                >
+                  ☰
+                </div>
+
+                <div
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary"
+                >
+                  {{ status.sortOrder }}
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <p class="font-medium text-base-content">{{ status.name }}</p>
+
+                  @if (status.description) {
+                    <p class="mt-1 text-xs text-base-content/60">
+                      {{ status.description }}
+                    </p>
+                  }
+                </div>
+
+                @if (!isLockedDefaultStatus(status)) {
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs text-error"
+                    [disabled]="isLocked"
+                    (click)="removeStatusFromFlow(i)"
+                  >
+                    Hapus
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</section>
