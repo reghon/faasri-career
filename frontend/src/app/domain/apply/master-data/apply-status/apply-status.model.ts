@@ -3,9 +3,6 @@ export interface ApplyStatus {
   code: string;
   name: string;
   description: string | null;
-  sortOrder: number;
-  isDefault: boolean;
-  isFinal: boolean;
   isActive: boolean;
 }
 
@@ -14,9 +11,6 @@ export interface ApplyStatusDetail {
   code: string;
   name: string;
   description: string | null;
-  sortOrder: number;
-  isDefault: boolean;
-  isFinal: boolean;
   isActive: boolean;
   createdAt: string;
   createdBy: string | null;
@@ -30,8 +24,5 @@ export interface ApplyStatusPayload {
   code: string;
   name: string;
   description: string | null;
-  sortOrder: number;
-  isDefault: boolean;
-  isFinal: boolean;
   isActive: boolean;
 }
