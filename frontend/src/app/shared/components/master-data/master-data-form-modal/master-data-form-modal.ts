@@ -50,6 +50,8 @@ export class MasterDataFormModal {
       [key]: value,
     };
 
+    this.form = nextForm;
+
     this.formChange.emit({
       key,
       value,
