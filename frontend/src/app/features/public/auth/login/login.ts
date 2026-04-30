@@ -41,10 +41,21 @@ export class Login {
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
         this.authService.getMe().subscribe({
-          next: () => {
+          next: (res) => {
             this.isLoading = false;
-            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-            this.router.navigateByUrl(returnUrl);
+
+            const roleName = res.data.roleName;
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+
+            let redirectUrl = '/';
+
+            if (returnUrl) {
+              redirectUrl = returnUrl;
+            } else {
+              redirectUrl = roleName === 'applicant' ? '/' : '/management';
+            }
+
+            this.router.navigateByUrl(redirectUrl);
           },
           error: () => {
             this.isLoading = false;
