@@ -12,21 +12,30 @@ import { MasterDataDeleteModal } from '../../../shared/components/master-data/ma
 
 import { RoleService } from '../../../domain/admin/role/role.service';
 import { UserService } from '../../../domain/admin/user/user.service';
+import { RbacMatrixComponent } from './rbac/rbac-matrix.component';
 
-type AdminKey = 'roles' | 'users';
+type AdminKey = 'roles' | 'users' | 'rbac';
 
 interface ColumnConfig {
   key: string;
   label: string;
 }
 
-interface AdminConfig {
-  key: AdminKey;
+interface CrudAdminConfig {
+  key: 'roles' | 'users';
   label: string;
   description: string;
   fields: MasterDataFieldConfig[];
   columns: ColumnConfig[];
 }
+
+interface RbacAdminConfig {
+  key: 'rbac';
+  label: string;
+  description: string;
+}
+
+type AdminConfig = CrudAdminConfig | RbacAdminConfig;
 
 type AdminRecord = Record<string, any> & {
   id: string;
@@ -39,7 +48,14 @@ type AdminRecord = Record<string, any> & {
 @Component({
   selector: 'app-admin-master-data',
   standalone: true,
-  imports: [CommonModule, FormsModule, MasterDataTable, MasterDataFormModal, MasterDataDeleteModal],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MasterDataTable,
+    MasterDataFormModal,
+    MasterDataDeleteModal,
+    RbacMatrixComponent,
+  ],
   templateUrl: './admin-master-data.html',
 })
 export class AdminMasterData implements OnInit {
@@ -134,6 +150,11 @@ export class AdminMasterData implements OnInit {
         { key: 'createdAt', label: 'Created At' },
       ],
     },
+    {
+      key: 'rbac',
+      label: 'RBAC',
+      description: 'Kelola hak akses role terhadap module dan permission action.',
+    },
   ];
 
   activeKey: AdminKey = 'roles';
@@ -166,6 +187,14 @@ export class AdminMasterData implements OnInit {
     return this.configs.find((config) => config.key === this.activeKey)!;
   }
 
+  get isRbacTab(): boolean {
+    return this.activeKey === 'rbac';
+  }
+
+  get crudActiveConfig(): CrudAdminConfig | null {
+    return this.activeConfig.key === 'rbac' ? null : this.activeConfig;
+  }
+
   setActiveTab(key: AdminKey): void {
     if (this.activeKey === key) return;
 
@@ -177,13 +206,26 @@ export class AdminMasterData implements OnInit {
     this.pageFeedbackType = '';
     this.formFeedbackMessage = '';
     this.formFeedbackType = '';
+    this.feedbackMessage = '';
+    this.feedbackType = '';
 
     this.formErrors = {};
+    this.isFormModalOpen = false;
+    this.isDeleteModalOpen = false;
+
     this.resetForm();
     this.loadData();
   }
 
   loadData(): void {
+    if (this.isRbacTab) {
+      this.items = [];
+      this.filteredItems = [];
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.isLoading = true;
     this.cdr.detectChanges();
 
@@ -203,13 +245,19 @@ export class AdminMasterData implements OnInit {
         error: (error: any) => {
           this.items = [];
           this.filteredItems = [];
-          this.showError(this.extractErrorMessage(error, 'Failed to load data.'));
+          this.showPageError(this.extractErrorMessage(error, 'Failed to load data.'));
           this.cdr.detectChanges();
         },
       });
   }
 
   applyFilter(): void {
+    if (this.isRbacTab) {
+      this.filteredItems = [];
+      this.cdr.detectChanges();
+      return;
+    }
+
     const keyword = this.search.trim().toLowerCase();
 
     if (!keyword) {
@@ -230,6 +278,9 @@ export class AdminMasterData implements OnInit {
   }
 
   openCreateModal(): void {
+    const config = this.crudActiveConfig;
+    if (!config) return;
+
     this.isEditMode = false;
     this.selectedItem = null;
     this.formErrors = {};
@@ -241,6 +292,9 @@ export class AdminMasterData implements OnInit {
   }
 
   openEditModal(item: AdminRecord): void {
+    const config = this.crudActiveConfig;
+    if (!config) return;
+
     this.isEditMode = true;
     this.selectedItem = item;
     this.formErrors = {};
@@ -249,7 +303,7 @@ export class AdminMasterData implements OnInit {
 
     const nextForm: Record<string, any> = {};
 
-    for (const field of this.activeConfig.fields) {
+    for (const field of config.fields) {
       if (field.type === 'switch') {
         nextForm[field.key] = Boolean(item[field.key]);
       } else {
@@ -276,6 +330,8 @@ export class AdminMasterData implements OnInit {
   }
 
   openDeleteModal(item: AdminRecord): void {
+    if (this.isRbacTab) return;
+
     this.selectedItem = item;
     this.feedbackMessage = '';
     this.feedbackType = '';
@@ -290,19 +346,20 @@ export class AdminMasterData implements OnInit {
   }
 
   onFormChange(event: { key: string; value: any; form: Record<string, any> }): void {
+    if (this.isRbacTab) return;
+
     this.form = { ...event.form };
-
     this.validateSingleField(event.key);
-
     this.formFeedbackMessage = '';
     this.formFeedbackType = '';
-
     this.cdr.detectChanges();
   }
 
   private validateSingleField(fieldKey: string): boolean {
-    const field = this.activeConfig.fields.find((item) => item.key === fieldKey);
+    const config = this.crudActiveConfig;
+    if (!config) return true;
 
+    const field = config.fields.find((item) => item.key === fieldKey);
     if (!field) return true;
 
     delete this.formErrors[fieldKey];
@@ -340,22 +397,10 @@ export class AdminMasterData implements OnInit {
     return true;
   }
 
-  private showPageSuccess(message: string): void {
-    this.pageFeedbackType = 'success';
-    this.pageFeedbackMessage = message;
-  }
-
-  private showPageError(message: string): void {
-    this.pageFeedbackType = 'error';
-    this.pageFeedbackMessage = message;
-  }
-
-  private showFormError(message: string): void {
-    this.formFeedbackType = 'error';
-    this.formFeedbackMessage = message;
-  }
-
   submitForm(): void {
+    const config = this.crudActiveConfig;
+    if (!config) return;
+
     this.formErrors = {};
 
     if (!this.validateForm()) {
@@ -382,7 +427,7 @@ export class AdminMasterData implements OnInit {
       .subscribe({
         next: () => {
           this.isFormModalOpen = false;
-          this.showSuccess(
+          this.showPageSuccess(
             this.isEditMode ? 'Data updated successfully.' : 'Data created successfully.',
           );
           this.loadData();
@@ -390,13 +435,14 @@ export class AdminMasterData implements OnInit {
         },
         error: (error: any) => {
           this.applyBackendErrors(error);
+          this.showFormError(this.extractErrorMessage(error, 'Gagal menyimpan data.'));
           this.cdr.detectChanges();
         },
       });
   }
 
   deleteSelected(): void {
-    if (!this.selectedItem?.id) return;
+    if (this.isRbacTab || !this.selectedItem?.id) return;
 
     this.isDeleting = true;
     this.cdr.detectChanges();
@@ -411,12 +457,13 @@ export class AdminMasterData implements OnInit {
       .subscribe({
         next: () => {
           this.isDeleteModalOpen = false;
-          this.showSuccess('Data deleted successfully.');
+          this.showPageSuccess('Data deleted successfully.');
           this.loadData();
           this.cdr.detectChanges();
         },
         error: (error: any) => {
-          this.showError(this.extractErrorMessage(error, 'Failed to delete data.'));
+          this.feedbackType = 'error';
+          this.feedbackMessage = this.extractErrorMessage(error, 'Failed to delete data.');
           this.cdr.detectChanges();
         },
       });
@@ -444,15 +491,23 @@ export class AdminMasterData implements OnInit {
         if (action === 'update') return this.userService.update(arg1, arg2);
         return this.userService.delete(arg1);
 
+      case 'rbac':
       default:
         return of([]);
     }
   }
 
   private resetForm(): void {
+    const config = this.crudActiveConfig;
+
+    if (!config) {
+      this.form = {};
+      return;
+    }
+
     const nextForm: Record<string, any> = {};
 
-    for (const field of this.activeConfig.fields) {
+    for (const field of config.fields) {
       if (field.type === 'switch') {
         nextForm[field.key] = field.key === 'isActive';
         continue;
@@ -470,10 +525,13 @@ export class AdminMasterData implements OnInit {
   }
 
   private validateForm(): boolean {
+    const config = this.crudActiveConfig;
+    if (!config) return false;
+
     this.formErrors = {};
     let valid = true;
 
-    for (const field of this.activeConfig.fields) {
+    for (const field of config.fields) {
       if (this.activeKey === 'users' && this.isEditMode && field.key === 'password') {
         continue;
       }
@@ -488,9 +546,12 @@ export class AdminMasterData implements OnInit {
   }
 
   private buildPayload(): Record<string, any> {
+    const config = this.crudActiveConfig;
+    if (!config) return {};
+
     const payload: Record<string, any> = {};
 
-    for (const field of this.activeConfig.fields) {
+    for (const field of config.fields) {
       if (field.type === 'switch') {
         payload[field.key] = Boolean(this.form[field.key]);
         continue;
@@ -507,6 +568,7 @@ export class AdminMasterData implements OnInit {
 
     return payload;
   }
+
   private extractErrorMessage(error: any, fallback: string): string {
     return error?.error?.message || error?.error?.errors?.[0]?.message || fallback;
   }
@@ -526,13 +588,18 @@ export class AdminMasterData implements OnInit {
     }
   }
 
-  private showSuccess(message: string): void {
-    this.feedbackType = 'success';
-    this.feedbackMessage = message;
+  private showPageSuccess(message: string): void {
+    this.pageFeedbackType = 'success';
+    this.pageFeedbackMessage = message;
   }
 
-  private showError(message: string): void {
-    this.feedbackType = 'error';
-    this.feedbackMessage = message;
+  private showPageError(message: string): void {
+    this.pageFeedbackType = 'error';
+    this.pageFeedbackMessage = message;
+  }
+
+  private showFormError(message: string): void {
+    this.formFeedbackType = 'error';
+    this.formFeedbackMessage = message;
   }
 }
