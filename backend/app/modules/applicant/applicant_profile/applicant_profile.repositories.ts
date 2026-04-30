@@ -1,8 +1,12 @@
-import { queryCamelOne } from "../../../utils/db.util";
+import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { applicantProfileQueries } from "./applicant_profile.queries";
 import { ApplicantProfile, ApplicantProfileAvatarPayload, ApplicantProfileCvPayload, ApplicantProfilePayload } from "./applicant_profile.types";
 
 export const applicantProfileRepository = {
+  async getAll(): Promise<ApplicantProfile[]> {
+  return queryCamel<ApplicantProfile>(applicantProfileQueries.getAll);
+},
+
   async getByUserId(userId: string): Promise<ApplicantProfile | null> {
     return queryCamelOne<ApplicantProfile>(applicantProfileQueries.getByUserId, [userId]);
   },

@@ -19,6 +19,10 @@ const getOrCreate = async (userId: string) => {
 };
 
 export const applicantProfileService = {
+  async getAll() {
+    return applicantProfileRepository.getAll();
+  },
+
   async getOrCreateProfile(userId: string) {
     return getOrCreate(userId);
   },

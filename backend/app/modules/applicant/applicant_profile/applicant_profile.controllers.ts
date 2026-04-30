@@ -7,6 +7,15 @@ import { ApplicantProfileBodyInput } from "./applicant_profile.schemas";
 import { applicantProfileService } from "./applicant_profile.services";
 
 export const applicantProfileController = {
+  async getAll(req: Request, res: Response) {
+    const profiles = await applicantProfileService.getAll();
+
+    res.status(200).json({
+      message: "Success",
+      data: profiles,
+    });
+  },
+  
   async getMe(req: Request, res: Response) {
     const profile = await applicantProfileService.getOrCreateProfile(requireUserId(req));
 

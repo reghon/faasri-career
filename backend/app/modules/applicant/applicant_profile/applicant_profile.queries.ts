@@ -10,6 +10,13 @@ const INSERT_FIELDS = `
 `;
 
 export const applicantProfileQueries = {
+  getAll: `
+  SELECT ${SELECT_FIELDS}
+  FROM applicant_profiles
+  WHERE deleted_at IS NULL
+  ORDER BY created_at DESC
+`,
+
   getByUserId: `
     SELECT ${SELECT_FIELDS}
     FROM applicant_profiles

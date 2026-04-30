@@ -10,6 +10,8 @@ const router: Router = Router();
 
 router.use(authenticate);
 
+router.get("/", asyncHandler(applicantProfileController.getAll));
+
 router.get("/me", asyncHandler(applicantProfileController.getMe));
 
 router.put("/me", validate({ body: applicantProfileBodySchema }), asyncHandler(applicantProfileController.updateMe));
