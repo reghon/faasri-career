@@ -35,3 +35,23 @@ export const YEARS: string[] = Array.from({ length: 50 }, (_, i) =>
 );
 
 export const PHONE_CODES: string[] = ['+62', '+60', '+65', '+1', '+44', '+81', '+86'];
+
+export function toDateTimeLocal(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+    date.getHours(),
+  )}:${pad(date.getMinutes())}`;
+}
+
+export function toDateTimeLocalFromUnknown(value: string | null | undefined): string {
+  if (!value) return toDateTimeLocal(new Date());
+
+  const parsed = new Date(value);
+
+  if (!Number.isNaN(parsed.getTime())) {
+    return toDateTimeLocal(parsed);
+  }
+
+  return toDateTimeLocal(new Date());
+}
