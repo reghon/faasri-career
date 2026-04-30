@@ -13,6 +13,16 @@ import { applyStatusHistoryRepository } from "./status_histories/apply_status_hi
 import { CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
 
 export const applyService = {
+  async getAll() {
+    const client = await pool.connect();
+
+    try {
+      return applyRepository.getAll(client);
+    } finally {
+      client.release();
+    }
+  },
+  
   async createApply(userId: string, payload: CreateApplyBodyInput) {
     const client = await pool.connect();
 
@@ -25,10 +35,9 @@ export const applyService = {
         throw new AppError(404, "Applicant profile not found");
       }
 
-      const defaultStatus = await applyStatusRepository.getDefault(client);
-
+      const defaultStatus = await applyStatusRepository.getDefaultByJobId(client, payload.jobId);
       if (!defaultStatus) {
-        throw new AppError(500, "Default apply status not found");
+        throw new AppError(400, "Default apply status for this job is not configured");
       }
 
       const createdApply = await applyRepository.create(
@@ -65,12 +74,17 @@ export const applyService = {
 
       await applyTechnicalSkillService.createSnapshots(client, applyId, payload.experienceInfo.technicalSkills, userId);
 
-      await applyStatusHistoryRepository.create(client, {
-        applyId,
-        fromStatusId: null,
-        toStatusId: defaultStatus.id,
-        actorId: userId,
-      });
+      await applyStatusHistoryRepository.create(
+        client,
+        {
+          applyId,
+          applyStatusId: defaultStatus.id,
+          applyStatusName: defaultStatus.name,
+          notes: null,
+        },
+        userId,
+        new Date(),
+      );
 
       await client.query("COMMIT");
 
@@ -116,12 +130,23 @@ export const applyService = {
         throw new AppError(500, "Failed to update apply status");
       }
 
-      await applyStatusHistoryRepository.create(client, {
-        applyId,
-        fromStatusId: existing.statusId,
-        toStatusId: data.statusId,
-        actorId: userId,
-      });
+      const targetStatus = await applyStatusRepository.getById(data.statusId);
+
+      if (!targetStatus) {
+        throw new AppError(404, "Target apply status not found");
+      }
+
+      await applyStatusHistoryRepository.create(
+        client,
+        {
+          applyId,
+          applyStatusId: targetStatus.id,
+          applyStatusName: targetStatus.name,
+          notes: null,
+        },
+        userId,
+        new Date(),
+      );
 
       await client.query("COMMIT");
 

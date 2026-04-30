@@ -5,6 +5,15 @@ import { applyService } from "./apply.services";
 import { ApplyJobParamsInput, ApplyParamsInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
 
 export const applyController = {
+  async getAll(req: Request, res: Response) {
+    const data = await applyService.getAll();
+
+    res.status(200).json({
+      message: "Apply list fetched successfully",
+      data,
+    });
+  },
+  
   async getMine(req: Request, res: Response) {
     const data = await applyService.getMine(requireUserId(req));
 

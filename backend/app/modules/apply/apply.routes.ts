@@ -10,6 +10,7 @@ const router: Router = Router();
 router.use(authenticate);
 router.get("/me", asyncHandler(applyController.getMine));
 router.post("/", validate({ body: createApplyBodySchema }), asyncHandler(applyController.create));
+router.get("/", asyncHandler(applyController.getAll));
 router.get("/job/:jobId", validate({ params: applyJobParamsSchema }), asyncHandler(applyController.getByJobId));
 router.patch(
   "/:id/status",

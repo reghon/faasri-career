@@ -10,6 +10,46 @@ const INSERT_FIELDS = `
 `;
 
 export const applyQueries = {
+  getAll: `
+  SELECT
+    a.id,
+    a.applicant_profile_id,
+    a.job_id,
+    a.status_id,
+
+    ap.full_name,
+    ap.linkedin_url,
+
+    j.title AS job_name,
+
+    aps.name AS status_name,
+
+    a.applied_at,
+    jas.updated_at AS status_updated_at
+
+  FROM applies a
+
+  LEFT JOIN applicant_profiles ap
+    ON ap.id = a.applicant_profile_id
+   AND ap.deleted_at IS NULL
+
+  LEFT JOIN jobs j
+    ON j.id = a.job_id
+   AND j.deleted_at IS NULL
+
+  LEFT JOIN apply_statuses aps
+    ON aps.id = a.status_id
+   AND aps.deleted_at IS NULL
+
+  LEFT JOIN job_apply_statuses jas
+    ON jas.job_id = a.job_id
+   AND jas.apply_status_id = a.status_id
+   AND jas.deleted_at IS NULL
+
+  WHERE a.deleted_at IS NULL
+
+  ORDER BY a.applied_at DESC, a.created_at DESC
+`,
   getMine: `
   SELECT ${SELECT_FIELDS}
   FROM applies
@@ -79,19 +119,28 @@ export const applyQueries = {
 
     s.code AS status_code,
     s.name AS status_name,
-    s.sort_order AS status_sort_order
+
+    jas.sort_order AS status_sort_order,
+    jas.is_default AS status_is_default,
+    jas.is_final AS status_is_final
 
   FROM applies a
   LEFT JOIN applicant_profiles ap
     ON ap.id = a.applicant_profile_id
    AND ap.deleted_at IS NULL
+
   LEFT JOIN apply_statuses s
     ON s.id = a.status_id
    AND s.deleted_at IS NULL
 
+  LEFT JOIN job_apply_statuses jas
+    ON jas.job_id = a.job_id
+   AND jas.apply_status_id = a.status_id
+   AND jas.deleted_at IS NULL
+
   WHERE a.job_id = $1
     AND a.deleted_at IS NULL
 
-  ORDER BY s.sort_order ASC, a.applied_at DESC, a.created_at DESC
+  ORDER BY jas.sort_order ASC NULLS LAST, a.applied_at DESC, a.created_at DESC
 `,
 };
