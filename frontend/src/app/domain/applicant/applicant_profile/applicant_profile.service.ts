@@ -17,6 +17,12 @@ export class ApplicantProfileService {
 
   constructor(private readonly http: HttpClient) {}
 
+  getAll(): Observable<ApplicantProfile[]> {
+    return this.http
+      .get<ApiResponse<ApplicantProfile[]>>(this.profileUrl.replace('/me', ''))
+      .pipe(map((response) => response.data));
+  }
+
   getMe(): Observable<ApplicantProfile> {
     return this.http
       .get<ApiResponse<ApplicantProfile>>(this.profileUrl)
