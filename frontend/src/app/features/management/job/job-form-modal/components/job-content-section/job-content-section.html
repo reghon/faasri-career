@@ -1,0 +1,110 @@
+<section class="space-y-4 border-t border-base-300 pt-6">
+  <div>
+    <h3 class="text-base font-semibold text-base-content">Konten Lowongan</h3>
+    <p class="mt-1 text-sm text-base-content/60">
+      Isi deskripsi, kebutuhan, tanggung jawab, dan benefit lowongan.
+    </p>
+  </div>
+
+  <div class="space-y-4">
+    <div class="form-control">
+      <label class="faasri-label">
+        <span>Deskripsi</span>
+      </label>
+
+      <div
+        class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+        [class.border-error]="!!errors['description']"
+      >
+        <quill-editor
+          [(ngModel)]="form.description"
+          name="description"
+          [modules]="modules"
+          theme="snow"
+          class="quill-faasri block w-full bg-base-100"
+        />
+      </div>
+
+      @if (errors['description']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['description'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-control">
+      <label class="faasri-label">
+        <span>Requirements</span>
+      </label>
+
+      <div
+        class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+        [class.border-error]="!!errors['requirements']"
+      >
+        <quill-editor
+          [(ngModel)]="form.requirements"
+          name="requirements"
+          [modules]="modules"
+          theme="snow"
+          class="quill-faasri block w-full bg-base-100"
+        />
+      </div>
+
+      @if (errors['requirements']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['requirements'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-control">
+      <label class="faasri-label">
+        <span>Responsibilities</span>
+      </label>
+
+      <div
+        class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+        [class.border-error]="!!errors['responsibilities']"
+      >
+        <quill-editor
+          [(ngModel)]="form.responsibilities"
+          name="responsibilities"
+          [modules]="modules"
+          theme="snow"
+          class="quill-faasri block w-full bg-base-100"
+        />
+      </div>
+
+      @if (errors['responsibilities']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['responsibilities'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-control">
+      <label class="faasri-label">
+        <span>Benefits</span>
+      </label>
+
+      <div
+        class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+        [class.border-error]="!!errors['benefits']"
+      >
+        <quill-editor
+          [(ngModel)]="form.benefits"
+          name="benefits"
+          [modules]="modules"
+          theme="snow"
+          class="quill-faasri block w-full bg-base-100"
+        />
+      </div>
+
+      @if (errors['benefits']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['benefits'] }}</span>
+        </label>
+      }
+    </div>
+  </div>
+</section>
