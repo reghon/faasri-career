@@ -25,10 +25,11 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `${API_URL}/api/job/jobs/${id}`,
     jobs: `${API_URL}/api/job/jobs`,
     slug: (slug: string) => `${API_URL}/api/job/jobs/slug/${slug}`,
+    savedJobs: `${API_URL}/api/job/saved-jobs`,
   },
   apply: {
     root: `${API_URL}/api/apply`,
-    applyStatusHistories: `${API_URL}/api/apply/statusHistories`
+    applyStatusHistories: `${API_URL}/api/apply/statusHistories`,
   },
   master: {
     employmentTypes: `${API_URL}/api/job/employment-types`,
@@ -39,6 +40,7 @@ export const API_ENDPOINTS = {
     educationLevels: `${API_URL}/api/job/education-levels`,
     departments: `${API_URL}/api/job/departments`,
     applyStatuses: `${API_URL}/api/apply/status`,
+    jobApplyStatuses: `${API_URL}/api/job/apply-job-statuses`,
   },
   admin: {
     users: `${API_URL}/api/user`,
