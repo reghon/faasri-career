@@ -33,8 +33,7 @@ export const managementGuard: CanActivateFn = async (
   }
 
   if (user.roleName === 'applicant') {
-    await router.navigate(['/forbidden']);
-    return false;
+    return router.createUrlTree(['/']);
   }
 
   return true;
