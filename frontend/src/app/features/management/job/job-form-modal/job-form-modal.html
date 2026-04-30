@@ -1,0 +1,55 @@
+<app-generic-modal
+  [open]="open"
+  [title]="isEditMode ? 'Ubah Lowongan' : 'Buat Lowongan'"
+  [isSubmitting]="isSubmitting"
+  cancelLabel="Batal"
+  [saveLabel]="isEditMode ? 'Simpan Perubahan' : 'Simpan'"
+  savingLabel="Menyimpan..."
+  (close)="handleClose()"
+  (save)="onSave()"
+>
+  @if (errors['general']) {
+    <div class="alert alert-error mb-4 rounded-xl">
+      <span>{{ errors['general'] }}</span>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else {
+    <form class="space-y-10" (submit)="$event.preventDefault()">
+      <app-job-basic-section
+        [form]="form"
+        [errors]="errors"
+        [categories]="categories"
+        [employmentTypes]="employmentTypes"
+        [statuses]="statuses"
+        [departments]="departments"
+        [educationLevels]="educationLevels"
+      />
+
+      <app-job-location-section
+        [form]="form"
+        [errors]="errors"
+        [jobLocations]="jobLocations"
+        [workModes]="workModes"
+      />
+
+      <app-job-compensation-section [form]="form" [errors]="errors" (formChange)="detect()" />
+
+      <app-job-publication-section [form]="form" [errors]="errors" />
+
+      <app-job-flow-section
+        [applyStatuses]="applyStatuses"
+        [(jobFlowStatuses)]="jobFlowStatuses"
+        [isLocked]="isJobFlowLocked"
+        [lockMessage]="jobFlowLockMessage"
+        [error]="errors['jobFlowStatuses']"
+      />
+
+      <app-job-content-section [form]="form" [errors]="errors" [modules]="modules" />
+    </form>
+  }
+</app-generic-modal>
