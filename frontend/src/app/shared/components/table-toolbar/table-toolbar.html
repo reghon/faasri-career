@@ -1,0 +1,76 @@
+<div class="mt-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+  <div class="flex flex-1 flex-col gap-3 md:flex-row md:items-center">
+    <label class="input input-bordered flex w-full items-center gap-2 rounded-xl md:max-w-md">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-4 w-4 opacity-70"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M9 3a6 6 0 104.472 10.001l3.764 3.763a1 1 0 001.414-1.414l-3.763-3.764A6 6 0 009 3zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"
+          clip-rule="evenodd"
+        />
+      </svg>
+
+      <input
+        type="text"
+        class="grow"
+        [placeholder]="searchPlaceholder"
+        [ngModel]="search"
+        (ngModelChange)="onSearchChange($event)"
+      />
+    </label>
+
+    <button
+      class="btn btn-outline rounded-xl"
+      type="button"
+      (click)="toggleSortDirection()"
+      aria-label="Toggle sort"
+    >
+      Sort
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-2 md:flex-row">
+    @for (filter of filters; track filter.key) {
+      <select
+        class="select select-bordered rounded-xl text-sm"
+        [ngModel]="filter.value"
+        (ngModelChange)="onFilterChange(filter.key, $event)"
+      >
+        <option value="">{{ filter.label }}</option>
+
+        @for (option of filter.options; track option) {
+          <option [value]="option">{{ option }}</option>
+        }
+      </select>
+    }
+
+    <div class="dropdown dropdown-end">
+      <button class="btn btn-ghost rounded-xl" tabindex="0" type="button">⋮</button>
+
+      <ul
+        tabindex="0"
+        class="menu dropdown-content z-[1] mt-2 w-56 rounded-xl border border-base-300 bg-base-100 p-2 shadow"
+      >
+        @for (item of actions; track item.key) {
+          <li>
+            <button type="button" (click)="onAction(item.key)">
+              {{ item.label }}
+            </button>
+          </li>
+        }
+
+        @for (item of sortOptions; track item.key) {
+          <li>
+            <button type="button" (click)="selectSort(item.key)">
+              {{ item.label }}
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>
