@@ -1,0 +1,126 @@
+<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+  <div>
+    <h2 class="text-lg font-semibold">RBAC Matrix</h2>
+    <p class="mt-1 text-sm text-base-content/70">
+      Kelola akses role berdasarkan module dan permission action.
+    </p>
+  </div>
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div class="flex items-center gap-4">
+      <label class="font-medium min-w-[100px]"> Pilih Role </label>
+
+      <select
+        class="select select-bordered rounded-xl w-64"
+        [(ngModel)]="selectedRoleId"
+        (ngModelChange)="onRoleChange()"
+      >
+        <option value="" disabled>Pilih role</option>
+        @for (role of roles; track role.id) {
+          <option [value]="role.id">
+            {{ role.name }}
+          </option>
+        }
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button
+        type="button"
+        class="btn btn-ghost rounded-xl"
+        [disabled]="!hasChanges || isSaving"
+        (click)="resetChanges()"
+      >
+        Reset
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary-faasri rounded-xl"
+        [disabled]="!hasChanges || isSaving || !hasRoleSelected"
+        (click)="save()"
+      >
+        @if (isSaving) {
+          <span class="loading loading-spinner loading-sm"></span>
+        }
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+@if (pageFeedbackMessage) {
+  <div
+    class="alert mt-4 rounded-xl"
+    [class.alert-success]="pageFeedbackType === 'success'"
+    [class.alert-error]="pageFeedbackType === 'error'"
+  >
+    <span>{{ pageFeedbackMessage }}</span>
+  </div>
+}
+
+@if (isLoading) {
+  <div class="mt-6 flex justify-center py-10">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+} @else if (!hasRoleSelected) {
+  <div
+    class="mt-6 rounded-xl border border-dashed border-base-300 p-8 text-center text-sm text-base-content/70"
+  >
+    Pilih role terlebih dahulu untuk mengatur akses.
+  </div>
+} @else {
+  <div class="mt-6 overflow-x-auto rounded-xl border border-base-300">
+    <table class="table table-zebra w-full">
+      <thead class="bg-base-200">
+        <tr>
+          <th class="min-w-[220px]">Module</th>
+
+          @for (action of actions; track action.id) {
+            <th class="min-w-[120px] text-center">
+              {{ action.name }}
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (row of matrixRows; track row.moduleId) {
+          <tr>
+            <td class="align-middle">
+              <div class="font-semibold">{{ row.moduleName }}</div>
+              <div class="text-xs text-base-content/60">{{ row.moduleCode }}</div>
+            </td>
+
+            @for (action of actions; track action.id) {
+              <td class="text-center align-middle">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                  [checked]="isChecked(row, action.id)"
+                  [disabled]="isDisabled(row, action.id) || isSaving"
+                  (change)="toggleCell(row, action.id, $any($event.target).checked)"
+                />
+              </td>
+            }
+          </tr>
+        }
+
+        @if (matrixRows.length === 0) {
+          <tr>
+            <td
+              [attr.colspan]="actions.length + 1"
+              class="py-8 text-center text-sm text-base-content/70"
+            >
+              Belum ada data module / permission yang bisa ditampilkan.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-3 text-xs text-base-content/60">
+    Checkbox yang nonaktif berarti kombinasi module dan permission action belum memiliki data
+    permission.
+  </div>
+}
