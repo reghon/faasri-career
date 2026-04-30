@@ -128,3 +128,18 @@ export interface ApplyByJobItem extends Apply {
   statusName: string | null;
   statusSortOrder: number | null;
 }
+
+export type ApplyListItem = {
+  id: string;
+  applicantProfileId: string;
+  jobId: string;
+  statusId: string;
+
+  fullName: string | null;
+  linkedinUrl: string | null;
+  jobName: string | null;
+  statusName: string | null;
+
+  appliedAt: string;
+  statusUpdatedAt: string | null;
+};
