@@ -25,137 +25,20 @@
 
       <div class="p-4 md:p-5">
         <div class="flex flex-col gap-4">
-          <div class="mt-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div class="flex flex-1 flex-col gap-3 md:flex-row md:items-center">
-              <label
-                class="input input-bordered flex w-full items-center gap-2 rounded-xl md:max-w-md"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 opacity-70"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M9 3a6 6 0 104.472 10.001l3.764 3.763a1 1 0 001.414-1.414l-3.763-3.764A6 6 0 009 3zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <input
-                  type="text"
-                  class="grow"
-                  placeholder="Search title, department, location..."
-                  [(ngModel)]="searchTerm"
-                  (ngModelChange)="onFilterChange()"
-                />
-              </label>
-
-              <button
-                class="btn btn-outline rounded-xl"
-                type="button"
-                (click)="toggleSortDirection()"
-                aria-label="Toggle sort"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  @if (sortDirection === 'asc') {
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M8 7h8M8 12h5M8 17h2m7-12v14m0 0-3-3m3 3 3-3"
-                    />
-                  } @else {
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M8 7h2M8 12h5M8 17h8m7-12v14m0 0-3-3m3 3 3-3"
-                    />
-                  }
-                </svg>
-                Sort
-              </button>
-            </div>
-
-            <div class="flex flex-col gap-2 md:flex-row">
-              <select
-                class="select select-bordered rounded-xl text-sm"
-                [(ngModel)]="selectedStatus"
-                (ngModelChange)="onFilterChange()"
-              >
-                <option value="">All Status</option>
-                @for (status of statusOptions; track status) {
-                  <option [value]="status">{{ status }}</option>
-                }
-              </select>
-
-              <select
-                class="select select-bordered rounded-xl text-sm"
-                [(ngModel)]="selectedDepartment"
-                (ngModelChange)="onFilterChange()"
-              >
-                <option value="">All Departments</option>
-                @for (department of departmentOptions; track department) {
-                  <option [value]="department">{{ department }}</option>
-                }
-              </select>
-
-              <select
-                class="select select-bordered rounded-xl text-sm"
-                [(ngModel)]="selectedLocation"
-                (ngModelChange)="onFilterChange()"
-              >
-                <option value="">All Locations</option>
-                @for (location of locationOptions; track location) {
-                  <option [value]="location">{{ location }}</option>
-                }
-              </select>
-
-              <div class="dropdown dropdown-end">
-                <button
-                  class="btn btn-ghost rounded-xl"
-                  tabindex="0"
-                  type="button"
-                  aria-label="More actions"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="12" cy="5" r="1.8"></circle>
-                    <circle cx="12" cy="12" r="1.8"></circle>
-                    <circle cx="12" cy="19" r="1.8"></circle>
-                  </svg>
-                </button>
-
-                <ul
-                  tabindex="0"
-                  class="menu dropdown-content z-[1] mt-2 w-56 rounded-xl border border-base-300 bg-base-100 p-2 shadow"
-                >
-                  <li><button type="button" (click)="resetFilters()">Reset Filters</button></li>
-                  <li>
-                    <button type="button" (click)="sortBy('publishedAt')">
-                      Sort by Posted Date
-                    </button>
-                  </li>
-                  <li>
-                    <button type="button" (click)="sortBy('title')">Sort by Job Title</button>
-                  </li>
-                  <li>
-                    <button type="button" (click)="sortBy('status')">Sort by Status</button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <app-table-toolbar
+            searchPlaceholder="Search title, department, location..."
+            [search]="searchTerm"
+            [sortBy]="sortField"
+            [sortDirection]="sortDirection"
+            [filters]="toolbarFilters"
+            [sortOptions]="toolbarSortOptions"
+            [actions]="toolbarActions"
+            (searchChange)="onToolbarSearchChange($event)"
+            (filterChange)="onToolbarFilterChange($event)"
+            (sortDirectionChange)="onToolbarSortDirectionChange($event)"
+            (sortByChange)="onToolbarSortByChange($event)"
+            (action)="onToolbarAction($event)"
+          ></app-table-toolbar>
 
           <!-- TABLE -->
           <app-data-table

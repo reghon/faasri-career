@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobListItem } from '../../../domain/job/models/job.model';
 import { JobService } from '../../../domain/job/services/job.service';
-import { JobFormModalComponent } from './components/job-form-modal/job-form-modal';
+import { JobFormModalComponent } from './job-form-modal/job-form-modal';
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
@@ -14,6 +14,12 @@ import {
   DataTablePagination,
 } from '../../../shared/components/data-table/data-table';
 import { Router } from '@angular/router';
+import {
+  TableToolbarComponent,
+  ToolbarAction,
+  ToolbarFilter,
+  ToolbarSortOption,
+} from '../../../shared/components/table-toolbar/table-toolbar';
 
 type SortField = 'publishedAt' | 'title' | 'status';
 type SortDirection = 'asc' | 'desc';
@@ -27,6 +33,7 @@ type SortDirection = 'asc' | 'desc';
     JobFormModalComponent,
     BreadcrumbComponent,
     DataTableComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './job.html',
 })
@@ -91,6 +98,16 @@ export class Job implements OnInit {
       align: 'right',
     },
   ];
+
+  toolbarFilters: ToolbarFilter[] = [];
+
+  toolbarSortOptions: ToolbarSortOption[] = [
+    { key: 'publishedAt', label: 'Sort by Posted Date' },
+    { key: 'title', label: 'Sort by Job Title' },
+    { key: 'status', label: 'Sort by Status' },
+  ];
+
+  toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
 
   ngOnInit(): void {
     this.loadJobs();
@@ -159,6 +176,12 @@ export class Job implements OnInit {
     this.sortField = 'publishedAt';
     this.sortDirection = 'desc';
     this.currentPage = 1;
+
+    this.toolbarFilters = this.toolbarFilters.map((filter) => ({
+      ...filter,
+      value: '',
+    }));
+
     this.applyFilters();
     this.cdr.detectChanges();
   }
@@ -249,6 +272,69 @@ export class Job implements OnInit {
     this.statusOptions = this.getUniqueOptions(this.jobs.map((item) => item.status));
     this.departmentOptions = this.getUniqueOptions(this.jobs.map((item) => item.department));
     this.locationOptions = this.getUniqueOptions(this.jobs.map((item) => item.location));
+    this.syncToolbarFilters();
+  }
+
+  onToolbarSearchChange(value: string): void {
+    this.searchTerm = value;
+    this.syncToolbarFilters();
+    this.onFilterChange();
+  }
+
+  onToolbarFilterChange(event: { key: string; value: string }): void {
+    if (event.key === 'status') {
+      this.selectedStatus = event.value;
+    }
+
+    if (event.key === 'department') {
+      this.selectedDepartment = event.value;
+    }
+
+    if (event.key === 'location') {
+      this.selectedLocation = event.value;
+    }
+
+    this.syncToolbarFilters();
+    this.onFilterChange();
+  }
+
+  onToolbarSortDirectionChange(direction: SortDirection): void {
+    this.sortDirection = direction;
+    this.applyFilters();
+    this.cdr.detectChanges();
+  }
+
+  onToolbarSortByChange(field: string): void {
+    this.sortBy(field as SortField);
+  }
+
+  private syncToolbarFilters(): void {
+    this.toolbarFilters = [
+      {
+        key: 'status',
+        label: 'All Status',
+        value: this.selectedStatus,
+        options: this.statusOptions,
+      },
+      {
+        key: 'department',
+        label: 'All Departments',
+        value: this.selectedDepartment,
+        options: this.departmentOptions,
+      },
+      {
+        key: 'location',
+        label: 'All Locations',
+        value: this.selectedLocation,
+        options: this.locationOptions,
+      },
+    ];
+  }
+
+  onToolbarAction(action: string): void {
+    if (action === 'reset') {
+      this.resetFilters();
+    }
   }
 
   private getUniqueOptions(values: string[]): string[] {
