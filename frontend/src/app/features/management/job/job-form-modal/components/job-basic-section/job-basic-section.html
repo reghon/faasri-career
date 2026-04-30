@@ -1,0 +1,108 @@
+<section class="space-y-4 pt-1">
+  <div>
+    <h3 class="text-base font-semibold text-base-content">Informasi Dasar</h3>
+    <p class="mt-1 text-sm text-base-content/60">Data utama lowongan yang akan tampil di sistem.</p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+    <div class="form-control md:col-span-4">
+      <label class="faasri-label">
+        <span>
+          Judul Lowongan
+          <span class="text-error">*</span>
+        </span>
+      </label>
+
+      <input
+        type="text"
+        name="title"
+        class="input input-bordered w-full"
+        [(ngModel)]="form.title"
+        [class.input-error]="!!errors['title']"
+        placeholder="Contoh: Frontend Developer"
+      />
+
+      @if (errors['title']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['title'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-control md:col-span-2">
+      <label class="faasri-label">
+        <span>Slug</span>
+      </label>
+
+      <input
+        type="text"
+        class="input input-bordered w-full"
+        [(ngModel)]="form.slug"
+        name="slug"
+        [class.input-error]="!!errors['slug']"
+        placeholder="frontend-developer"
+      />
+
+      @if (errors['slug']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['slug'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-control md:col-span-2">
+      <app-select
+        label="Kategori"
+        name="categoryId"
+        [(model)]="form.categoryId"
+        [options]="toOptions(categories)"
+        placeholder="Pilih kategori"
+        [error]="errors['categoryId']"
+      />
+    </div>
+
+    <div class="form-control md:col-span-2">
+      <app-select
+        label="Tipe Pekerjaan"
+        name="employmentTypeId"
+        [(model)]="form.employmentTypeId"
+        [options]="toOptions(employmentTypes)"
+        placeholder="Pilih tipe pekerjaan"
+        [error]="errors['employmentTypeId']"
+      />
+    </div>
+
+    <div class="form-control md:col-span-2">
+      <app-select
+        label="Status"
+        name="statusId"
+        [(model)]="form.statusId"
+        [options]="toOptions(statuses)"
+        placeholder="Pilih status"
+        [error]="errors['statusId']"
+      />
+    </div>
+
+    <div class="form-control md:col-span-3">
+      <app-select
+        label="Departemen"
+        name="departmentId"
+        [(model)]="form.departmentId"
+        [options]="toOptions(departments)"
+        placeholder="Pilih departemen"
+        [error]="errors['departmentId']"
+      />
+    </div>
+
+    <div class="form-control md:col-span-3">
+      <app-select
+        label="Minimum Pendidikan"
+        name="educationLevelId"
+        [(model)]="form.educationLevelId"
+        [options]="toOptions(educationLevels)"
+        placeholder="Pilih pendidikan"
+        [error]="errors['educationLevelId']"
+      />
+    </div>
+  </div>
+</section>
