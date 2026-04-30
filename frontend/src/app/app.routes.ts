@@ -38,7 +38,8 @@ export const routes: Routes = [
       },
       {
         path: 'saved-jobs',
-        loadComponent: () => import('./features/applicant/job/saved-job/saved-job').then((m) => m.SavedJob),
+        loadComponent: () =>
+          import('./features/applicant/job/saved-job/saved-job').then((m) => m.SavedJob),
       },
     ],
   },
@@ -66,6 +67,21 @@ export const routes: Routes = [
         path: 'admin',
         loadComponent: () =>
           import('./features/management/admin/admin-master-data').then((m) => m.AdminMasterData),
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/management/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'applicant',
+        loadComponent: () =>
+          import('./features/management/applicant/applicant').then((m) => m.Applicant),
+      },
+       {
+        path: 'application',
+        loadComponent: () =>
+          import('./features/management/application/application').then((m) => m.Application),
       },
     ],
   },
