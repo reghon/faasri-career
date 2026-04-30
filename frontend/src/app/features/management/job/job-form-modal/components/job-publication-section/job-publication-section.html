@@ -1,0 +1,70 @@
+<section class="space-y-4 border-t border-base-300 pt-6">
+  <div>
+    <h3 class="text-base font-semibold text-base-content">Publikasi</h3>
+    <p class="mt-1 text-sm text-base-content/60">
+      Atur jadwal tayang lowongan dan status aktifnya.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+    <div class="form-control md:col-span-3">
+      <label class="faasri-label">
+        <span>Tanggal Publish</span>
+      </label>
+
+      <input
+        type="datetime-local"
+        class="input input-bordered w-full"
+        [(ngModel)]="form.publishedAt"
+        name="publishedAt"
+        [class.input-error]="!!errors['publishedAt']"
+        placeholder="Tanggal Publish"
+      />
+
+      @if (errors['publishedAt']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['publishedAt'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-control md:col-span-3">
+      <label class="faasri-label">
+        <span>Tanggal Tutup</span>
+      </label>
+
+      <input
+        type="datetime-local"
+        class="input input-bordered w-full"
+        [(ngModel)]="form.closeAt"
+        name="closeAt"
+        [class.input-error]="!!errors['closeAt']"
+        placeholder="Tanggal Tutup"
+      />
+
+      @if (errors['closeAt']) {
+        <label class="label">
+          <span class="label-text-alt text-error">{{ errors['closeAt'] }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="md:col-span-6">
+      <div class="flex items-start justify-between gap-4 border-t border-base-300/60 pt-4">
+        <div>
+          <p class="text-sm font-medium text-base-content">Status Aktif</p>
+          <p class="mt-1 text-sm text-base-content/60">
+            Aktifkan jika lowongan siap digunakan atau ditampilkan di sistem.
+          </p>
+        </div>
+
+        <input
+          type="checkbox"
+          class="toggle toggle-faasri mt-1 shrink-0"
+          [(ngModel)]="form.isActive"
+          name="isActive"
+        />
+      </div>
+    </div>
+  </div>
+</section>
