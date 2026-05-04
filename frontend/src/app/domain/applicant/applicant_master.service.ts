@@ -20,4 +20,10 @@ export class ApplicantMasterService {
       .get<ApiResponse<ApplicantMaster>>(API_ENDPOINTS.applicant.applicantMaster)
       .pipe(map((response) => response.data));
   }
+
+  getByApplicantProfileId(id: string): Observable<ApplicantMaster> {
+    return this.http
+      .get<ApiResponse<ApplicantMaster>>(API_ENDPOINTS.applicant.getByid(id))
+      .pipe(map((response) => response.data));
+  }
 }
