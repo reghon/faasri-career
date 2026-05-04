@@ -11,4 +11,14 @@ export const applicantMasterService = {
 
     return result;
   },
+
+  async getByApplicantProfileId(applicantProfileId: string) {
+    const result = await applicantMasterRepository.getByApplicantProfileId(applicantProfileId);
+
+    if (!result) {
+      throw new AppError(404, "Applicant not found");
+    }
+
+    return result;
+  },
 };
