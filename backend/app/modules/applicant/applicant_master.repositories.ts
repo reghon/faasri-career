@@ -5,7 +5,7 @@ import { educationRepository } from "./educations/education.repositories";
 import { certificationRepository } from "./certifications/certification.repositories";
 import { technicalSkillRepository } from "./technical_skills/technical_skill.repositories";
 import { languageRepository } from "./languages/language.repositories";
-import { ApplicantMaster } from "./applicant_master.types";
+import { ManagementApplicantMaster, ApplicantMaster } from "./applicant_master.types";
 
 export const applicantMasterRepository = {
   async getByUserId(userId: string): Promise<ApplicantMaster | null> {
@@ -39,6 +39,30 @@ export const applicantMasterRepository = {
 
     return {
       user,
+      applicantProfile,
+      workExperiences,
+      educations,
+      certifications,
+      technicalSkills,
+      languages,
+    };
+  },
+  async getByApplicantProfileId(applicantProfileId: string): Promise<ManagementApplicantMaster | null> {
+    const applicantProfile = await applicantProfileRepository.getById(applicantProfileId);
+
+    if (!applicantProfile) {
+      return null;
+    }
+
+    const [workExperiences, educations, certifications, technicalSkills, languages] = await Promise.all([
+      workExperienceRepository.getByProfileId(applicantProfile.id),
+      educationRepository.getByProfileId(applicantProfile.id),
+      certificationRepository.getByProfileId(applicantProfile.id),
+      technicalSkillRepository.getByProfileId(applicantProfile.id),
+      languageRepository.getByProfileId(applicantProfile.id),
+    ]);
+
+    return {
       applicantProfile,
       workExperiences,
       educations,

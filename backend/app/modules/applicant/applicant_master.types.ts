@@ -15,3 +15,12 @@ export type ApplicantMaster = {
   technicalSkills: TechnicalSkill[];
   languages: Language[];
 };
+
+export type ManagementApplicantMaster = {
+  applicantProfile: ApplicantProfile | null;
+  workExperiences: WorkExperience[];
+  educations: Education[];
+  certifications: Certification[];
+  technicalSkills: TechnicalSkill[];
+  languages: Language[];
+};
