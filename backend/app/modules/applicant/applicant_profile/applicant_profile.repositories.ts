@@ -4,9 +4,11 @@ import { ApplicantProfile, ApplicantProfileAvatarPayload, ApplicantProfileCvPayl
 
 export const applicantProfileRepository = {
   async getAll(): Promise<ApplicantProfile[]> {
-  return queryCamel<ApplicantProfile>(applicantProfileQueries.getAll);
-},
-
+    return queryCamel<ApplicantProfile>(applicantProfileQueries.getAll);
+  },
+  async getById(id: string): Promise<ApplicantProfile | null> {
+    return queryCamelOne<ApplicantProfile>(applicantProfileQueries.getById, [id]);
+  },
   async getByUserId(userId: string): Promise<ApplicantProfile | null> {
     return queryCamelOne<ApplicantProfile>(applicantProfileQueries.getByUserId, [userId]);
   },
@@ -43,7 +45,7 @@ export const applicantProfileRepository = {
   async updateCv(userId: string, data: ApplicantProfileCvPayload, actorId: string): Promise<ApplicantProfile | null> {
     return queryCamelOne<ApplicantProfile>(applicantProfileQueries.updateCv, [data.cvUrl, data.cvFileName, actorId, userId]);
   },
-  
+
   async removeAvatar(userId: string, actorId: string): Promise<ApplicantProfile | null> {
     return queryCamelOne<ApplicantProfile>(applicantProfileQueries.removeAvatar, [actorId, userId]);
   },

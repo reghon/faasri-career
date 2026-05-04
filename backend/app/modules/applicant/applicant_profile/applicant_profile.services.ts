@@ -31,6 +31,16 @@ export const applicantProfileService = {
     return applicantProfileRepository.getByUserId(userId);
   },
 
+  async getById(id: string) {
+    const profile = await applicantProfileRepository.getById(id);
+
+    if (!profile) {
+      throw new AppError(404, "Applicant profile not found");
+    }
+
+    return profile;
+  },
+  
   async updateProfile(userId: string, data: ApplicantProfilePayload) {
     await getOrCreate(userId);
 

@@ -3,7 +3,7 @@ import { AppError } from "../../../errors/app-error";
 import { deleteUploadedFile } from "../../../utils/file.util";
 import { requireUserId } from "../../../utils/request-user.util";
 import { getValidatedBody } from "../../../utils/validated-request.util";
-import { ApplicantProfileBodyInput } from "./applicant_profile.schemas";
+import { ApplicantProfileParamsInput,ApplicantProfileBodyInput } from "./applicant_profile.schemas";
 import { applicantProfileService } from "./applicant_profile.services";
 
 export const applicantProfileController = {
@@ -15,7 +15,18 @@ export const applicantProfileController = {
       data: profiles,
     });
   },
-  
+
+  async getById(req: Request, res: Response) {
+    const params = getValidatedBody<ApplicantProfileParamsInput>(req);
+
+    const profile = await applicantProfileService.getById(params.id);
+
+    res.status(200).json({
+      message: "Success",
+      data: profile,
+    });
+  },
+
   async getMe(req: Request, res: Response) {
     const profile = await applicantProfileService.getOrCreateProfile(requireUserId(req));
 

@@ -31,5 +31,9 @@ export const applicantProfileBodySchema = z.object({
   postalCode: nullableTrimmedString(10, "Postal code"),
   linkedinUrl: nullableTrimmedString(255, "LinkedIn URL"),
 });
+export const applicantProfileParamsSchema = z.object({
+  id: z.string().uuid("Applicant profile id must be a valid UUID"),
+});
 
+export type ApplicantProfileParamsInput = z.infer<typeof applicantProfileParamsSchema>;
 export type ApplicantProfileBodyInput = z.infer<typeof applicantProfileBodySchema>;

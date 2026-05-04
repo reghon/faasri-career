@@ -16,7 +16,13 @@ export const applicantProfileQueries = {
   WHERE deleted_at IS NULL
   ORDER BY created_at DESC
 `,
-
+  getById: `
+  SELECT ${SELECT_FIELDS}
+  FROM applicant_profiles
+  WHERE id = $1
+    AND deleted_at IS NULL
+  LIMIT 1
+`,
   getByUserId: `
     SELECT ${SELECT_FIELDS}
     FROM applicant_profiles

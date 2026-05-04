@@ -4,7 +4,7 @@ import { uploadAvatar, uploadCv } from "../../../middlewares/upload.middleware";
 import { validate } from "../../../middlewares/validate.middleware";
 import { asyncHandler } from "../../../utils/async-handler";
 import { applicantProfileController } from "./applicant_profile.controllers";
-import { applicantProfileBodySchema } from "./applicant_profile.schemas";
+import { applicantProfileBodySchema, applicantProfileParamsSchema } from "./applicant_profile.schemas";
 
 const router: Router = Router();
 
@@ -13,6 +13,8 @@ router.use(authenticate);
 router.get("/", asyncHandler(applicantProfileController.getAll));
 
 router.get("/me", asyncHandler(applicantProfileController.getMe));
+
+router.get("/:id", validate({ params: applicantProfileParamsSchema }), asyncHandler(applicantProfileController.getById));
 
 router.put("/me", validate({ body: applicantProfileBodySchema }), asyncHandler(applicantProfileController.updateMe));
 
