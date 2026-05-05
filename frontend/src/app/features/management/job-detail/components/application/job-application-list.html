@@ -1,0 +1,124 @@
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-[220px_1fr]">
+  <aside class="rounded-xl border border-base-300 bg-base-100 p-4 shadow-sm">
+    <h2 class="mb-3 text-base font-bold text-base-content">Statuses</h2>
+
+    <div class="flex flex-col gap-2">
+      @if (isLoading) {
+        @for (item of [1, 2, 3, 4, 5]; track item) {
+          <div class="h-10 animate-pulse rounded-lg bg-base-200"></div>
+        }
+      } @else if (statuses.length === 0) {
+        <div
+          class="rounded-lg border border-dashed border-base-300 p-4 text-sm text-base-content/60"
+        >
+          Belum ada status.
+        </div>
+      } @else {
+        @for (status of statuses; track status.id) {
+          <button
+            type="button"
+            class="flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition hover:border-warning hover:bg-warning/10"
+            [class.border-warning]="selectedStatusId === status.id"
+            [class.bg-warning/20]="selectedStatusId === status.id"
+            [class.border-base-300]="selectedStatusId !== status.id"
+            [class.bg-base-100]="selectedStatusId !== status.id"
+            (click)="selectStatus(status.id)"
+          >
+            <span class="font-bold text-primary">{{ status.count }}</span>
+            <span class="truncate">{{ status.name }}</span>
+          </button>
+        }
+      }
+    </div>
+  </aside>
+
+  <section
+    class="relative z-10 overflow-visible rounded-xl border border-base-300 bg-base-100 p-4 shadow-sm"
+  >
+    <div
+      class="flex flex-col gap-4 border-b border-base-300 pb-3 xl:flex-row xl:items-center xl:justify-between"
+    >
+      <div>
+        <h2 class="text-lg font-bold text-base-content">
+          {{ selectedStatusName }}
+        </h2>
+      </div>
+
+      <div class="flex flex-col gap-2 md:flex-row md:items-center">
+        <label
+          class="input input-bordered flex h-10 w-full items-center gap-2 rounded-xl md:w-[420px]"
+        >
+          <input
+            type="text"
+            class="grow text-sm"
+            placeholder="Type and search here..."
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+          />
+        </label>
+
+        <button
+          class="btn btn-outline btn-square rounded-xl"
+          type="button"
+          aria-label="Sort"
+          (click)="toggleSortDirection()"
+        >
+          @if (sortDirection === 'asc') {
+            <span class="text-xl leading-none">↑↓</span>
+          } @else {
+            <span class="text-xl leading-none">↓↑</span>
+          }
+        </button>
+
+        <div class="dropdown dropdown-end relative z-[9999]">
+          <button
+            class="btn btn-ghost btn-square rounded-xl"
+            tabindex="0"
+            type="button"
+            aria-label="More actions"
+          >
+            ⋮
+          </button>
+
+          <ul
+            tabindex="0"
+            class="menu dropdown-content z-[9999] mt-2 w-48 rounded-xl border border-base-300 bg-base-100 p-2 shadow-xl"
+          >
+            <li>
+              <button type="button" (click)="resetFilters()">Reset Filters</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert alert-error mt-4 rounded-xl">
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    <app-data-table
+      [columns]="columns"
+      [data]="pagedApplies"
+      [isLoading]="isLoading"
+      loadingText="Loading applications..."
+      emptyTitle="Belum ada kandidat"
+      emptyDescription="Data kandidat belum tersedia pada status ini."
+      [pagination]="tablePagination"
+      [useActionDropdown]="true"
+      [actionsGetter]="getApplicationActions.bind(this)"
+      (actionClick)="handleApplicationAction($event)"
+      (pageChange)="goToPage($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </section>
+  <app-confirm-modal
+    [isOpen]="isMoveStatusModalOpen"
+    [message]="moveStatusModalMessage"
+    [isLoading]="isMovingStatus"
+    [requireNotes]="shouldShowMoveNotes"
+    (close)="closeMoveStatusModal()"
+    (confirm)="confirmMoveStatus($event)"
+  />
+</div>
