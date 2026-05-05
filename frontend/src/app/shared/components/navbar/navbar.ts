@@ -6,7 +6,7 @@ import { AuthService } from '../../../domain/auth/auth.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, NgIf, RouterLinkActive  ],
+  imports: [RouterLink, NgIf, RouterLinkActive],
   templateUrl: './navbar.html',
 })
 export class Navbar implements OnInit {
@@ -47,7 +47,9 @@ export class Navbar implements OnInit {
     if (!email) return this.isManagement ? 'HR' : 'User';
     return email.split('@')[0];
   }
-
+  get isManagementRole(): boolean {
+    return this.currentUser?.roleName !== 'applicant';
+  }
   logout(): void {
     this.authService.logout().subscribe();
   }

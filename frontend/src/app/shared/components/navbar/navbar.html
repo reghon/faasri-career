@@ -22,6 +22,16 @@
       <ul class="flex h-14 items-center gap-8 text-[15px] font-medium text-base-content">
         <li>
           <a
+            routerLink="/"
+            routerLinkActive="color-blue-primary"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="transition-colors duration-200 hover-color-blue-primary"
+          >
+            Public Page
+          </a>
+        </li>
+        <li>
+          <a
             routerLink="/management/dashboard"
             routerLinkActive="color-blue-primary"
             class="transition-colors duration-200 hover-color-blue-primary"
@@ -98,6 +108,15 @@
         Home
       </a>
 
+      <a
+        *ngIf="!isManagement && isManagementRole"
+        routerLink="/management/dashboard"
+        class="btn btn-ghost font-semibold"
+        [class.text-white]="!isWhite"
+      >
+        Admin Page
+      </a>
+
       <button class="btn btn-ghost btn-circle" [class.text-white]="!isWhite">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -157,15 +176,11 @@
         >
           <li><a routerLink="/profile">Profile</a></li>
 
-          <ng-container *ngIf="isManagement; else publicMenu">
-            <li><a routerLink="/settings">Settings</a></li>
-          </ng-container>
-
-          <ng-template #publicMenu>
+          <ng-container *ngIf="!isManagementRole">
             <li><a routerLink="/saved-jobs">Lamaran Disimpan</a></li>
             <li><a routerLink="/settings">Riwayat Lamaran</a></li>
             <li><a routerLink="/settings">Settings</a></li>
-          </ng-template>
+          </ng-container>
 
           <li><hr class="my-1" /></li>
           <li><a class="text-error" (click)="logout()">Logout</a></li>
