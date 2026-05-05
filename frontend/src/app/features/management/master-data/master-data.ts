@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
+
 import {
   JobLocationService,
   JobCategoryService,
@@ -12,51 +13,21 @@ import {
   EducationLevelService,
 } from '../../../domain/master-data';
 
+import { ApplyStatusService } from '../../../domain/apply/master-data/apply-status/apply-status.service';
+
 import { MasterDataTable } from '../../../shared/components/master-data/master-data-table/master-data-table';
 import { MasterDataFormModal } from '../../../shared/components/master-data/master-data-form-modal/master-data-form-modal';
 import { MasterDataDeleteModal } from '../../../shared/components/master-data/master-data-delete-modal/master-data-delete-modal';
-import { ApplyStatusService } from '../../../domain/apply/master-data/apply-status/apply-status.service';
 
-type MasterKey =
-  | 'jobLocations'
-  | 'jobCategories'
-  | 'workModes'
-  | 'jobStatuses'
-  | 'employmentTypes'
-  | 'departments'
-  | 'educationLevels'
-  | 'applyStatuses';
+import { MASTER_CONFIGS, MasterConfig, MasterKey, MasterRecord } from './config/master-data.config';
 
-type FieldType = 'text' | 'textarea' | 'switch' | 'number';
-
-interface FieldConfig {
-  key: string;
-  label: string;
-  type: FieldType;
-  required?: boolean;
-  placeholder?: string;
-  rows?: number;
-}
-
-interface ColumnConfig {
-  key: string;
-  label: string;
-}
-
-interface MasterConfig {
-  key: MasterKey;
-  label: string;
-  description: string;
-  fields: FieldConfig[];
-  columns: ColumnConfig[];
-}
-
-type MasterRecord = Record<string, any> & {
-  id: string;
-  code?: string;
-  name?: string;
-  isActive?: boolean;
-};
+import {
+  buildFormFromRecord,
+  buildInitialForm,
+  buildPayload,
+  clearFieldError,
+  validateForm,
+} from './util/master-data-form.utils';
 
 @Component({
   selector: 'app-master-data',
@@ -65,7 +36,6 @@ type MasterRecord = Record<string, any> & {
   templateUrl: './master-data.html',
 })
 export class MasterData implements OnInit {
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly jobLocationService = inject(JobLocationService);
   private readonly jobCategoryService = inject(JobCategoryService);
   private readonly workModeService = inject(WorkModeService);
@@ -75,472 +45,187 @@ export class MasterData implements OnInit {
   private readonly educationLevelService = inject(EducationLevelService);
   private readonly applyStatusService = inject(ApplyStatusService);
 
-  readonly configs: MasterConfig[] = [
-    {
-      key: 'jobLocations',
-      label: 'Job Locations',
-      description: 'Kelola lokasi kerja lengkap beserta alamat dan wilayah.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'JKT-HQ' },
-        {
-          key: 'name',
-          label: 'Name',
-          type: 'text',
-          required: true,
-          placeholder: 'Jakarta Headquarters',
-        },
-        {
-          key: 'city',
-          label: 'City',
-          type: 'text',
-          required: true,
-          placeholder: 'Jakarta Selatan',
-        },
-        {
-          key: 'province',
-          label: 'Province',
-          type: 'text',
-          required: true,
-          placeholder: 'DKI Jakarta',
-        },
-        {
-          key: 'country',
-          label: 'Country',
-          type: 'text',
-          required: true,
-          placeholder: 'Indonesia',
-        },
-        {
-          key: 'address',
-          label: 'Address',
-          type: 'textarea',
-          required: true,
-          rows: 3,
-          placeholder: 'Full address',
-        },
-        {
-          key: 'postalCode',
-          label: 'Postal Code',
-          type: 'text',
-          required: true,
-          placeholder: '12190',
-        },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'city', label: 'City' },
-        { key: 'province', label: 'Province' },
-        { key: 'country', label: 'Country' },
-      ],
-    },
-    {
-      key: 'jobCategories',
-      label: 'Job Categories',
-      description: 'Kelola kategori pekerjaan yang tampil di lowongan.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'ENG' },
-        { key: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Engineering' },
-        {
-          key: 'description',
-          label: 'Description',
-          type: 'textarea',
-          rows: 3,
-          placeholder: 'Optional description',
-        },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'description', label: 'Description' },
-      ],
-    },
-    {
-      key: 'workModes',
-      label: 'Work Modes',
-      description: 'Kelola mode kerja seperti onsite, hybrid, dan remote.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'REMOTE' },
-        { key: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Remote' },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-      ],
-    },
-    {
-      key: 'jobStatuses',
-      label: 'Job Statuses',
-      description: 'Kelola status lowongan seperti draft, published, atau closed.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'PUBLISHED' },
-        { key: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Published' },
-        {
-          key: 'description',
-          label: 'Description',
-          type: 'textarea',
-          rows: 3,
-          placeholder: 'Optional description',
-        },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'description', label: 'Description' },
-      ],
-    },
-    {
-      key: 'employmentTypes',
-      label: 'Employment Types',
-      description: 'Kelola tipe kerja seperti full time, part time, contract, dan lainnya.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'FULLTIME' },
-        { key: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Full Time' },
-        {
-          key: 'description',
-          label: 'Description',
-          type: 'textarea',
-          rows: 3,
-          placeholder: 'Optional description',
-        },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'description', label: 'Description' },
-      ],
-    },
-    {
-      key: 'departments',
-      label: 'Departments',
-      description: 'Kelola departemen internal perusahaan.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'HR' },
-        {
-          key: 'name',
-          label: 'Name',
-          type: 'text',
-          required: true,
-          placeholder: 'Human Resources',
-        },
-        {
-          key: 'description',
-          label: 'Description',
-          type: 'textarea',
-          rows: 3,
-          placeholder: 'Optional description',
-        },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'description', label: 'Description' },
-      ],
-    },
-    {
-      key: 'educationLevels',
-      label: 'Education Levels',
-      description: 'Kelola jenjang pendidikan untuk filter dan persyaratan lowongan.',
-      fields: [
-        { key: 'code', label: 'Code', type: 'text', required: true, placeholder: 'S1' },
-        {
-          key: 'name',
-          label: 'Name',
-          type: 'text',
-          required: true,
-          placeholder: 'Bachelor Degree',
-        },
-        {
-          key: 'description',
-          label: 'Description',
-          type: 'textarea',
-          rows: 3,
-          placeholder: 'Optional description',
-        },
-        { key: 'isActive', label: 'Active', type: 'switch' },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'description', label: 'Description' },
-      ],
-    },
-    {
-      key: 'applyStatuses',
-      label: 'Apply Statuses',
-      description: 'Kelola status lamaran yang digunakan pada flow rekrutmen per job.',
-      fields: [
-        {
-          key: 'code',
-          label: 'Code',
-          type: 'text',
-          required: true,
-          placeholder: 'APPLIED',
-        },
-        {
-          key: 'name',
-          label: 'Name',
-          type: 'text',
-          required: true,
-          placeholder: 'Applied',
-        },
-        {
-          key: 'description',
-          label: 'Description',
-          type: 'textarea',
-          rows: 3,
-          placeholder: 'Optional description',
-        },
-        {
-          key: 'isActive',
-          label: 'Active',
-          type: 'switch',
-        },
-      ],
-      columns: [
-        { key: 'code', label: 'Code' },
-        { key: 'name', label: 'Name' },
-        { key: 'description', label: 'Description' },
-      ],
-    },
-  ];
+  // ─── Static Config ────────────────────────────────────────────────────────
 
-  activeKey: MasterKey = 'jobLocations';
+  readonly configs: MasterConfig[] = MASTER_CONFIGS;
 
-  items: MasterRecord[] = [];
-  filteredItems: MasterRecord[] = [];
+  // ─── State ───────────────────────────────────────────────────────────────
 
-  search = '';
+  readonly activeKey = signal<MasterKey>('jobLocations');
+  readonly items = signal<MasterRecord[]>([]);
+  readonly search = signal('');
 
-  isLoading = false;
-  isSubmitting = false;
-  isDeleting = false;
+  readonly isLoading = signal(false);
+  readonly isSubmitting = signal(false);
+  readonly isDeleting = signal(false);
 
-  isFormModalOpen = false;
-  isDeleteModalOpen = false;
-  isEditMode = false;
+  readonly isFormModalOpen = signal(false);
+  readonly isDeleteModalOpen = signal(false);
+  readonly isEditMode = signal(false);
 
-  selectedItem: MasterRecord | null = null;
-  form: Record<string, any> = {};
-  formErrors: Record<string, string> = {};
+  readonly selectedItem = signal<MasterRecord | null>(null);
+  readonly form = signal<Record<string, any>>({});
+  readonly formErrors = signal<Record<string, string>>({});
 
-  feedbackMessage = '';
-  feedbackType: 'success' | 'error' | '' = '';
+  readonly feedbackMessage = signal('');
+  readonly feedbackType = signal<'success' | 'error' | ''>('');
 
-  ngOnInit(): void {
-    this.resetForm();
-    this.loadData();
-  }
+  // ─── Derived State (computed) ─────────────────────────────────────────────
 
-  get activeConfig(): MasterConfig {
-    return this.configs.find((config) => config.key === this.activeKey)!;
-  }
+  readonly activeConfig = computed<MasterConfig>(
+    () => this.configs.find((c) => c.key === this.activeKey())!,
+  );
 
-  get activeCount(): number {
-    return this.filteredItems.length;
-  }
+  readonly filteredItems = computed<MasterRecord[]>(() => {
+    const keyword = this.search().trim().toLowerCase();
+    if (!keyword) return [...this.items()];
 
-  setActiveTab(key: MasterKey): void {
-    if (this.activeKey === key) return;
-
-    this.activeKey = key;
-    this.search = '';
-    this.selectedItem = null;
-    this.feedbackMessage = '';
-    this.feedbackType = '';
-    this.formErrors = {};
-    this.resetForm();
-    this.loadData();
-  }
-
-  loadData(): void {
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
-    this.getServiceCall('getAll')
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        }),
-      )
-      .subscribe({
-        next: (data: MasterRecord[]) => {
-          this.items = data ?? [];
-          this.applyFilter();
-          this.cdr.detectChanges();
-        },
-        error: (error: any) => {
-          this.items = [];
-          this.filteredItems = [];
-          this.showError(this.extractErrorMessage(error, 'Failed to load data.'));
-          this.cdr.detectChanges();
-        },
-      });
-  }
-
-  applyFilter(): void {
-    const keyword = this.search.trim().toLowerCase();
-
-    if (!keyword) {
-      this.filteredItems = [...this.items];
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.filteredItems = this.items.filter((item) =>
+    return this.items().filter((item) =>
       Object.values(item).some((value) =>
         String(value ?? '')
           .toLowerCase()
           .includes(keyword),
       ),
     );
+  });
 
-    this.cdr.detectChanges();
+  readonly modalTitle = computed(
+    () => (this.isEditMode() ? 'Edit ' : 'Tambah ') + this.activeConfig().label,
+  );
+
+  readonly formFeedbackMessage = computed(() =>
+    this.feedbackType() === 'error' ? this.feedbackMessage() : '',
+  );
+
+  // ─── Lifecycle ────────────────────────────────────────────────────────────
+
+  ngOnInit(): void {
+    this.form.set(buildInitialForm(this.activeConfig().fields));
+    this.loadData();
   }
 
+  // ─── Tab ─────────────────────────────────────────────────────────────────
+
+  setActiveTab(key: MasterKey): void {
+    if (this.activeKey() === key) return;
+
+    this.activeKey.set(key);
+    this.search.set('');
+    this.selectedItem.set(null);
+    this.clearFeedback();
+    this.formErrors.set({});
+    this.form.set(buildInitialForm(this.activeConfig().fields));
+    this.loadData();
+  }
+
+  // ─── Data ─────────────────────────────────────────────────────────────────
+
+  loadData(): void {
+    this.isLoading.set(true);
+
+    this.getServiceCall('getAll')
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (data: MasterRecord[]) => this.items.set(data ?? []),
+        error: (error: any) => {
+          this.items.set([]);
+          this.showError(this.extractErrorMessage(error, 'Failed to load data.'));
+        },
+      });
+  }
+
+  // ─── Modal: Form ──────────────────────────────────────────────────────────
+
   openCreateModal(): void {
-    this.isEditMode = false;
-    this.selectedItem = null;
-    this.formErrors = {};
-    this.feedbackMessage = '';
-    this.feedbackType = '';
-    this.resetForm();
-    this.isFormModalOpen = true;
-    this.cdr.detectChanges();
+    this.isEditMode.set(false);
+    this.selectedItem.set(null);
+    this.formErrors.set({});
+    this.clearFeedback();
+    this.form.set(buildInitialForm(this.activeConfig().fields));
+    this.isFormModalOpen.set(true);
   }
 
   openEditModal(item: MasterRecord): void {
-    this.isEditMode = true;
-    this.selectedItem = item;
-    this.formErrors = {};
-    this.feedbackMessage = '';
-    this.feedbackType = '';
-
-    const nextForm: Record<string, any> = {};
-
-    for (const field of this.activeConfig.fields) {
-      if (field.type === 'switch') {
-        nextForm[field.key] = Boolean(item[field.key]);
-      } else {
-        nextForm[field.key] = item[field.key] ?? '';
-      }
-    }
-
-    this.form = nextForm;
-    this.isFormModalOpen = true;
-    this.cdr.detectChanges();
+    this.isEditMode.set(true);
+    this.selectedItem.set(item);
+    this.formErrors.set({});
+    this.clearFeedback();
+    this.form.set(buildFormFromRecord(this.activeConfig().fields, item));
+    this.isFormModalOpen.set(true);
   }
 
   closeFormModal(): void {
-    if (this.isSubmitting) return;
-
-    this.isFormModalOpen = false;
-    this.formErrors = {};
-    this.cdr.detectChanges();
-  }
-
-  openDeleteModal(item: MasterRecord): void {
-    this.selectedItem = item;
-    this.feedbackMessage = '';
-    this.feedbackType = '';
-    this.isDeleteModalOpen = true;
-    this.cdr.detectChanges();
-  }
-
-  closeDeleteModal(): void {
-    if (this.isDeleting) return;
-
-    this.isDeleteModalOpen = false;
-    this.cdr.detectChanges();
+    if (this.isSubmitting()) return;
+    this.isFormModalOpen.set(false);
+    this.formErrors.set({});
   }
 
   onFormChange(event: { key: string; value: any; form: Record<string, any> }): void {
-    this.form = { ...event.form };
-
-    if (this.formErrors[event.key]) {
-      const nextErrors = { ...this.formErrors };
-      delete nextErrors[event.key];
-      this.formErrors = nextErrors;
-    }
-
-    this.feedbackMessage = '';
-    this.feedbackType = '';
-    this.cdr.detectChanges();
+    this.form.set({ ...event.form });
+    this.formErrors.set(clearFieldError(this.formErrors(), event.key));
+    this.clearFeedback();
   }
 
   submitForm(): void {
-    this.formErrors = {};
+    const errors = validateForm(this.activeConfig().fields, this.form());
+    this.formErrors.set(errors);
+    if (Object.keys(errors).length > 0) return;
 
-    if (!this.validateForm()) {
-      this.cdr.detectChanges();
-      return;
-    }
+    const payload = buildPayload(this.activeConfig().fields, this.form());
+    this.isSubmitting.set(true);
 
-    const payload = this.buildPayload();
-    this.isSubmitting = true;
-    this.cdr.detectChanges();
-
+    const selected = this.selectedItem();
     const request$ =
-      this.isEditMode && this.selectedItem?.id
-        ? this.getServiceCall('update', this.selectedItem.id, payload)
+      this.isEditMode() && selected?.id
+        ? this.getServiceCall('update', selected.id, payload)
         : this.getServiceCall('create', payload);
 
-    request$
-      .pipe(
-        finalize(() => {
-          this.isSubmitting = false;
-          this.cdr.detectChanges();
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.isFormModalOpen = false;
-          this.showSuccess(
-            this.isEditMode ? 'Data updated successfully.' : 'Data created successfully.',
-          );
-          this.loadData();
-          this.cdr.detectChanges();
-        },
-        error: (error: any) => {
-          this.showError(this.extractErrorMessage(error, 'Failed to save data.'));
-          this.cdr.detectChanges();
-        },
-      });
+    request$.pipe(finalize(() => this.isSubmitting.set(false))).subscribe({
+      next: () => {
+        this.isFormModalOpen.set(false);
+        this.showSuccess(
+          this.isEditMode() ? 'Data updated successfully.' : 'Data created successfully.',
+        );
+        this.loadData();
+      },
+      error: (error: any) =>
+        this.showError(this.extractErrorMessage(error, 'Failed to save data.')),
+    });
+  }
+
+  // ─── Modal: Delete ────────────────────────────────────────────────────────
+
+  openDeleteModal(item: MasterRecord): void {
+    this.selectedItem.set(item);
+    this.clearFeedback();
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal(): void {
+    if (this.isDeleting()) return;
+    this.isDeleteModalOpen.set(false);
   }
 
   deleteSelected(): void {
-    if (!this.selectedItem?.id) return;
+    const selected = this.selectedItem();
+    if (!selected?.id) return;
 
-    this.isDeleting = true;
-    this.cdr.detectChanges();
+    this.isDeleting.set(true);
 
-    this.getServiceCall('delete', this.selectedItem.id)
-      .pipe(
-        finalize(() => {
-          this.isDeleting = false;
-          this.cdr.detectChanges();
-        }),
-      )
+    this.getServiceCall('delete', selected.id)
+      .pipe(finalize(() => this.isDeleting.set(false)))
       .subscribe({
         next: () => {
-          this.isDeleteModalOpen = false;
+          this.isDeleteModalOpen.set(false);
           this.showSuccess('Data deleted successfully.');
           this.loadData();
-          this.cdr.detectChanges();
         },
-        error: (error: any) => {
-          this.showError(this.extractErrorMessage(error, 'Failed to delete data.'));
-          this.cdr.detectChanges();
-        },
+        error: (error: any) =>
+          this.showError(this.extractErrorMessage(error, 'Failed to delete data.')),
       });
   }
+
+  // ─── Registry ─────────────────────────────────────────────────────────────
 
   private getServiceCall(action: 'getAll'): any;
   private getServiceCall(action: 'create', payload: any): any;
@@ -551,7 +236,7 @@ export class MasterData implements OnInit {
     arg1?: any,
     arg2?: any,
   ): any {
-    switch (this.activeKey) {
+    switch (this.activeKey()) {
       case 'jobLocations':
         if (action === 'getAll') return this.jobLocationService.getAll();
         if (action === 'create') return this.jobLocationService.create(arg1);
@@ -602,74 +287,24 @@ export class MasterData implements OnInit {
     }
   }
 
-  private resetForm(): void {
-    const nextForm: Record<string, any> = {};
+  // ─── Private Helpers ──────────────────────────────────────────────────────
 
-    for (const field of this.activeConfig.fields) {
-      if (field.type === 'switch') {
-        nextForm[field.key] = field.key === 'isActive';
-        continue;
-      }
-
-      if (field.type === 'number') {
-        nextForm[field.key] = 0;
-        continue;
-      }
-
-      nextForm[field.key] = '';
-    }
-
-    this.form = nextForm;
-  }
-  private validateForm(): boolean {
-    let valid = true;
-
-    for (const field of this.activeConfig.fields) {
-      if (field.type === 'switch') continue;
-
-      const value = String(this.form[field.key] ?? '').trim();
-
-      if (field.required && !value) {
-        this.formErrors[field.key] = `${field.label} is required`;
-        valid = false;
-      }
-    }
-
-    return valid;
+  private clearFeedback(): void {
+    this.feedbackMessage.set('');
+    this.feedbackType.set('');
   }
 
-  private buildPayload(): Record<string, any> {
-    const payload: Record<string, any> = {};
+  private showSuccess(message: string): void {
+    this.feedbackType.set('success');
+    this.feedbackMessage.set(message);
+  }
 
-    for (const field of this.activeConfig.fields) {
-      if (field.type === 'switch') {
-        payload[field.key] = Boolean(this.form[field.key]);
-        continue;
-      }
-
-      if (field.type === 'number') {
-        payload[field.key] = Number(this.form[field.key] ?? 0);
-        continue;
-      }
-
-      const rawValue = String(this.form[field.key] ?? '').trim();
-      payload[field.key] = rawValue === '' ? null : rawValue;
-    }
-
-    return payload;
+  private showError(message: string): void {
+    this.feedbackType.set('error');
+    this.feedbackMessage.set(message);
   }
 
   private extractErrorMessage(error: any, fallback: string): string {
     return error?.error?.message || error?.error?.errors?.[0]?.message || fallback;
-  }
-
-  private showSuccess(message: string): void {
-    this.feedbackType = 'success';
-    this.feedbackMessage = message;
-  }
-
-  private showError(message: string): void {
-    this.feedbackType = 'error';
-    this.feedbackMessage = message;
   }
 }
