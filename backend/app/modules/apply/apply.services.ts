@@ -168,4 +168,25 @@ export const applyService = {
       client.release();
     }
   },
+  async getMineDetail(userId: string, applyId: string) {
+    const client = await pool.connect();
+
+    try {
+      const profile = await applicantProfileRepository.getByUserId(userId);
+
+      if (!profile) {
+        throw new AppError(404, "Applicant profile not found");
+      }
+
+      const data = await applyRepository.getMineDetail(client, applyId, profile.id);
+
+      if (!data) {
+        throw new AppError(404, "Apply not found");
+      }
+
+      return data;
+    } finally {
+      client.release();
+    }
+  },
 };

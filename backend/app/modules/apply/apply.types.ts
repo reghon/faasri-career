@@ -59,3 +59,50 @@ export type ApplyListItem = {
   appliedAt: string;
   statusUpdatedAt: string | null;
 };
+
+export interface ApplyHistoryList {
+  id: string;
+  applicantProfileId: string;
+  jobId: string;
+  jobName: string;
+  jobLocation: string;
+  statusId: string;
+  statusName: string;
+  appliedAt: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ApplyMeDetail = Apply & {
+  job: {
+    id: string;
+    title: string | null;
+  } | null;
+
+  currentStatus: {
+    id: string;
+    code: string | null;
+    name: string | null;
+    sortOrder: number | null;
+  } | null;
+
+  stages: {
+    id: string;
+    applyStatusId: string;
+    code: string | null;
+    name: string | null;
+    sortOrder: number | null;
+    isDefault: boolean | null;
+    isFinal: boolean | null;
+  }[];
+
+  histories: {
+    id: string;
+    applyId: string;
+    applyStatusId: string;
+    applyStatusName: string | null;
+    notes: string | null;
+    createdAt: string;
+  }[];
+};

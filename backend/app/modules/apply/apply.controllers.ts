@@ -56,4 +56,14 @@ export const applyController = {
       data,
     });
   },
+  async getMineDetail(req: Request, res: Response) {
+    const params = getValidatedParams<ApplyParamsInput>(req);
+
+    const data = await applyService.getMineDetail(requireUserId(req), params.id);
+
+    res.status(200).json({
+      message: "Apply detail fetched successfully",
+      data,
+    });
+  },
 };
