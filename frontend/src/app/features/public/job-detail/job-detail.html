@@ -75,8 +75,45 @@
             </svg>
             Save
           </button>
-          <button class="btn btn-primary-faasri btn-sm" (click)="goToApply()">APPLY FOR JOB</button>
+          <button class="btn btn-primary-faasri btn-sm" (click)="handleApplyClick()">
+            APPLY FOR JOB
+          </button>
         </div>
+        <dialog #applyRoleModal class="modal">
+          <div class="modal-box">
+            <h3 class="text-lg font-bold">Tidak Bisa Melamar</h3>
+
+            <p class="py-4">
+              Akun management tidak dapat melamar pekerjaan. Silakan gunakan akun applicant untuk
+              apply.
+            </p>
+
+            <div class="modal-action">
+              <form method="dialog">
+                <button class="btn">Tutup</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+        <dialog #loginRequiredModal class="modal">
+          <div class="modal-box">
+            <h3 class="text-lg font-bold">Login Diperlukan</h3>
+
+            <p class="py-4">
+              Anda perlu login atau membuat akun applicant terlebih dahulu untuk melamar pekerjaan
+              ini.
+            </p>
+
+            <div class="modal-action">
+              <form method="dialog" class="flex gap-2">
+                <button type="button" class="btn btn-ghost" (click)="goToLogin()">Login</button>
+                <button type="button" class="btn btn-primary-faasri" (click)="goToRegister()">
+                  Buat Akun Baru
+                </button>
+              </form>
+            </div>
+          </div>
+        </dialog>
       </div>
 
       <div class="divider my-0"></div>
