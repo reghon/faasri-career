@@ -37,7 +37,7 @@ import {
   SelectOption,
 } from './models/job-form.model';
 import { ApplyStatus } from '../../../../domain/apply/master-data/apply-status/apply-status.model';
-import { JobFormFacadeService } from './services/job-form-facade.service';
+import { JobFormService } from './services/job-form.service';
 
 @Component({
   selector: 'app-job-form-modal',
@@ -57,7 +57,7 @@ import { JobFormFacadeService } from './services/job-form-facade.service';
 })
 export class JobFormModalComponent implements OnChanges {
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly facade = inject(JobFormFacadeService);
+  private readonly service = inject(JobFormService);
 
   @Input() open = false;
   @Input() jobId: string | null = null;
@@ -135,7 +135,7 @@ export class JobFormModalComponent implements OnChanges {
     this.isLoading = true;
     this.detect();
 
-    this.facade.loadMasters().subscribe({
+    this.service.loadMasters().subscribe({
       next: (masters) => {
         this.categories = masters.categories;
         this.employmentTypes = masters.employmentTypes;
@@ -165,7 +165,7 @@ export class JobFormModalComponent implements OnChanges {
   }
 
   private loadJobDetail(jobId: string): void {
-    this.facade.loadJobFormDetail(jobId).subscribe({
+    this.service.loadJobFormDetail(jobId).subscribe({
       next: ({ job, jobApplyStatuses, editGuard }) => {
         this.form = patchJobForm(job, {
           categories: this.categories,
@@ -204,7 +204,7 @@ export class JobFormModalComponent implements OnChanges {
     this.isSubmitting = true;
     this.detect();
 
-    this.facade.validateJobFlowEdit(jobId).subscribe({
+    this.service.validateJobFlowEdit(jobId).subscribe({
       next: (guard) => {
         this.canEditJobFlow = guard.canEditJobFlow;
         this.jobFlowLockMessage = guard.canEditJobFlow
@@ -227,7 +227,7 @@ export class JobFormModalComponent implements OnChanges {
     this.isSubmitting = true;
     this.detect();
 
-    this.facade
+    this.service
       .saveJobWithFlow(this.jobId, payload, this.jobFlowStatuses, !this.isJobFlowLocked)
       .pipe(
         finalize(() => {
