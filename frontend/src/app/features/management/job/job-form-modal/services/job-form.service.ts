@@ -19,7 +19,7 @@ import { JobFlowStatusItem, JobFormMasters } from '../models/job-form.model';
 @Injectable({
   providedIn: 'root',
 })
-export class JobFormFacadeService {
+export class JobFormService {
   private readonly jobService = inject(JobService);
 
   private readonly departmentService = inject(DepartmentService);
