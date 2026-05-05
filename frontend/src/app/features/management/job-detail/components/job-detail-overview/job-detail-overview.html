@@ -1,0 +1,78 @@
+<div class="grid gap-4 lg:grid-cols-12">
+  <div class="lg:col-span-3">
+    <div class="rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm">
+      <h2 class="text-xl font-bold text-base-content">Job Information</h2>
+
+      <div class="mt-6 space-y-5">
+        <div>
+          <p class="text-sm text-base-content/50">Hiring Manager</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ job.managementProfile }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Job Name</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ job.title || '-' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Department</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ job.department || '-' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Location</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ job.location || '-' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Salary</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ getSalaryRange() }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Job Uploaded</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ formatDate(job.postedAt) }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Last Updated</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ formatDate(job.updatedAt) }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-base-content/50">Auto Close</p>
+          <p class="mt-1 font-medium text-base-content">
+            {{ formatDate(job.closeAt) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:col-span-9">
+    <div class="rounded-xl border border-base-300 bg-base-100 p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-base-content">Job Description</h2>
+
+      <div class="mt-6 flex flex-col gap-6 text-sm leading-7 text-base-content/80">
+        <faasri-html-content title="About the Role" [content]="job.aboutRole" />
+        <faasri-html-content title="Responsibilities" [content]="job.responsibilities" />
+        <faasri-html-content title="Qualifications" [content]="job.qualifications" />
+        <faasri-html-content title="Benefits" [content]="job.benefits" />
+      </div>
+    </div>
+  </div>
+</div>
