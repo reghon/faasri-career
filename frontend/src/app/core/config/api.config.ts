@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   },
   applicant: {
     applicantMaster: `${API_URL}/api/applicant/applicant-master/me`,
+    getByid: (id: string) =>`${API_URL}/api/applicant/applicant-master/${id}`,
     applicantProfile: `${API_URL}/api/applicant/profile/me`,
     workExperiences: `${API_URL}/api/applicant/work-experiences`,
     educations: `${API_URL}/api/applicant/educations`,
