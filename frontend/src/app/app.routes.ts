@@ -78,7 +78,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/management/applicant/applicant').then((m) => m.Applicant),
       },
-       {
+      {
+        path: 'applicant/:id',
+        loadComponent: () =>
+          import('./features/management/applicant/applicant-detail/applicant-detail').then((m) => m.ApplicantDetail),
+      },
+      {
         path: 'application',
         loadComponent: () =>
           import('./features/management/application/application').then((m) => m.Application),
