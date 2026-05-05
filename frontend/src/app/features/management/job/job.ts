@@ -1,19 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
 import { JobListItem } from '../../../domain/job/models/job.model';
 import { JobService } from '../../../domain/job/services/job.service';
 import { JobFormModalComponent } from './job-form-modal/job-form-modal';
+
 import {
   BreadcrumbComponent,
   BreadcrumbItem,
 } from '../../../shared/components/breadcrumb/breadcrumb';
+
 import {
   DataTableColumn,
   DataTableComponent,
   DataTablePagination,
 } from '../../../shared/components/data-table/data-table';
-import { Router } from '@angular/router';
+
 import {
   TableToolbarComponent,
   ToolbarAction,
@@ -21,8 +25,23 @@ import {
   ToolbarSortOption,
 } from '../../../shared/components/table-toolbar/table-toolbar';
 
-type SortField = 'publishedAt' | 'title' | 'status';
-type SortDirection = 'asc' | 'desc';
+import {
+  JobFilters,
+  SortDirection,
+  SortField,
+  filterJobs,
+  getDisplayStatus,
+  getStatusDotClass,
+  getStatusTextClass,
+  sortJobs,
+} from './utils/job-filter.utils';
+
+import { getUniqueOptions, paginate, formatDate } from '../../../shared/utils/';
+
+const DEFAULT_SORT_FIELD: SortField = 'publishedAt';
+const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
 @Component({
   selector: 'app-job',
@@ -39,413 +58,237 @@ type SortDirection = 'asc' | 'desc';
 })
 export class Job implements OnInit {
   private readonly jobService = inject(JobService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
 
-  jobs: JobListItem[] = [];
-  filteredJobs: JobListItem[] = [];
-  pagedJobs: JobListItem[] = [];
-  breadcrumbItems: BreadcrumbItem[] = [
+
+  readonly isLoading = signal(false);
+  readonly jobs = signal<JobListItem[]>([]);
+
+  readonly searchTerm = signal('');
+  readonly selectedStatus = signal('');
+  readonly selectedDepartment = signal('');
+  readonly selectedLocation = signal('');
+  readonly sortField = signal<SortField>(DEFAULT_SORT_FIELD);
+  readonly sortDirection = signal<SortDirection>(DEFAULT_SORT_DIRECTION);
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(DEFAULT_PAGE_SIZE);
+
+  readonly isJobFormModalOpen = signal(false);
+  readonly selectedJobId = signal<string | null>(null);
+
+  readonly filteredJobs = computed(() => {
+    const filters: JobFilters = {
+      keyword: this.searchTerm(),
+      status: this.selectedStatus(),
+      department: this.selectedDepartment(),
+      location: this.selectedLocation(),
+    };
+
+    const filtered = filterJobs(this.jobs(), filters);
+    return sortJobs(filtered, this.sortField(), this.sortDirection());
+  });
+
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredJobs().length / this.pageSize())),
+  );
+
+  readonly safePage = computed(() => Math.min(this.currentPage(), this.totalPages()));
+
+  readonly pagedJobs = computed(() =>
+    paginate(this.filteredJobs(), this.safePage(), this.pageSize()),
+  );
+
+  readonly statusOptions = computed(() =>
+    getUniqueOptions(this.jobs().map((item) => item.status)),
+  );
+
+  readonly departmentOptions = computed(() =>
+    getUniqueOptions(this.jobs().map((item) => item.department)),
+  );
+
+  readonly locationOptions = computed(() =>
+    getUniqueOptions(this.jobs().map((item) => item.location)),
+  );
+
+  readonly toolbarFilters = computed<ToolbarFilter[]>(() => [
+    {
+      key: 'status',
+      label: 'All Status',
+      value: this.selectedStatus(),
+      options: this.statusOptions(),
+    },
+    {
+      key: 'department',
+      label: 'All Departments',
+      value: this.selectedDepartment(),
+      options: this.departmentOptions(),
+    },
+    {
+      key: 'location',
+      label: 'All Locations',
+      value: this.selectedLocation(),
+      options: this.locationOptions(),
+    },
+  ]);
+
+  readonly tablePagination = computed<DataTablePagination>(() => {
+    const total = this.filteredJobs().length;
+    const page = this.safePage();
+    const size = this.pageSize();
+
+    return {
+      currentPage: page,
+      totalPages: this.totalPages(),
+      startEntry: total === 0 ? 0 : (page - 1) * size + 1,
+      endEntry: Math.min(page * size, total),
+      totalItems: total,
+      pageSize: size,
+      pageSizeOptions: PAGE_SIZE_OPTIONS,
+    };
+  });
+
+  readonly breadcrumbItems: BreadcrumbItem[] = [
     { label: 'Management', route: '/management' },
     { label: 'Job' },
   ];
-  isLoading = false;
 
-  searchTerm = '';
-  selectedStatus = '';
-  selectedDepartment = '';
-  selectedLocation = '';
-
-  statusOptions: string[] = [];
-  departmentOptions: string[] = [];
-  locationOptions: string[] = [];
-
-  pageSizeOptions = [10, 25, 50, 100];
-  pageSize = 10;
-  currentPage = 1;
-
-  sortField: SortField = 'publishedAt';
-  sortDirection: SortDirection = 'desc';
-
-  jobColumns: DataTableColumn<JobListItem>[] = [
+  readonly jobColumns: DataTableColumn<JobListItem>[] = [
     { key: 'title', label: 'Job Title', minWidth: '220px' },
     { key: 'department', label: 'Department' },
     { key: 'location', label: 'Location' },
     { key: 'workType', label: 'Work Type' },
     { key: 'jobType', label: 'Job Type' },
-    {
-      key: 'vacancyCount',
-      label: 'Vacancy',
-      type: 'number',
-      align: 'center',
-    },
+    { key: 'vacancyCount', label: 'Vacancy', type: 'number', align: 'center' },
     {
       key: 'status',
       label: 'Status',
       type: 'badge',
       align: 'center',
-      valueGetter: (job) => this.getDisplayStatus(job),
+      valueGetter: (job) => getDisplayStatus(job),
     },
     {
       key: 'publishedAt',
       label: 'Posted Date',
       type: 'date',
+      valueGetter: (job) => formatDate(job.publishedAt, 'en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
     },
-    {
-      key: 'action',
-      label: 'Action',
-      type: 'action',
-      align: 'right',
-    },
+    { key: 'action', label: 'Action', type: 'action', align: 'right' },
   ];
 
-  toolbarFilters: ToolbarFilter[] = [];
-
-  toolbarSortOptions: ToolbarSortOption[] = [
+  readonly toolbarSortOptions: ToolbarSortOption[] = [
     { key: 'publishedAt', label: 'Sort by Posted Date' },
     { key: 'title', label: 'Sort by Job Title' },
     { key: 'status', label: 'Sort by Status' },
   ];
 
-  toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
+  readonly toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
+
+  readonly getStatusDotClass = getStatusDotClass;
+  readonly getStatusTextClass = getStatusTextClass;
 
   ngOnInit(): void {
     this.loadJobs();
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredJobs.length / this.pageSize));
+  onToolbarSearchChange(value: string): void {
+    this.searchTerm.set(value);
+    this.currentPage.set(1);
   }
 
-  get startEntry(): number {
-    if (this.filteredJobs.length === 0) return 0;
-    return (this.currentPage - 1) * this.pageSize + 1;
+  onToolbarFilterChange(event: { key: string; value: string }): void {
+    if (event.key === 'status') this.selectedStatus.set(event.value);
+    if (event.key === 'department') this.selectedDepartment.set(event.value);
+    if (event.key === 'location') this.selectedLocation.set(event.value);
+    this.currentPage.set(1);
   }
 
-  get endEntry(): number {
-    return Math.min(this.currentPage * this.pageSize, this.filteredJobs.length);
+  onToolbarSortDirectionChange(direction: SortDirection): void {
+    this.sortDirection.set(direction);
   }
 
-  loadJobs(): void {
-    this.isLoading = true;
-    this.cdr.detectChanges();
+  onToolbarSortByChange(field: string): void {
+    const incoming = field as SortField;
 
-    this.jobService.getJobs({ page: 1, limit: 100 }).subscribe({
-      next: (response) => {
-        this.jobs = response.items;
-        this.buildFilterOptions();
-        this.applyFilters();
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to load jobs:', error);
-        this.jobs = [];
-        this.filteredJobs = [];
-        this.pagedJobs = [];
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  onFilterChange(): void {
-    this.currentPage = 1;
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  onPageSizeChange(size: number): void {
-    this.pageSize = size;
-    this.currentPage = 1;
-    this.paginate();
-    this.cdr.detectChanges();
-  }
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-    this.paginate();
-    this.cdr.detectChanges();
-  }
-
-  resetFilters(): void {
-    this.searchTerm = '';
-    this.selectedStatus = '';
-    this.selectedDepartment = '';
-    this.selectedLocation = '';
-    this.sortField = 'publishedAt';
-    this.sortDirection = 'desc';
-    this.currentPage = 1;
-
-    this.toolbarFilters = this.toolbarFilters.map((filter) => ({
-      ...filter,
-      value: '',
-    }));
-
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  sortBy(field: SortField): void {
-    if (this.sortField === field) {
-      this.toggleSortDirection();
+    if (this.sortField() === incoming) {
+      this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
       return;
     }
 
-    this.sortField = field;
-    this.sortDirection = field === 'publishedAt' ? 'desc' : 'asc';
-    this.applyFilters();
-    this.cdr.detectChanges();
+    this.sortField.set(incoming);
+    this.sortDirection.set(incoming === 'publishedAt' ? 'desc' : 'asc');
   }
 
-  toggleSortDirection(): void {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.applyFilters();
-    this.cdr.detectChanges();
+  onToolbarAction(action: string): void {
+    if (action === 'reset') this.resetFilters();
   }
 
-  createJob(): void {
-    console.log('Create job clicked');
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
   }
 
   viewJob(job: JobListItem): void {
     this.router.navigate(['/management/job', job.slug]);
   }
 
-  editJob(job: any): void {
-    this.selectedJobId = job.id;
-    this.isJobFormModalOpen = true;
+  editJob(job: JobListItem): void {
+    this.selectedJobId.set(job.id);
+    this.isJobFormModalOpen.set(true);
   }
-
-  getDisplayStatus(job: JobListItem): string {
-    if (!job.isActive) return 'Inactive';
-    return job.status || 'Unknown';
-  }
-
-  getStatusDotClass(job: JobListItem): string {
-    const status = this.getDisplayStatus(job).toLowerCase();
-
-    if (status.includes('open') || status.includes('active')) {
-      return 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.7)]';
-    }
-
-    if (status.includes('close') || status.includes('closed')) {
-      return 'bg-error shadow-[0_0_8px_rgba(239,68,68,0.5)]';
-    }
-
-    if (status.includes('draft') || status.includes('pending')) {
-      return 'bg-warning shadow-[0_0_8px_rgba(245,158,11,0.5)]';
-    }
-
-    return 'bg-base-300';
-  }
-
-  getStatusTextClass(job: JobListItem): string {
-    const status = this.getDisplayStatus(job).toLowerCase();
-
-    if (status.includes('open') || status.includes('active')) {
-      return 'text-success';
-    }
-
-    if (status.includes('close') || status.includes('closed')) {
-      return 'text-error';
-    }
-
-    if (status.includes('draft') || status.includes('pending')) {
-      return 'text-warning';
-    }
-
-    return 'text-base-content/70';
-  }
-
-  formatDate(value: string): string {
-    if (!value) return '-';
-
-    return new Intl.DateTimeFormat('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    }).format(new Date(value));
-  }
-
-  private buildFilterOptions(): void {
-    this.statusOptions = this.getUniqueOptions(this.jobs.map((item) => item.status));
-    this.departmentOptions = this.getUniqueOptions(this.jobs.map((item) => item.department));
-    this.locationOptions = this.getUniqueOptions(this.jobs.map((item) => item.location));
-    this.syncToolbarFilters();
-  }
-
-  onToolbarSearchChange(value: string): void {
-    this.searchTerm = value;
-    this.syncToolbarFilters();
-    this.onFilterChange();
-  }
-
-  onToolbarFilterChange(event: { key: string; value: string }): void {
-    if (event.key === 'status') {
-      this.selectedStatus = event.value;
-    }
-
-    if (event.key === 'department') {
-      this.selectedDepartment = event.value;
-    }
-
-    if (event.key === 'location') {
-      this.selectedLocation = event.value;
-    }
-
-    this.syncToolbarFilters();
-    this.onFilterChange();
-  }
-
-  onToolbarSortDirectionChange(direction: SortDirection): void {
-    this.sortDirection = direction;
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  onToolbarSortByChange(field: string): void {
-    this.sortBy(field as SortField);
-  }
-
-  private syncToolbarFilters(): void {
-    this.toolbarFilters = [
-      {
-        key: 'status',
-        label: 'All Status',
-        value: this.selectedStatus,
-        options: this.statusOptions,
-      },
-      {
-        key: 'department',
-        label: 'All Departments',
-        value: this.selectedDepartment,
-        options: this.departmentOptions,
-      },
-      {
-        key: 'location',
-        label: 'All Locations',
-        value: this.selectedLocation,
-        options: this.locationOptions,
-      },
-    ];
-  }
-
-  onToolbarAction(action: string): void {
-    if (action === 'reset') {
-      this.resetFilters();
-    }
-  }
-
-  private getUniqueOptions(values: string[]): string[] {
-    return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  }
-
-  private applyFilters(): void {
-    const keyword = this.searchTerm.trim().toLowerCase();
-
-    let result = [...this.jobs];
-
-    if (keyword) {
-      result = result.filter((job) => {
-        const searchableValues = [
-          job.id,
-          job.slug,
-          job.title,
-          job.category,
-          job.department,
-          job.location,
-          job.workType,
-          job.jobType,
-          job.status,
-          job.educationLevel,
-        ];
-
-        return searchableValues.some((value) => value?.toLowerCase().includes(keyword));
-      });
-    }
-
-    if (this.selectedStatus) {
-      result = result.filter((job) => job.status === this.selectedStatus);
-    }
-
-    if (this.selectedDepartment) {
-      result = result.filter((job) => job.department === this.selectedDepartment);
-    }
-
-    if (this.selectedLocation) {
-      result = result.filter((job) => job.location === this.selectedLocation);
-    }
-
-    result.sort((a, b) => this.compareJobs(a, b));
-
-    this.filteredJobs = result;
-
-    if (this.currentPage > this.totalPages) {
-      this.currentPage = this.totalPages;
-    }
-
-    this.paginate();
-  }
-
-  private paginate(): void {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedJobs = this.filteredJobs.slice(start, end);
-  }
-
-  private compareJobs(a: JobListItem, b: JobListItem): number {
-    let comparison = 0;
-
-    if (this.sortField === 'title') {
-      comparison = a.title.localeCompare(b.title);
-    }
-
-    if (this.sortField === 'status') {
-      comparison = this.getDisplayStatus(a).localeCompare(this.getDisplayStatus(b));
-    }
-
-    if (this.sortField === 'publishedAt') {
-      comparison = new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime();
-    }
-
-    return this.sortDirection === 'asc' ? comparison : -comparison;
-  }
-  isJobFormModalOpen = false;
-  selectedJobId: string | null = null;
 
   openCreateModal(): void {
-    this.selectedJobId = null;
-    this.isJobFormModalOpen = true;
+    this.selectedJobId.set(null);
+    this.isJobFormModalOpen.set(true);
   }
 
   openEditModal(jobId: string): void {
-    this.selectedJobId = jobId;
-    this.isJobFormModalOpen = true;
+    this.selectedJobId.set(jobId);
+    this.isJobFormModalOpen.set(true);
   }
 
   onCloseJobFormModal(): void {
-    this.isJobFormModalOpen = false;
-    this.selectedJobId = null;
-    this.cdr.detectChanges();
+    this.isJobFormModalOpen.set(false);
+    this.selectedJobId.set(null);
   }
 
   onJobSaved(): void {
-    this.isJobFormModalOpen = false;
-    this.selectedJobId = null;
+    this.isJobFormModalOpen.set(false);
+    this.selectedJobId.set(null);
     this.loadJobs();
-    this.cdr.detectChanges();
   }
 
-  get tablePagination(): DataTablePagination {
-    return {
-      currentPage: this.currentPage,
-      totalPages: this.totalPages,
-      startEntry: this.startEntry,
-      endEntry: this.endEntry,
-      totalItems: this.filteredJobs.length,
-      pageSize: this.pageSize,
-      pageSizeOptions: this.pageSizeOptions,
-    };
+  private loadJobs(): void {
+    this.isLoading.set(true);
+
+    this.jobService.getJobs({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.jobs.set(response.items);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load jobs:', error);
+        this.jobs.set([]);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private resetFilters(): void {
+    this.searchTerm.set('');
+    this.selectedStatus.set('');
+    this.selectedDepartment.set('');
+    this.selectedLocation.set('');
+    this.sortField.set(DEFAULT_SORT_FIELD);
+    this.sortDirection.set(DEFAULT_SORT_DIRECTION);
+    this.currentPage.set(1);
   }
 }
