@@ -8,8 +8,9 @@ import {
   UpdateApplyStatusPayload,
   ApplyByJobItem,
   ApplyListItem,
+  ApplyMeDetail,
+  ApplyHistoryList,
 } from './apply.model';
-
 interface ApiResponse<T> {
   message: string;
   data: T;
@@ -38,12 +39,19 @@ export class ApplyService {
       .get<ApiResponse<ApplyListItem[]>>(`${API_ENDPOINTS.apply.root}`)
       .pipe(map((response) => response.data));
   }
-  
-  getMine(): Observable<Apply[]> {
+
+  getMine(): Observable<ApplyHistoryList[]> {
     return this.http
-      .get<ApiResponse<Apply[]>>(`${API_ENDPOINTS.apply.root}/me`)
+      .get<ApiResponse<ApplyHistoryList[]>>(`${API_ENDPOINTS.apply.root}/me`)
       .pipe(map((response) => response.data));
   }
+
+  getMineDetail(id: string): Observable<ApplyMeDetail> {
+    return this.http
+      .get<ApiResponse<ApplyMeDetail>>(`${API_ENDPOINTS.apply.root}/me/${id}/detail`)
+      .pipe(map((response) => response.data));
+  }
+
   getByJobId(jobId: string): Observable<ApplyByJobItem[]> {
     return this.http
       .get<ApiResponse<ApplyByJobItem[]>>(`${API_ENDPOINTS.apply.root}/job/${jobId}`)
