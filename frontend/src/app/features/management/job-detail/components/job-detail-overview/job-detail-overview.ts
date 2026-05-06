@@ -12,16 +12,6 @@ import { HtmlContentComponent } from '../../../../../shared/components/html-cont
 export class JobDetailOverviewComponent {
   @Input({ required: true }) job!: JobDetailModel;
 
-  formatDate(value: string | null | undefined): string {
-    if (!value) return '-';
-
-    return new Intl.DateTimeFormat('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }).format(new Date(value));
-  }
-
   getSalaryRange(): string {
     return this.job?.salary || '-';
   }
