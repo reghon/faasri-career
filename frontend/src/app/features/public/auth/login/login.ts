@@ -52,7 +52,7 @@ export class Login {
             if (returnUrl) {
               redirectUrl = returnUrl;
             } else {
-              redirectUrl = roleName === 'applicant' ? '/' : '/management';
+              redirectUrl = roleName === 'applicant' ? '/' : '/management/dashboard';
             }
 
             this.router.navigateByUrl(redirectUrl);
