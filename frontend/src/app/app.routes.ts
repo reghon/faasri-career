@@ -41,6 +41,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/applicant/job/saved-job/saved-job').then((m) => m.SavedJob),
       },
+      {
+        path: 'apply-history',
+        loadComponent: () =>
+          import('./features/applicant/apply/apply-history/apply-history').then((m) => m.ApplyHistory),
+      },
     ],
   },
   {
@@ -81,7 +86,9 @@ export const routes: Routes = [
       {
         path: 'applicant/:id',
         loadComponent: () =>
-          import('./features/management/applicant/applicant-detail/applicant-detail').then((m) => m.ApplicantDetail),
+          import('./features/management/applicant/applicant-detail/applicant-detail').then(
+            (m) => m.ApplicantDetail,
+          ),
       },
       {
         path: 'application',
