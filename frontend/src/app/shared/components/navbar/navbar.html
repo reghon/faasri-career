@@ -1,24 +1,24 @@
 <nav
   class="navbar fixed left-0 right-0 top-0 z-50 border-b border-base-300 px-6 transition-all duration-300 h-[72px]"
-  [class.bg-base-100]="isWhite"
-  [class.bg-transparent]="!isWhite"
-  [class.border-transparent]="!isWhite"
-  [class.shadow-none]="isManagement || !isWhite"
-  [class.shadow-elevation-3]="isWhite"
+  [class.bg-base-100]="isWhite()"
+  [class.bg-transparent]="!isWhite()"
+  [class.border-transparent]="!isWhite()"
+  [class.shadow-none]="isManagement() || !isWhite()"
+  [class.shadow-elevation-3]="isWhite()"
 >
   <div class="container-app flex w-full items-center justify-between">
     <!-- LOGO -->
     <div class="flex items-center">
       <a href="/" class="inline-flex items-center gap-2">
         <img
-          [src]="isWhite ? 'faasri_career_logo.png' : 'faasri_career_logo_light.png'"
+          [src]="isWhite() ? 'faasri_career_logo.png' : 'faasri_career_logo_light.png'"
           alt="Faasri Careers"
           class="h-10"
         />
       </a>
     </div>
 
-    <div class="flex justify-center flex-1" *ngIf="isManagement">
+    <div class="flex justify-center flex-1" *ngIf="isManagement()">
       <ul class="flex h-14 items-center gap-8 text-[15px] font-medium text-base-content">
         <li>
           <a
@@ -88,36 +88,36 @@
     </div>
 
     <!-- MENU: belum login -->
-    <div class="flex items-center gap-4" *ngIf="!isLoggedIn">
-      <a routerLink="/register" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite">
+    <div class="flex items-center gap-4" *ngIf="!isLoggedIn()">
+      <a routerLink="/register" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite()">
         Sign Up
       </a>
-      <a routerLink="/login" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite">
+      <a routerLink="/login" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite()">
         Login
       </a>
     </div>
 
     <!-- MENU: sudah login -->
-    <div class="flex items-center gap-4" *ngIf="isLoggedIn">
+    <div class="flex items-center gap-4" *ngIf="isLoggedIn()">
       <a
-        *ngIf="!isManagement"
+        *ngIf="!isManagement()"
         routerLink="/"
         class="btn btn-ghost font-semibold"
-        [class.text-white]="!isWhite"
+        [class.text-white]="!isWhite()"
       >
         Home
       </a>
 
       <a
-        *ngIf="!isManagement && isManagementRole"
+        *ngIf="!isManagement() && isManagementRole()"
         routerLink="/management/dashboard"
         class="btn btn-ghost font-semibold"
-        [class.text-white]="!isWhite"
+        [class.text-white]="!isWhite()"
       >
         Admin Page
       </a>
 
-      <button class="btn btn-ghost btn-circle" [class.text-white]="!isWhite">
+      <button class="btn btn-ghost btn-circle" [class.text-white]="!isWhite()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5"
@@ -151,12 +151,14 @@
             </div>
           </div>
 
-          <span class="text-sm font-semibold" [class.text-white]="!isWhite">{{ displayName }}</span>
+          <span class="text-sm font-semibold" [class.text-white]="!isWhite()">
+            {{ displayName() }}
+          </span>
 
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="w-4 h-4"
-            [class.text-white]="!isWhite"
+            [class.text-white]="!isWhite()"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -176,9 +178,9 @@
         >
           <li><a routerLink="/profile">Profile</a></li>
 
-          <ng-container *ngIf="!isManagementRole">
+          <ng-container *ngIf="!isManagementRole()">
             <li><a routerLink="/saved-jobs">Lamaran Disimpan</a></li>
-            <li><a routerLink="/settings">Riwayat Lamaran</a></li>
+            <li><a routerLink="/apply-history">Riwayat Lamaran</a></li>
             <li><a routerLink="/settings">Settings</a></li>
           </ng-container>
 
