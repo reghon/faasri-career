@@ -67,6 +67,8 @@ export class MasterData implements OnInit {
   readonly form = signal<Record<string, any>>({});
   readonly formErrors = signal<Record<string, string>>({});
 
+  readonly isFeedbackVisible = signal(false);
+  private feedbackTimer?: ReturnType<typeof setTimeout>;
   readonly feedbackMessage = signal('');
   readonly feedbackType = signal<'success' | 'error' | ''>('');
 
@@ -290,18 +292,36 @@ export class MasterData implements OnInit {
   // ─── Private Helpers ──────────────────────────────────────────────────────
 
   private clearFeedback(): void {
+    if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
+
+    this.isFeedbackVisible.set(false);
     this.feedbackMessage.set('');
     this.feedbackType.set('');
   }
 
-  private showSuccess(message: string): void {
-    this.feedbackType.set('success');
+  private showFeedback(type: 'success' | 'error', message: string): void {
+    if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
+
+    this.feedbackType.set(type);
     this.feedbackMessage.set(message);
+    this.isFeedbackVisible.set(true);
+
+    this.feedbackTimer = setTimeout(() => {
+      this.isFeedbackVisible.set(false);
+
+      setTimeout(() => {
+        this.feedbackMessage.set('');
+        this.feedbackType.set('');
+      }, 300);
+    }, 2000);
+  }
+
+  private showSuccess(message: string): void {
+    this.showFeedback('success', message);
   }
 
   private showError(message: string): void {
-    this.feedbackType.set('error');
-    this.feedbackMessage.set(message);
+    this.showFeedback('error', message);
   }
 
   private extractErrorMessage(error: any, fallback: string): string {
