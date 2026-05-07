@@ -49,6 +49,24 @@ export class JobService {
       );
   }
 
+  getJobsOpen(params: GetJobsParams = {}): Observable<JobListResult> {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 100;
+
+    const httpParams = new HttpParams().set('page', page).set('limit', limit);
+
+    return this.http
+      .get<ApiResponse<PaginatedJobsApi>>(API_ENDPOINTS.job.listOpen, {
+        params: httpParams,
+      })
+      .pipe(
+        map((response) => ({
+          items: response.data.items.map((item) => this.mapToListItem(item)),
+          meta: response.data.meta,
+        })),
+      );
+  }
+
   getJobById(id: string): Observable<JobDetail> {
     return this.http
       .get<ApiResponse<JobDetailApi>>(API_ENDPOINTS.job.detail(id))
