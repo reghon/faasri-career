@@ -16,6 +16,17 @@ export const jobController = {
     });
   },
 
+  async getAllOpenJobs(req: Request, res: Response) {
+    const query = getValidatedQuery<JobQueryInput>(req);
+
+    const jobs = await jobService.getAllOpenJobs(query.page, query.limit);
+
+    res.status(200).json({
+      message: "Success",
+      data: jobs,
+    });
+  },
+
   async getById(req: Request, res: Response) {
     const params = getValidatedParams<JobParamsInput>(req);
 

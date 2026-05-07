@@ -11,6 +11,14 @@ export const jobRepository = {
     return queryCamel<JobListItem>(jobQueries.getAll, [limit, offset]);
   },
 
+  async countAllOpen(): Promise<CountResult | null> {
+    return queryCamelOne<CountResult>(jobQueries.countAllOpen);
+  },
+
+  async getAllOpen(limit: number, offset: number): Promise<JobListItem[]> {
+    return queryCamel<JobListItem>(jobQueries.getAllOpen, [limit, offset]);
+  },
+
   async getById(id: string): Promise<JobDetail | null> {
     return queryCamelOne<JobDetail>(jobQueries.getById, [id]);
   },

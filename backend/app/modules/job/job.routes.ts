@@ -8,6 +8,7 @@ import { jobBodySchema, jobParamsSchema, jobQuerySchema, jobSlugParamsSchema } f
 const router: Router = Router();
 
 router.get("/", validate({ query: jobQuerySchema }), asyncHandler(jobController.getAll));
+router.get("/open", validate({ query: jobQuerySchema }), asyncHandler(jobController.getAllOpenJobs));
 router.get("/:id", validate({ params: jobParamsSchema }), asyncHandler(jobController.getById));
 router.get("/slug/:slug", validate({ params: jobSlugParamsSchema }), asyncHandler(jobController.getBySlug));
 router.use(authenticate);

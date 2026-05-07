@@ -21,6 +21,24 @@ export const jobService = {
     };
   },
 
+  async getAllOpenJobs(page: number, limit: number): Promise<PaginatedJobs> {
+    const offset = (page - 1) * limit;
+
+    const [countResult, items] = await Promise.all([jobRepository.countAllOpen(), jobRepository.getAllOpen(limit, offset)]);
+
+    const total = countResult?.total ?? 0;
+
+    return {
+      items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+      },
+    };
+  },
+
   async getById(id: string) {
     const job = await jobRepository.getById(id);
 

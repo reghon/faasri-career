@@ -49,6 +49,30 @@ export const jobQueries = {
     LIMIT $1 OFFSET $2
   `,
 
+  countAllOpen: `
+  SELECT COUNT(*)::int AS total
+  FROM jobs j
+  LEFT JOIN job_statuses js ON js.id = j.status_id
+  WHERE j.deleted_at IS NULL
+    AND js.code = 'OPEN'
+`,
+
+  getAllOpen: `
+  SELECT ${LIST_FIELDS}
+  FROM jobs j
+  JOIN job_categories jc ON jc.id = j.category_id
+  JOIN employment_types et ON et.id = j.employment_type_id
+  LEFT JOIN job_statuses js ON js.id = j.status_id
+  JOIN job_locations jl ON jl.id = j.job_location_id
+  JOIN education_levels el ON el.id = j.education_level_id
+  JOIN departments d ON d.id = j.department_id
+  JOIN work_modes wm ON wm.id = j.work_mode_id
+  WHERE j.deleted_at IS NULL
+    AND js.code = 'OPEN'
+  ORDER BY j.created_at DESC
+  LIMIT $1 OFFSET $2
+`,
+
   getById: `
     SELECT ${DETAIL_FIELDS}
     FROM jobs j
