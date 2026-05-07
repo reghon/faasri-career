@@ -60,7 +60,7 @@ export class Home implements OnInit {
   loadJobs() {
     this.isLoading = true;
 
-    this.jobService.getJobs({ page: 1, limit: 100 }).subscribe({
+    this.jobService.getJobsOpen({ page: 1, limit: 100 }).subscribe({
       next: (result) => {
         this.allJobs = result.items;
         this.filteredJobs = result.items;
