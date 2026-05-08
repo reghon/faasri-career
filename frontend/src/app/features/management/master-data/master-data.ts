@@ -45,11 +45,7 @@ export class MasterData implements OnInit {
   private readonly educationLevelService = inject(EducationLevelService);
   private readonly applyStatusService = inject(ApplyStatusService);
 
-  // ─── Static Config ────────────────────────────────────────────────────────
-
   readonly configs: MasterConfig[] = MASTER_CONFIGS;
-
-  // ─── State ───────────────────────────────────────────────────────────────
 
   readonly activeKey = signal<MasterKey>('jobLocations');
   readonly items = signal<MasterRecord[]>([]);
@@ -62,6 +58,7 @@ export class MasterData implements OnInit {
   readonly isFormModalOpen = signal(false);
   readonly isDeleteModalOpen = signal(false);
   readonly isEditMode = signal(false);
+  readonly isTrashMode = signal(false);
 
   readonly selectedItem = signal<MasterRecord | null>(null);
   readonly form = signal<Record<string, any>>({});
@@ -71,8 +68,6 @@ export class MasterData implements OnInit {
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   readonly feedbackMessage = signal('');
   readonly feedbackType = signal<'success' | 'error' | ''>('');
-
-  // ─── Derived State (computed) ─────────────────────────────────────────────
 
   readonly activeConfig = computed<MasterConfig>(
     () => this.configs.find((c) => c.key === this.activeKey())!,
@@ -95,18 +90,18 @@ export class MasterData implements OnInit {
     () => (this.isEditMode() ? 'Edit ' : 'Tambah ') + this.activeConfig().label,
   );
 
+  readonly deleteModalLabel = computed(() =>
+    this.isTrashMode() ? `${this.activeConfig().label} permanently` : this.activeConfig().label,
+  );
+
   readonly formFeedbackMessage = computed(() =>
     this.feedbackType() === 'error' ? this.feedbackMessage() : '',
   );
-
-  // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.form.set(buildInitialForm(this.activeConfig().fields));
     this.loadData();
   }
-
-  // ─── Tab ─────────────────────────────────────────────────────────────────
 
   setActiveTab(key: MasterKey): void {
     if (this.activeKey() === key) return;
@@ -120,12 +115,20 @@ export class MasterData implements OnInit {
     this.loadData();
   }
 
-  // ─── Data ─────────────────────────────────────────────────────────────────
+  toggleTrashMode(): void {
+    this.isTrashMode.update((value) => !value);
+    this.search.set('');
+    this.selectedItem.set(null);
+    this.closeFormModal();
+    this.closeDeleteModal();
+    this.clearFeedback();
+    this.loadData();
+  }
 
   loadData(): void {
     this.isLoading.set(true);
 
-    this.getServiceCall('getAll')
+    this.getServiceCall(this.isTrashMode() ? 'getAllDeleted' : 'getAll')
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (data: MasterRecord[]) => this.items.set(data ?? []),
@@ -136,9 +139,8 @@ export class MasterData implements OnInit {
       });
   }
 
-  // ─── Modal: Form ──────────────────────────────────────────────────────────
-
   openCreateModal(): void {
+    if (this.isTrashMode()) return;
     this.isEditMode.set(false);
     this.selectedItem.set(null);
     this.formErrors.set({});
@@ -148,6 +150,7 @@ export class MasterData implements OnInit {
   }
 
   openEditModal(item: MasterRecord): void {
+    if (this.isTrashMode()) return;
     this.isEditMode.set(true);
     this.selectedItem.set(item);
     this.formErrors.set({});
@@ -195,8 +198,6 @@ export class MasterData implements OnInit {
     });
   }
 
-  // ─── Modal: Delete ────────────────────────────────────────────────────────
-
   openDeleteModal(item: MasterRecord): void {
     this.selectedItem.set(item);
     this.clearFeedback();
@@ -214,12 +215,14 @@ export class MasterData implements OnInit {
 
     this.isDeleting.set(true);
 
-    this.getServiceCall('delete', selected.id)
+    this.getServiceCall(this.isTrashMode() ? 'permanentDelete' : 'delete', selected.id)
       .pipe(finalize(() => this.isDeleting.set(false)))
       .subscribe({
         next: () => {
           this.isDeleteModalOpen.set(false);
-          this.showSuccess('Data deleted successfully.');
+          this.showSuccess(
+            this.isTrashMode() ? 'Data permanently deleted successfully.' : 'Data deleted successfully.',
+          );
           this.loadData();
         },
         error: (error: any) =>
@@ -227,69 +230,109 @@ export class MasterData implements OnInit {
       });
   }
 
-  // ─── Registry ─────────────────────────────────────────────────────────────
+  restoreSelected(item: MasterRecord): void {
+    if (!item?.id) return;
 
-  private getServiceCall(action: 'getAll'): any;
+    const payload = buildPayload(this.activeConfig().fields, buildFormFromRecord(this.activeConfig().fields, item));
+
+    this.isSubmitting.set(true);
+
+    this.getServiceCall('restore', item.id, payload)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        next: () => {
+          this.showSuccess('Data restored successfully.');
+          this.loadData();
+        },
+        error: (error: any) =>
+          this.showError(this.extractErrorMessage(error, 'Failed to restore data.')),
+      });
+  }
+
+  private getServiceCall(action: 'getAll' | 'getAllDeleted'): any;
   private getServiceCall(action: 'create', payload: any): any;
   private getServiceCall(action: 'update', id: string, payload: any): any;
-  private getServiceCall(action: 'delete', id: string): any;
+  private getServiceCall(action: 'delete' | 'permanentDelete', id: string): any;
+  private getServiceCall(action: 'restore', id: string, payload: any): any;
   private getServiceCall(
-    action: 'getAll' | 'create' | 'update' | 'delete',
+    action: 'getAll' | 'getAllDeleted' | 'create' | 'update' | 'delete' | 'permanentDelete' | 'restore',
     arg1?: any,
     arg2?: any,
   ): any {
     switch (this.activeKey()) {
       case 'jobLocations':
         if (action === 'getAll') return this.jobLocationService.getAll();
+        if (action === 'getAllDeleted') return this.jobLocationService.getAllDeleted();
         if (action === 'create') return this.jobLocationService.create(arg1);
         if (action === 'update') return this.jobLocationService.update(arg1, arg2);
+        if (action === 'restore') return this.jobLocationService.restore(arg1);
+        if (action === 'permanentDelete') return this.jobLocationService.permanentDelete(arg1);
         return this.jobLocationService.delete(arg1);
 
       case 'jobCategories':
         if (action === 'getAll') return this.jobCategoryService.getAll();
+        if (action === 'getAllDeleted') return this.jobCategoryService.getAllDeleted();
         if (action === 'create') return this.jobCategoryService.create(arg1);
         if (action === 'update') return this.jobCategoryService.update(arg1, arg2);
+        if (action === 'restore') return this.jobCategoryService.restore(arg1);
+        if (action === 'permanentDelete') return this.jobCategoryService.permanentDelete(arg1);
         return this.jobCategoryService.delete(arg1);
 
       case 'workModes':
         if (action === 'getAll') return this.workModeService.getAll();
+        if (action === 'getAllDeleted') return this.workModeService.getAllDeleted();
         if (action === 'create') return this.workModeService.create(arg1);
         if (action === 'update') return this.workModeService.update(arg1, arg2);
+        if (action === 'restore') return this.workModeService.restore(arg1);
+        if (action === 'permanentDelete') return this.workModeService.permanentDelete(arg1);
         return this.workModeService.delete(arg1);
 
       case 'jobStatuses':
         if (action === 'getAll') return this.jobStatusService.getAll();
+        if (action === 'getAllDeleted') return this.jobStatusService.getAllDeleted();
         if (action === 'create') return this.jobStatusService.create(arg1);
         if (action === 'update') return this.jobStatusService.update(arg1, arg2);
+        if (action === 'restore') return this.jobStatusService.restore(arg1);
+        if (action === 'permanentDelete') return this.jobStatusService.permanentDelete(arg1);
         return this.jobStatusService.delete(arg1);
 
       case 'employmentTypes':
         if (action === 'getAll') return this.employmentTypeService.getAll();
+        if (action === 'getAllDeleted') return this.employmentTypeService.getAllDeleted();
         if (action === 'create') return this.employmentTypeService.create(arg1);
         if (action === 'update') return this.employmentTypeService.update(arg1, arg2);
+        if (action === 'restore') return this.employmentTypeService.restore(arg1);
+        if (action === 'permanentDelete') return this.employmentTypeService.permanentDelete(arg1);
         return this.employmentTypeService.delete(arg1);
 
       case 'departments':
         if (action === 'getAll') return this.departmentService.getAll();
+        if (action === 'getAllDeleted') return this.departmentService.getAllDeleted();
         if (action === 'create') return this.departmentService.create(arg1);
         if (action === 'update') return this.departmentService.update(arg1, arg2);
+        if (action === 'restore') return this.departmentService.restore(arg1);
+        if (action === 'permanentDelete') return this.departmentService.permanentDelete(arg1);
         return this.departmentService.delete(arg1);
 
       case 'educationLevels':
         if (action === 'getAll') return this.educationLevelService.getAll();
+        if (action === 'getAllDeleted') return this.educationLevelService.getAllDeleted();
         if (action === 'create') return this.educationLevelService.create(arg1);
         if (action === 'update') return this.educationLevelService.update(arg1, arg2);
+        if (action === 'restore') return this.educationLevelService.restore(arg1);
+        if (action === 'permanentDelete') return this.educationLevelService.permanentDelete(arg1);
         return this.educationLevelService.delete(arg1);
 
       case 'applyStatuses':
         if (action === 'getAll') return this.applyStatusService.getAll();
+        if (action === 'getAllDeleted') return this.applyStatusService.getAllDeleted();
         if (action === 'create') return this.applyStatusService.create(arg1);
         if (action === 'update') return this.applyStatusService.update(arg1, arg2);
+        if (action === 'restore') return this.applyStatusService.restore(arg1);
+        if (action === 'permanentDelete') return this.applyStatusService.permanentDelete(arg1);
         return this.applyStatusService.delete(arg1);
     }
   }
-
-  // ─── Private Helpers ──────────────────────────────────────────────────────
 
   private clearFeedback(): void {
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);

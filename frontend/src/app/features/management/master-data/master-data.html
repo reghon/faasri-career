@@ -39,13 +39,15 @@
                 </p>
               </div>
 
-              <button
-                class="btn btn-primary-faasri btn-sm"
-                type="button"
-                (click)="openCreateModal()"
-              >
-                Tambah Baru
-              </button>
+              @if (!isTrashMode()) {
+                <button
+                  class="btn btn-primary-faasri btn-sm"
+                  type="button"
+                  (click)="openCreateModal()"
+                >
+                  Tambah Baru
+                </button>
+              }
             </div>
 
             @if (feedbackMessage()) {
@@ -84,9 +86,21 @@
                 />
               </label>
 
-              <button class="btn btn-ghost rounded-xl" type="button" (click)="loadData()">
-                Refresh
-              </button>
+              <div class="flex gap-2">
+                <button class="btn btn-ghost rounded-xl" type="button" (click)="loadData()">
+                  Refresh
+                </button>
+
+                <button
+                  class="btn rounded-xl"
+                  [class.btn-error]="isTrashMode()"
+                  [class.btn-ghost]="!isTrashMode()"
+                  type="button"
+                  (click)="toggleTrashMode()"
+                >
+                  {{ isTrashMode() ? 'Kembali' : 'Trash' }}
+                </button>
+              </div>
             </div>
 
             <div class="mt-5">
@@ -94,10 +108,10 @@
                 [columns]="activeConfig().columns"
                 [items]="filteredItems()"
                 [isLoading]="isLoading()"
-                [label]="activeConfig().label"
+                [label]="deleteModalLabel()"
                 [pageSize]="5"
                 [pageSizeOptions]="[5, 10, 20, 50]"
-                (edit)="openEditModal($event)"
+                (edit)="isTrashMode() ? restoreSelected($event) : openEditModal($event)"
                 (delete)="openDeleteModal($event)"
               />
             </div>
@@ -124,7 +138,7 @@
 
     <app-master-data-delete-modal
       [open]="isDeleteModalOpen()"
-      [label]="activeConfig().label"
+      [label]="deleteModalLabel()"
       [item]="selectedItem()"
       [isDeleting]="isDeleting()"
       [feedbackType]="feedbackType()"
