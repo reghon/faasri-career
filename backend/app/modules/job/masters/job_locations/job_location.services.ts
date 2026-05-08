@@ -7,6 +7,10 @@ export const jobLocationService = {
     return jobLocationRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return jobLocationRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const data = await jobLocationRepository.getById(id);
 
@@ -63,7 +67,7 @@ export const jobLocationService = {
     return updated;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existing = await jobLocationRepository.getById(id);
 
     if (!existing) {
@@ -77,5 +81,37 @@ export const jobLocationService = {
     }
 
     return deleted;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existing = await jobLocationRepository.getById(id);
+
+    if (!existing) {
+      throw new AppError(404, "Job location not found");
+    }
+
+    const deleted = await jobLocationRepository.hardDelete(id, actorId);
+
+    if (!deleted) {
+      throw new AppError(500, "Failed to permanently delete job location");
+    }
+
+    return deleted;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existing = await jobLocationRepository.getSoftDeletedById(id);
+
+    if (!existing) {
+      throw new AppError(404, "Job location not found");
+    }
+
+    const updated = await jobLocationRepository.restore(id, actorId);
+
+    if (!updated) {
+      throw new AppError(500, "Failed to restore job location");
+    }
+
+    return updated;
   },
 };

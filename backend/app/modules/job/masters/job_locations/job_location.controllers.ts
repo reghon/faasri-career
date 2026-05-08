@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { requireUserId } from "../../../../utils/request-user.util";
+import { requireUserEmail } from "../../../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams } from "../../../../utils/validated-request.util";
 import { jobLocationService } from "./job_location.services";
 import { JobLocationBodyInput, JobLocationParamsInput } from "./job_location.schemas";
@@ -7,6 +7,15 @@ import { JobLocationBodyInput, JobLocationParamsInput } from "./job_location.sch
 export const jobLocationController = {
   async getAll(_req: Request, res: Response) {
     const data = await jobLocationService.getAll();
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
+  async getAllDeleted(_req: Request, res: Response) {
+    const data = await jobLocationService.getAllDeleted();
 
     res.status(200).json({
       message: "Success",
@@ -28,7 +37,7 @@ export const jobLocationController = {
   async create(req: Request, res: Response) {
     const body = getValidatedBody<JobLocationBodyInput>(req);
 
-    const data = await jobLocationService.create(body, requireUserId(req));
+    const data = await jobLocationService.create(body, requireUserEmail(req));
 
     res.status(201).json({
       message: "Job location created successfully",
@@ -40,7 +49,7 @@ export const jobLocationController = {
     const params = getValidatedParams<JobLocationParamsInput>(req);
     const body = getValidatedBody<JobLocationBodyInput>(req);
 
-    const data = await jobLocationService.update(params.id, body, requireUserId(req));
+    const data = await jobLocationService.update(params.id, body, requireUserEmail(req));
 
     res.status(200).json({
       message: "Job location updated successfully",
@@ -48,13 +57,35 @@ export const jobLocationController = {
     });
   },
 
-  async delete(req: Request, res: Response) {
+  async softDelete(req: Request, res: Response) {
     const params = getValidatedParams<JobLocationParamsInput>(req);
 
-    const data = await jobLocationService.delete(params.id, requireUserId(req));
+    const data = await jobLocationService.softDelete(params.id, requireUserEmail(req));
 
     res.status(200).json({
       message: "Job location deleted successfully",
+      data,
+    });
+  },
+
+  async hardDelete(req: Request, res: Response) {
+    const params = getValidatedParams<JobLocationParamsInput>(req);
+
+    const data = await jobLocationService.hardDelete(params.id, requireUserEmail(req));
+
+    res.status(200).json({
+      message: "Job location permanently deleted successfully",
+      data,
+    });
+  },
+
+  async restore(req: Request, res: Response) {
+    const params = getValidatedParams<JobLocationParamsInput>(req);
+
+    const data = await jobLocationService.restore(params.id, requireUserEmail(req));
+
+    res.status(200).json({
+      message: "Job location restored successfully",
       data,
     });
   },
