@@ -20,6 +20,11 @@ export class JobStatusService {
   getAll(): Observable<JobStatus[]> {
     return this.http.get<ApiResponse<JobStatus[]>>(this.url).pipe(map((res) => res.data));
   }
+  getAllDeleted(): Observable<JobStatus[]> {
+    return this.http
+      .get<ApiResponse<JobStatus[]>>(`${this.url}/deleted`)
+      .pipe(map((res) => res.data));
+  }
 
   getById(id: string): Observable<JobStatus> {
     return this.http.get<ApiResponse<JobStatus>>(`${this.url}/${id}`).pipe(map((res) => res.data));
@@ -38,6 +43,18 @@ export class JobStatusService {
   delete(id: string): Observable<JobStatusDetail> {
     return this.http
       .delete<ApiResponse<JobStatusDetail>>(`${this.url}/${id}`)
+      .pipe(map((res) => res.data));
+  }
+
+  permanentDelete(id: string): Observable<JobStatusDetail> {
+    return this.http
+      .delete<ApiResponse<JobStatusDetail>>(`${this.url}/${id}/permanent`)
+      .pipe(map((res) => res.data));
+  }
+
+  restore(id: string): Observable<JobStatus> {
+    return this.http
+      .patch<ApiResponse<JobStatus>>(`${this.url}/${id}/restore`, {})
       .pipe(map((res) => res.data));
   }
 }

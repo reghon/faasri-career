@@ -7,6 +7,10 @@ export const jobStatusService = {
     return jobStatusRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return jobStatusRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const jobStatus = await jobStatusRepository.getById(id);
 
@@ -73,7 +77,7 @@ export const jobStatusService = {
     return updatedJobStatus;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existingJobStatus = await jobStatusRepository.getById(id);
 
     if (!existingJobStatus) {
@@ -87,5 +91,37 @@ export const jobStatusService = {
     }
 
     return deletedJobStatus;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existingJobStatus = await jobStatusRepository.getById(id);
+
+    if (!existingJobStatus) {
+      throw new AppError(404, "Job status not found");
+    }
+
+    const deletedJobStatus = await jobStatusRepository.hardDelete(id, actorId);
+
+    if (!deletedJobStatus) {
+      throw new AppError(500, "Failed to permanently delete job status");
+    }
+
+    return deletedJobStatus;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existingJobStatus = await jobStatusRepository.getSoftDeletedById(id);
+
+    if (!existingJobStatus) {
+      throw new AppError(404, "Job status not found");
+    }
+
+    const restoredJobStatus = await jobStatusRepository.restore(id, actorId);
+
+    if (!restoredJobStatus) {
+      throw new AppError(500, "Failed to restore job status");
+    }
+
+    return restoredJobStatus;
   },
 };
