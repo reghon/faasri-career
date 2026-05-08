@@ -7,8 +7,16 @@ export const departmentRepository = {
     return queryCamel<Department>(departmentQueries.getAll);
   },
 
+  async getAllDeleted(): Promise<Department[]> {
+    return queryCamel<Department>(departmentQueries.getAllDeleted);
+  },
+
   async getById(id: string): Promise<Department | null> {
     return queryCamelOne<Department>(departmentQueries.getById, [id]);
+  },
+
+  async getSoftDeletedById(id: string): Promise<Department | null> {
+    return queryCamelOne<Department>(departmentQueries.getSoftDeletedById, [id]);
   },
 
   async getByName(name: string): Promise<Department | null> {
@@ -29,5 +37,13 @@ export const departmentRepository = {
 
   async softDelete(id: string, actorId: string): Promise<Department | null> {
     return queryCamelOne<Department>(departmentQueries.softDelete, [id, actorId]);
+  },
+
+  async hardDelete(id: string, actorId: string): Promise<Department | null> {
+    return queryCamelOne<Department>(departmentQueries.hardDelete, [id, actorId]);
+  },
+
+  async restore(id: string, actorId: string): Promise<Department | null> {
+    return queryCamelOne<Department>(departmentQueries.restore, [id, actorId]);
   },
 };

@@ -7,6 +7,10 @@ export const departmentService = {
     return departmentRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return departmentRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const department = await departmentRepository.getById(id);
 
@@ -62,7 +66,7 @@ export const departmentService = {
     return updated;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existing = await departmentRepository.getById(id);
     if (!existing) {
       throw new AppError(404, "Department not found");
@@ -75,5 +79,36 @@ export const departmentService = {
     }
 
     return deleted;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existing = await departmentRepository.getById(id);
+    if (!existing) {
+      throw new AppError(404, "Department not found");
+    }
+
+    const deleted = await departmentRepository.hardDelete(id, actorId);
+
+    if (!deleted) {
+      throw new AppError(500, "Failed to permanently delete department");
+    }
+
+    return deleted;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existing = await departmentRepository.getSoftDeletedById(id);
+
+    if (!existing) {
+      throw new AppError(404, "Department not found");
+    }
+
+    const restored = await departmentRepository.restore(id, actorId);
+
+    if (!restored) {
+      throw new AppError(500, "Failed to restore department");
+    }
+
+    return restored;
   },
 };

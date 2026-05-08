@@ -10,9 +10,12 @@ const router: Router = Router();
 router.use(authenticate);
 
 router.get("/", asyncHandler(departmentController.getAll));
+router.get("/deleted", asyncHandler(departmentController.getAllDeleted));
 router.get("/:id", validate({ params: departmentParamsSchema }), asyncHandler(departmentController.getById));
 router.post("/", validate({ body: departmentBodySchema }), asyncHandler(departmentController.create));
 router.put("/:id", validate({ params: departmentParamsSchema, body: departmentBodySchema }), asyncHandler(departmentController.update));
-router.delete("/:id", validate({ params: departmentParamsSchema }), asyncHandler(departmentController.delete));
+router.patch("/:id/restore", validate({ params: departmentParamsSchema}), asyncHandler(departmentController.restore));
+router.delete("/:id", validate({ params: departmentParamsSchema }), asyncHandler(departmentController.softDelete));
+router.delete("/:id/permanent", validate({ params: departmentParamsSchema }), asyncHandler(departmentController.hardDelete));
 
 export default router;
