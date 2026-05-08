@@ -10,9 +10,12 @@ const router: Router = Router();
 router.use(authenticate);
 
 router.get("/", asyncHandler(employmentTypeController.getAll));
+router.get("/deleted", asyncHandler(employmentTypeController.getAllDeleted));
 router.get("/:id", validate({ params: employmentTypeParamsSchema }), asyncHandler(employmentTypeController.getById));
 router.post("/", validate({ body: employmentTypeBodySchema }), asyncHandler(employmentTypeController.create));
 router.put("/:id", validate({ params: employmentTypeParamsSchema, body: employmentTypeBodySchema }), asyncHandler(employmentTypeController.update));
-router.delete("/:id", validate({ params: employmentTypeParamsSchema }), asyncHandler(employmentTypeController.delete));
+router.patch("/:id/restore", validate({ params: employmentTypeParamsSchema }), asyncHandler(employmentTypeController.restore));
+router.delete("/:id", validate({ params: employmentTypeParamsSchema }), asyncHandler(employmentTypeController.softDelete));
+router.delete("/:id/permanent", validate({ params: employmentTypeParamsSchema }), asyncHandler(employmentTypeController.hardDelete));
 
 export default router;

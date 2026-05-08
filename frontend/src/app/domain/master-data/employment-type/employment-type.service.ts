@@ -25,6 +25,12 @@ export class EmploymentTypeService {
     return this.http.get<ApiResponse<EmploymentType[]>>(this.url).pipe(map((res) => res.data));
   }
 
+  getAllDeleted(): Observable<EmploymentType[]> {
+    return this.http
+      .get<ApiResponse<EmploymentType[]>>(`${this.url}/deleted`)
+      .pipe(map((res) => res.data));
+  }
+
   getById(id: string): Observable<EmploymentType> {
     return this.http
       .get<ApiResponse<EmploymentType>>(`${this.url}/${id}`)
@@ -46,6 +52,18 @@ export class EmploymentTypeService {
   delete(id: string): Observable<EmploymentTypeDetail> {
     return this.http
       .delete<ApiResponse<EmploymentTypeDetail>>(`${this.url}/${id}`)
+      .pipe(map((res) => res.data));
+  }
+
+  permanentDelete(id: string): Observable<EmploymentTypeDetail> {
+    return this.http
+      .delete<ApiResponse<EmploymentTypeDetail>>(`${this.url}/${id}/permanent`)
+      .pipe(map((res) => res.data));
+  }
+
+  restore(id: string): Observable<EmploymentType> {
+    return this.http
+      .patch<ApiResponse<EmploymentType>>(`${this.url}/${id}/restore`, {})
       .pipe(map((res) => res.data));
   }
 }

@@ -7,6 +7,10 @@ export const employmentTypeService = {
     return employmentTypeRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return employmentTypeRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const employmentType = await employmentTypeRepository.getById(id);
 
@@ -73,7 +77,7 @@ export const employmentTypeService = {
     return updatedEmploymentType;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existingEmploymentType = await employmentTypeRepository.getById(id);
 
     if (!existingEmploymentType) {
@@ -87,5 +91,37 @@ export const employmentTypeService = {
     }
 
     return deletedEmploymentType;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existingEmploymentType = await employmentTypeRepository.getById(id);
+
+    if (!existingEmploymentType) {
+      throw new AppError(404, "Employment type not found");
+    }
+
+    const deletedEmploymentType = await employmentTypeRepository.hardDelete(id, actorId);
+
+    if (!deletedEmploymentType) {
+      throw new AppError(500, "Failed to permanently delete employment type");
+    }
+
+    return deletedEmploymentType;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existingEmploymentType = await employmentTypeRepository.getSoftDeletedById(id);
+
+    if (!existingEmploymentType) {
+      throw new AppError(404, "Employment type not found");
+    }
+
+    const restoredEmploymentType = await employmentTypeRepository.restore(id, actorId);
+
+    if (!restoredEmploymentType) {
+      throw new AppError(500, "Failed to restore employment type");
+    }
+
+    return restoredEmploymentType;
   },
 };
