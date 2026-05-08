@@ -21,6 +21,12 @@ export class WorkModeService {
     return this.http.get<ApiResponse<WorkMode[]>>(this.url).pipe(map((res) => res.data));
   }
 
+  getAllDeleted(): Observable<WorkMode[]> {
+    return this.http
+      .get<ApiResponse<WorkMode[]>>(`${this.url}/deleted`)
+      .pipe(map((res) => res.data));
+  }
+
   getById(id: string): Observable<WorkMode> {
     return this.http.get<ApiResponse<WorkMode>>(`${this.url}/${id}`).pipe(map((res) => res.data));
   }
@@ -38,6 +44,18 @@ export class WorkModeService {
   delete(id: string): Observable<WorkModeDetail> {
     return this.http
       .delete<ApiResponse<WorkModeDetail>>(`${this.url}/${id}`)
+      .pipe(map((res) => res.data));
+  }
+
+  permanentDelete(id: string): Observable<WorkModeDetail> {
+    return this.http
+      .delete<ApiResponse<WorkModeDetail>>(`${this.url}/${id}/permanent`)
+      .pipe(map((res) => res.data));
+  }
+
+  restore(id: string): Observable<WorkMode> {
+    return this.http
+      .patch<ApiResponse<WorkMode>>(`${this.url}/${id}/restore`, {})
       .pipe(map((res) => res.data));
   }
 }

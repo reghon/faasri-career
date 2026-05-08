@@ -9,8 +9,16 @@ export const workModeRepository = {
     return queryCamel<WorkMode>(workModeQueries.getAll);
   },
 
+  async getAllDeleted(): Promise<WorkMode[]> {
+    return queryCamel<WorkMode>(workModeQueries.getAllDeleted);
+  },
+
   async getById(id: string): Promise<WorkMode | null> {
     return queryCamelOne<WorkMode>(workModeQueries.getById, [id]);
+  },
+  
+  async getSoftDeletedById(id: string): Promise<WorkMode | null> {
+    return queryCamelOne<WorkMode>(workModeQueries.getSoftDeletedById, [id]);
   },
 
   async getDetailById(id: string): Promise<WorkModeDetail | null> {
@@ -35,5 +43,13 @@ export const workModeRepository = {
 
   async softDelete(id: string, actorId: string): Promise<WorkModeDetail | null> {
     return queryCamelOne<WorkModeDetail>(workModeQueries.softDelete, [id, actorId]);
+  },
+
+  async hardDelete(id: string, actorId: string): Promise<WorkModeDetail | null> {
+    return queryCamelOne<WorkModeDetail>(workModeQueries.hardDelete, [id, actorId]);
+  },
+
+  async restore(id: string, actorId: string): Promise<WorkModeDetail | null> {
+    return queryCamelOne<WorkModeDetail>(workModeQueries.restore, [id, actorId]);
   },
 };

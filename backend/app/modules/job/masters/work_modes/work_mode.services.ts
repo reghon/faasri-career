@@ -7,6 +7,10 @@ export const workModeService = {
     return workModeRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return workModeRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const data = await workModeRepository.getById(id);
 
@@ -63,7 +67,7 @@ export const workModeService = {
     return updated;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existing = await workModeRepository.getById(id);
 
     if (!existing) {
@@ -77,5 +81,37 @@ export const workModeService = {
     }
 
     return deleted;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existing = await workModeRepository.getById(id);
+
+    if (!existing) {
+      throw new AppError(404, "Work mode not found");
+    }
+
+    const deleted = await workModeRepository.hardDelete(id, actorId);
+
+    if (!deleted) {
+      throw new AppError(500, "Failed to permanently delete work mode");
+    }
+
+    return deleted;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existing = await workModeRepository.getSoftDeletedById(id);
+
+    if (!existing) {
+      throw new AppError(404, "Work mode not found");
+    }
+
+    const updated = await workModeRepository.restore(id,actorId);
+
+    if (!updated) {
+      throw new AppError(500, "Failed to restore work mode");
+    }
+
+    return updated;
   },
 };

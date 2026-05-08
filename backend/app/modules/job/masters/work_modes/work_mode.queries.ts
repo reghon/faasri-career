@@ -19,11 +19,26 @@ export const workModeQueries = {
     ORDER BY name ASC
   `,
 
+  getAllDeleted: `
+    SELECT ${SELECT_FIELDS}
+    FROM work_modes
+    WHERE deleted_at IS NOT NULL
+    ORDER BY name ASC
+  `,
+
   getById: `
     SELECT ${SELECT_FIELDS}
     FROM work_modes
     WHERE id = $1
       AND deleted_at IS NULL
+    LIMIT 1
+  `,
+
+  getSoftDeletedById: `
+    SELECT ${SELECT_FIELDS}
+    FROM work_modes
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
     LIMIT 1
   `,
 
@@ -73,12 +88,30 @@ export const workModeQueries = {
   softDelete: `
     UPDATE work_modes
     SET
+      is_active = FALSE,
       deleted_at = NOW(),
       deleted_by = $2,
       updated_at = NOW(),
       updated_by = $2
     WHERE id = $1
-      AND deleted_at IS NULL
     RETURNING ${DETAIL_FIELDS}
   `,
+
+  hardDelete: `
+    DELETE FROM work_modes
+    WHERE id = $1
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  restore: `
+    UPDATE work_modes
+    SET
+      is_active = TRUE,
+      deleted_at = NULL,
+      deleted_by = NULL,
+      updated_at = NOW(),
+      updated_by = $2
+    WHERE id = $1
+    RETURNING ${DETAIL_FIELDS}
+   `,
 };
