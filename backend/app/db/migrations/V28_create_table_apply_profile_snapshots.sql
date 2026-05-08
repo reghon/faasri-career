@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS apply_profile_snapshots (
   cv_file_name VARCHAR(255),
 
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  created_by UUID REFERENCES users(id),
+  created_by VARCHAR(100),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_by UUID REFERENCES users(id),
+  updated_by VARCHAR (100),
   deleted_at TIMESTAMP,
-  deleted_by UUID REFERENCES users(id)
+  deleted_by VARCHAR(100) 
 );

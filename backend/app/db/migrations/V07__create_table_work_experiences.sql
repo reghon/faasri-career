@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS work_experiences (
   reference_email VARCHAR(255),
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  created_by UUID REFERENCES users(id),
+  created_by VARCHAR(100),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_by UUID REFERENCES users(id),
+  updated_by VARCHAR (100),
   deleted_at TIMESTAMP,
-  deleted_by UUID REFERENCES users(id)
+  deleted_by VARCHAR(100) 
 );
