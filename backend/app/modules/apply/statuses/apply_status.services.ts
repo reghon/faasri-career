@@ -7,6 +7,10 @@ export const applyStatusService = {
     return applyStatusRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return applyStatusRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const applyStatus = await applyStatusRepository.getById(id);
 
@@ -87,5 +91,37 @@ export const applyStatusService = {
     }
 
     return deletedApplyStatus;
+  },
+
+  async permanentDelete(id: string, actorId: string) {
+    const existingApplyStatus = await applyStatusRepository.getById(id);
+
+    if (!existingApplyStatus) {
+      throw new AppError(404, "Apply status not found");
+    }
+
+    const permanentDeletedApplyStatus = await applyStatusRepository.permanentDelete(id, actorId);
+
+    if (!permanentDeletedApplyStatus) {
+      throw new AppError(500, "Failed to permanently delete apply status");
+    }
+
+    return permanentDeletedApplyStatus;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existingApplyStatus = await applyStatusRepository.getById(id);
+
+    if (!existingApplyStatus) {
+      throw new AppError(404, "Apply status not found");
+    }
+
+    const restoredApplyStatus = await applyStatusRepository.restore(id, actorId);
+
+    if (!restoredApplyStatus) {
+      throw new AppError(500, "Failed to restore apply status");
+    }
+
+    return restoredApplyStatus;
   },
 };

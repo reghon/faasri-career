@@ -10,10 +10,14 @@ export const applyStatusRepository = {
     return queryCamel<ApplyStatus>(applyStatusQueries.getAll);
   },
 
+  async getAllDeleted(): Promise<ApplyStatus[]> {
+    return queryCamel<ApplyStatus>(applyStatusQueries.getAllDeleted);
+  },
+
   async getById(id: string): Promise<ApplyStatus | null> {
     return queryCamelOne<ApplyStatus>(applyStatusQueries.getById, [id]);
   },
-  
+
   async getDefaultByJobId(client: PoolClient, jobId: string): Promise<ApplyStatusLookup | null> {
     return queryCamelOne<ApplyStatusLookup>(client, applyStatusQueries.getDefaultByJobId, [jobId]);
   },
@@ -40,5 +44,13 @@ export const applyStatusRepository = {
 
   async softDelete(id: string, actorId: string): Promise<ApplyStatusDetail | null> {
     return queryCamelOne<ApplyStatusDetail>(applyStatusQueries.softDelete, [id, actorId]);
+  },
+
+  async permanentDelete(id: string, actorId: string): Promise<ApplyStatusDetail | null> {
+    return queryCamelOne<ApplyStatusDetail>(applyStatusQueries.permanentDelete, [id, actorId]);
+  },
+
+  async restore(id: string, actorId: string): Promise<ApplyStatusDetail | null> {
+    return queryCamelOne<ApplyStatusDetail>(applyStatusQueries.restore, [id, actorId]);
   },
 };

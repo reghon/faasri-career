@@ -19,6 +19,12 @@ export const applyStatusQueries = {
     WHERE deleted_at IS NULL
     ORDER BY name ASC
   `,
+  getAllDeleted: `
+    SELECT ${SELECT_FIELDS}
+    FROM apply_statuses
+    WHERE deleted_at IS NOT NULL
+    ORDER BY name ASC
+  `,
 
   getById: `
     SELECT ${SELECT_FIELDS}
@@ -81,6 +87,23 @@ export const applyStatusQueries = {
       updated_by = $2
     WHERE id = $1
       AND deleted_at IS NULL
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  permanentDelete: `
+    DELETE FROM apply_statuses
+    WHERE id = $1
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  restore: `
+    UPDATE apply_statuses
+    SET
+      deleted_at = NULL,
+      deleted_by = NULL,
+      updated_at = NOW(),
+      updated_by = $2
+    WHERE id = $1
     RETURNING ${DETAIL_FIELDS}
   `,
 

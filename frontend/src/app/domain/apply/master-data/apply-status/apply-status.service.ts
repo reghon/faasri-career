@@ -21,6 +21,12 @@ export class ApplyStatusService {
     return this.http.get<ApiResponse<ApplyStatus[]>>(this.url).pipe(map((res) => res.data));
   }
 
+  getAllDeleted(): Observable<ApplyStatus[]> {
+    return this.http
+      .get<ApiResponse<ApplyStatus[]>>(`${this.url}/deleted`)
+      .pipe(map((res) => res.data));
+  }
+
   getById(id: string): Observable<ApplyStatus> {
     return this.http
       .get<ApiResponse<ApplyStatus>>(`${this.url}/${id}`)
@@ -40,6 +46,18 @@ export class ApplyStatusService {
   delete(id: string): Observable<ApplyStatusDetail> {
     return this.http
       .delete<ApiResponse<ApplyStatusDetail>>(`${this.url}/${id}`)
+      .pipe(map((res) => res.data));
+  }
+
+  permanentDelete(id: string): Observable<ApplyStatusDetail> {
+    return this.http
+      .delete<ApiResponse<ApplyStatusDetail>>(`${this.url}/${id}/permanent`)
+      .pipe(map((res) => res.data));
+  }
+
+  restore(id: string): Observable<ApplyStatus> {
+    return this.http
+      .patch<ApiResponse<ApplyStatus>>(`${this.url}/${id}/restore`, {})
       .pipe(map((res) => res.data));
   }
 }
