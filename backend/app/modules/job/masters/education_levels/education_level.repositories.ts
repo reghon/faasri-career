@@ -7,8 +7,16 @@ export const educationLevelRepository = {
     return queryCamel<EducationLevel>(educationLevelQueries.getAll);
   },
 
+  async getAllDeleted(): Promise<EducationLevel[]> {
+    return queryCamel<EducationLevel>(educationLevelQueries.getAllDeleted);
+  },
+
   async getById(id: string): Promise<EducationLevel | null> {
     return queryCamelOne<EducationLevel>(educationLevelQueries.getById, [id]);
+  },
+
+  async getSoftDeletedById(id: string): Promise<EducationLevel | null> {
+    return queryCamelOne<EducationLevel>(educationLevelQueries.getSoftDeletedById, [id]);
   },
 
   async getByName(name: string): Promise<EducationLevel | null> {
@@ -29,5 +37,13 @@ export const educationLevelRepository = {
 
   async softDelete(id: string, actorId: string): Promise<EducationLevel | null> {
     return queryCamelOne<EducationLevel>(educationLevelQueries.softDelete, [id, actorId]);
+  },
+
+  async hardDelete(id: string, actorId: string): Promise<EducationLevel | null> {
+    return queryCamelOne<EducationLevel>(educationLevelQueries.hardDelete, [id, actorId]);
+  },
+
+  async restore(id: string, actorId: string): Promise<EducationLevel | null> {
+    return queryCamelOne<EducationLevel>(educationLevelQueries.restore, [id, actorId]);
   },
 };

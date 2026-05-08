@@ -25,6 +25,12 @@ export class EducationLevelService {
     return this.http.get<ApiResponse<EducationLevel[]>>(this.url).pipe(map((res) => res.data));
   }
 
+  getAllDeleted(): Observable<EducationLevel[]> {
+    return this.http
+      .get<ApiResponse<EducationLevel[]>>(`${this.url}/deleted`)
+      .pipe(map((res) => res.data));
+  }
+
   getById(id: string): Observable<EducationLevel> {
     return this.http
       .get<ApiResponse<EducationLevel>>(`${this.url}/${id}`)
@@ -46,6 +52,18 @@ export class EducationLevelService {
   delete(id: string): Observable<EducationLevelDetail> {
     return this.http
       .delete<ApiResponse<EducationLevelDetail>>(`${this.url}/${id}`)
+      .pipe(map((res) => res.data));
+  }
+
+  permanentDelete(id: string): Observable<EducationLevelDetail> {
+    return this.http
+      .delete<ApiResponse<EducationLevelDetail>>(`${this.url}/${id}/permanent`)
+      .pipe(map((res) => res.data));
+  }
+
+  restore(id: string): Observable<EducationLevel> {
+    return this.http
+      .patch<ApiResponse<EducationLevel>>(`${this.url}/${id}/restore`, {})
       .pipe(map((res) => res.data));
   }
 }

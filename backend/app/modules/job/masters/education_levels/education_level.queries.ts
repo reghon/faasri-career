@@ -19,11 +19,26 @@ export const educationLevelQueries = {
     ORDER BY name ASC
   `,
 
+  getAllDeleted: `
+    SELECT ${SELECT_FIELDS}
+    FROM education_levels
+    WHERE deleted_at IS NOT NULL
+    ORDER BY name ASC
+  `,
+
   getById: `
     SELECT ${SELECT_FIELDS}
     FROM education_levels
     WHERE id = $1
       AND deleted_at IS NULL
+    LIMIT 1
+  `,
+
+  getSoftDeletedById: `
+    SELECT ${SELECT_FIELDS}
+    FROM education_levels
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
     LIMIT 1
   `,
 
@@ -74,12 +89,30 @@ export const educationLevelQueries = {
   softDelete: `
     UPDATE education_levels
     SET
+      is_active = FALSE,
       deleted_at = NOW(),
       deleted_by = $2,
       updated_at = NOW(),
       updated_by = $2
     WHERE id = $1
-      AND deleted_at IS NULL
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  hardDelete: `
+    DELETE FROM education_levels
+    WHERE id = $1
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  restore: `
+    UPDATE education_levels
+    SET
+      is_active = TRUE,
+      deleted_at = NULL,
+      deleted_by = NULL,
+      updated_at = NOW(),
+      updated_by = $2
+    WHERE id = $1
     RETURNING ${DETAIL_FIELDS}
   `,
 };

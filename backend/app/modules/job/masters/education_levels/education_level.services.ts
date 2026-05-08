@@ -7,6 +7,10 @@ export const educationLevelService = {
     return educationLevelRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return educationLevelRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const educationLevel = await educationLevelRepository.getById(id);
 
@@ -63,7 +67,7 @@ export const educationLevelService = {
     return updatedEducationLevel;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existingEducationLevel = await educationLevelRepository.getById(id);
 
     if (!existingEducationLevel) {
@@ -77,5 +81,36 @@ export const educationLevelService = {
     }
 
     return deletedEducationLevel;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existingEducationLevel = await educationLevelRepository.getById(id);
+
+    if (!existingEducationLevel) {
+      throw new AppError(404, "Education level not found");
+    }
+
+    const deletedEducationLevel = await educationLevelRepository.hardDelete(id, actorId);
+
+    if (!deletedEducationLevel) {
+      throw new AppError(500, "Failed to permanently delete education level");
+    }
+
+    return deletedEducationLevel;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existingEducationLevel = await educationLevelRepository.getSoftDeletedById(id);
+
+    if (!existingEducationLevel) {
+      throw new AppError(404, "Education level not found");
+    }
+    const updatedEducationLevel = await educationLevelRepository.restore(id, actorId);
+
+    if (!updatedEducationLevel) {
+      throw new AppError(500, "Failed to restore education level");
+    }
+
+    return updatedEducationLevel;
   },
 };
