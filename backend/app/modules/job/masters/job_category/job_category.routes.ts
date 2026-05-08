@@ -10,9 +10,12 @@ const router: Router = Router();
 router.use(authenticate);
 
 router.get("/", asyncHandler(jobCategoryController.getAll));
+router.get("/deleted", asyncHandler(jobCategoryController.getAllDeleted));
 router.get("/:id", validate({ params: jobCategoryParamsSchema }), asyncHandler(jobCategoryController.getById));
 router.post("/", validate({ body: jobCategoryBodySchema }), asyncHandler(jobCategoryController.create));
 router.put("/:id", validate({ params: jobCategoryParamsSchema, body: jobCategoryBodySchema }), asyncHandler(jobCategoryController.update));
-router.delete("/:id", validate({ params: jobCategoryParamsSchema }), asyncHandler(jobCategoryController.delete));
+router.patch("/:id/restore", validate({ params: jobCategoryParamsSchema }), asyncHandler(jobCategoryController.restore));
+router.delete("/:id", validate({ params: jobCategoryParamsSchema }), asyncHandler(jobCategoryController.softDelete));
+router.delete("/:id/permanent", validate({ params: jobCategoryParamsSchema }), asyncHandler(jobCategoryController.hardDelete));
 
 export default router;

@@ -7,6 +7,10 @@ export const jobCategoryService = {
     return jobCategoryRepository.getAll();
   },
 
+  async getAllDeleted() {
+    return jobCategoryRepository.getAllDeleted();
+  },
+
   async getById(id: string) {
     const jobCategory = await jobCategoryRepository.getById(id);
 
@@ -73,7 +77,7 @@ export const jobCategoryService = {
     return updatedJobCategory;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existingJobCategory = await jobCategoryRepository.getById(id);
 
     if (!existingJobCategory) {
@@ -87,5 +91,37 @@ export const jobCategoryService = {
     }
 
     return deletedJobCategory;
+  },
+
+  async hardDelete(id: string, actorId: string) {
+    const existingJobCategory = await jobCategoryRepository.getById(id);
+
+    if (!existingJobCategory) {
+      throw new AppError(404, "Job category not found");
+    }
+
+    const deletedJobCategory = await jobCategoryRepository.hardDelete(id, actorId);
+
+    if (!deletedJobCategory) {
+      throw new AppError(500, "Failed to permanently delete job category");
+    }
+
+    return deletedJobCategory;
+  },
+
+  async restore(id: string, actorId: string) {
+    const existingJobCategory = await jobCategoryRepository.getSoftDeletedById(id);
+
+    if (!existingJobCategory) {
+      throw new AppError(404, "Job category not found");
+    }
+
+    const restoredJobCategory = await jobCategoryRepository.restore(id, actorId);
+
+    if (!restoredJobCategory) {
+      throw new AppError(500, "Failed to restore job category");
+    }
+
+    return restoredJobCategory;
   },
 };

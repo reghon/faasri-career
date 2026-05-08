@@ -9,8 +9,16 @@ export const jobCategoryRepository = {
     return queryCamel<JobCategory>(jobCategoryQueries.getAll);
   },
 
+  async getAllDeleted(): Promise<JobCategory[]> {
+    return queryCamel<JobCategory>(jobCategoryQueries.getAllDeleted);
+  },
+
   async getById(id: string): Promise<JobCategory | null> {
     return queryCamelOne<JobCategory>(jobCategoryQueries.getById, [id]);
+  },
+
+  async getSoftDeletedById(id: string): Promise<JobCategory | null> {
+    return queryCamelOne<JobCategory>(jobCategoryQueries.getSoftDeletedById, [id]);
   },
 
   async getDetailById(id: string): Promise<JobCategoryDetail | null> {
@@ -35,5 +43,13 @@ export const jobCategoryRepository = {
 
   async softDelete(id: string, actorId: string): Promise<JobCategoryDetail | null> {
     return queryCamelOne<JobCategoryDetail>(jobCategoryQueries.softDelete, [id, actorId]);
+  },
+
+  async hardDelete(id: string, actorId: string): Promise<JobCategoryDetail | null> {
+    return queryCamelOne<JobCategoryDetail>(jobCategoryQueries.hardDelete, [id, actorId]);
+  },
+
+  async restore(id: string, actorId: string): Promise<JobCategoryDetail | null> {
+    return queryCamelOne<JobCategoryDetail>(jobCategoryQueries.restore, [id, actorId]);
   },
 };
