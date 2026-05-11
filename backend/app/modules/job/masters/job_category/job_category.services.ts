@@ -79,13 +79,16 @@ export const jobCategoryService = {
 
   async softDelete(id: string, actorId: string) {
     const existingJobCategory = await jobCategoryRepository.getById(id);
-
     if (!existingJobCategory) {
       throw new AppError(404, "Job category not found");
     }
 
-    const deletedJobCategory = await jobCategoryRepository.softDelete(id, actorId);
+    const openJobsUsageCount = await jobCategoryRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Job category cannot be deleted because it is used by jobs");
+    }
 
+    const deletedJobCategory = await jobCategoryRepository.softDelete(id, actorId);
     if (!deletedJobCategory) {
       throw new AppError(500, "Failed to delete job category");
     }
@@ -93,15 +96,18 @@ export const jobCategoryService = {
     return deletedJobCategory;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existingJobCategory = await jobCategoryRepository.getById(id);
-
+  async hardDelete(id: string) {
+    const existingJobCategory = await jobCategoryRepository.getSoftDeletedById(id);
     if (!existingJobCategory) {
       throw new AppError(404, "Job category not found");
     }
 
-    const deletedJobCategory = await jobCategoryRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await jobCategoryRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Job category cannot be permanently deleted because it is used by jobs");
+    }
 
+    const deletedJobCategory = await jobCategoryRepository.hardDelete(id);
     if (!deletedJobCategory) {
       throw new AppError(500, "Failed to permanently delete job category");
     }

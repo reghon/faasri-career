@@ -71,7 +71,7 @@ export const jobCategoryController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<JobCategoryParamsInput>(req);
 
-    const data = await jobCategoryService.hardDelete(params.id, requireUserEmail(req));
+    const data = await jobCategoryService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Job category permanently deleted successfully",

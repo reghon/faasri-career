@@ -6,7 +6,6 @@ export type JobCategory = {
   isActive: boolean;
 };
 
-
 export type JobCategoryDetail = {
   id: string;
   name: string;
@@ -23,7 +22,11 @@ export type JobCategoryDetail = {
 
 export type JobCategoryPayload = {
   name: string;
-  code: string
+  code: string;
   description: string | null;
   isActive: boolean;
+};
+
+export type CountResult = {
+  count: number;
 };
