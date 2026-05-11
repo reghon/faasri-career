@@ -26,3 +26,7 @@ export type EducationLevelDetail = {
   deletedAt: string | null;
   deletedBy: string | null;
 };
+
+export type CountResult = {
+  count: number;
+};

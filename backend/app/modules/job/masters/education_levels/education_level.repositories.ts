@@ -1,6 +1,6 @@
 import { queryCamel, queryCamelOne } from "../../../../utils/db.util";
 import { educationLevelQueries } from "./education_level.queries";
-import { EducationLevel, EducationLevelPayload } from "./education_level.types";
+import { CountResult, EducationLevel, EducationLevelPayload } from "./education_level.types";
 
 export const educationLevelRepository = {
   async getAll(): Promise<EducationLevel[]> {
@@ -39,8 +39,18 @@ export const educationLevelRepository = {
     return queryCamelOne<EducationLevel>(educationLevelQueries.softDelete, [id, actorId]);
   },
 
-  async hardDelete(id: string, actorId: string): Promise<EducationLevel | null> {
-    return queryCamelOne<EducationLevel>(educationLevelQueries.hardDelete, [id, actorId]);
+  async countOpenJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(educationLevelQueries.countOpenJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async countJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(educationLevelQueries.countJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async hardDelete(id: string): Promise<EducationLevel | null> {
+    return queryCamelOne<EducationLevel>(educationLevelQueries.hardDelete, [id]);
   },
 
   async restore(id: string, actorId: string): Promise<EducationLevel | null> {

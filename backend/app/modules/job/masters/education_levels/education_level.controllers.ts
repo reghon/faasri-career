@@ -71,7 +71,7 @@ export const educationLevelController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<EducationLevelParamsInput>(req);
 
-    const data = await educationLevelService.hardDelete(params.id, requireUserEmail(req));
+    const data = await educationLevelService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Education level permanently deleted successfully",

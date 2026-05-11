@@ -74,6 +74,11 @@ export const educationLevelService = {
       throw new AppError(404, "Education level not found");
     }
 
+    const openJobsUsageCount = await educationLevelRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Education level cannot be deleted because it is used by open jobs");
+    }
+
     const deletedEducationLevel = await educationLevelRepository.softDelete(id, actorId);
 
     if (!deletedEducationLevel) {
@@ -83,14 +88,18 @@ export const educationLevelService = {
     return deletedEducationLevel;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existingEducationLevel = await educationLevelRepository.getById(id);
-
+  async hardDelete(id: string) {
+    const existingEducationLevel = await educationLevelRepository.getSoftDeletedById(id);
     if (!existingEducationLevel) {
       throw new AppError(404, "Education level not found");
     }
 
-    const deletedEducationLevel = await educationLevelRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await educationLevelRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Education level cannot be deleted because it is used by jobs");
+    }
+
+    const deletedEducationLevel = await educationLevelRepository.hardDelete(id);
 
     if (!deletedEducationLevel) {
       throw new AppError(500, "Failed to permanently delete education level");
