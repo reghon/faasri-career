@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { requireUserId } from "../../../utils/request-user.util";
+import { requireUserEmail } from "../../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams } from "../../../utils/validated-request.util";
 import { savedJobService } from "./saved_job.services";
 import { SavedJobBodyInput, SavedJobParamsInput } from "./saved_job.schemas";
@@ -28,7 +28,7 @@ export const savedJobController = {
   async create(req: Request, res: Response) {
     const body = getValidatedBody<SavedJobBodyInput>(req);
 
-    const data = await savedJobService.create(body, requireUserId(req));
+    const data = await savedJobService.create(body, requireUserEmail(req));
 
     res.status(201).json({
       message: "Saved job created successfully",
@@ -40,7 +40,7 @@ export const savedJobController = {
     const params = getValidatedParams<SavedJobParamsInput>(req);
     const body = getValidatedBody<SavedJobBodyInput>(req);
 
-    const data = await savedJobService.update(params.id, body, requireUserId(req));
+    const data = await savedJobService.update(params.id, body, requireUserEmail(req));
 
     res.status(200).json({
       message: "Saved job updated successfully",
@@ -48,10 +48,10 @@ export const savedJobController = {
     });
   },
 
-  async delete(req: Request, res: Response) {
+  async softDelete(req: Request, res: Response) {
     const params = getValidatedParams<SavedJobParamsInput>(req);
 
-    const data = await savedJobService.delete(params.id, requireUserId(req));
+    const data = await savedJobService.softDelete(params.id, requireUserEmail(req));
 
     res.status(200).json({
       message: "Saved job deleted successfully",

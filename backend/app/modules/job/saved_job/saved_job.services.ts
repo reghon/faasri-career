@@ -75,7 +75,7 @@ export const savedJobService = {
     return updatedSavedJob;
   },
 
-  async delete(id: string, actorId: string) {
+  async softDelete(id: string, actorId: string) {
     const existingSavedJob = await savedJobRepository.getById(id);
 
     if (!existingSavedJob) {

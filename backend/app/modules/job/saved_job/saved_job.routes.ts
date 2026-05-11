@@ -13,6 +13,7 @@ router.get("/", asyncHandler(savedJobController.getAll));
 router.get("/:id", validate({ params: savedJobParamsSchema }), asyncHandler(savedJobController.getById));
 router.post("/", validate({ body: savedJobBodySchema }), asyncHandler(savedJobController.create));
 router.put("/:id", validate({ params: savedJobParamsSchema, body: savedJobBodySchema }), asyncHandler(savedJobController.update));
-router.delete("/:id", validate({ params: savedJobParamsSchema }), asyncHandler(savedJobController.delete));
+router.delete("/:id", validate({ params: savedJobParamsSchema }), asyncHandler(savedJobController.softDelete));
+
 
 export default router;
