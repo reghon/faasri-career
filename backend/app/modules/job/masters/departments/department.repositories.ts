@@ -1,6 +1,6 @@
 import { queryCamel, queryCamelOne } from "../../../../utils/db.util";
 import { departmentQueries } from "./department.queries";
-import { Department, DepartmentPayload } from "./department.types";
+import { CountResult, Department, DepartmentPayload } from "./department.types";
 
 export const departmentRepository = {
   async getAll(): Promise<Department[]> {
@@ -39,8 +39,18 @@ export const departmentRepository = {
     return queryCamelOne<Department>(departmentQueries.softDelete, [id, actorId]);
   },
 
-  async hardDelete(id: string, actorId: string): Promise<Department | null> {
-    return queryCamelOne<Department>(departmentQueries.hardDelete, [id, actorId]);
+  async countOpenJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(departmentQueries.countOpenJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async countJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(departmentQueries.countJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async hardDelete(id: string): Promise<Department | null> {
+    return queryCamelOne<Department>(departmentQueries.hardDelete, [id]);
   },
 
   async restore(id: string, actorId: string): Promise<Department | null> {

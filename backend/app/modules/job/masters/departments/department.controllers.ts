@@ -71,7 +71,7 @@ export const departmentController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<DepartmentParamsInput>(req);
 
-    const data = await departmentService.hardDelete(params.id, requireUserEmail(req));
+    const data = await departmentService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Department permanently deleted successfully",

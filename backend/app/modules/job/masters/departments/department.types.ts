@@ -27,3 +27,6 @@ export type DepartmentDetail = {
   deletedBy: string | null;
 };
 
+export type CountResult = {
+  count: number;
+};

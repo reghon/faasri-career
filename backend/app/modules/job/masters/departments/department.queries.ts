@@ -98,6 +98,20 @@ export const departmentQueries = {
     RETURNING ${DETAIL_FIELDS}
   `,
 
+  countOpenJobsUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM jobs j
+  JOIN job_statuses js ON js.id = j.status_id
+  WHERE j.department_id = $1
+    AND UPPER(js.code) = 'OPEN'
+`,
+
+  countJobsUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM jobs j
+  WHERE j.department_id = $1
+`,
+
   hardDelete: `
     DELETE FROM departments
     WHERE id = $1

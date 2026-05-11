@@ -72,6 +72,11 @@ export const departmentService = {
       throw new AppError(404, "Department not found");
     }
 
+    const openJobsUsageCount = await departmentRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Department cannot be deleted because it is used by open jobs");
+    }
+
     const deleted = await departmentRepository.softDelete(id, actorId);
 
     if (!deleted) {
@@ -81,13 +86,18 @@ export const departmentService = {
     return deleted;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existing = await departmentRepository.getById(id);
+  async hardDelete(id: string) {
+    const existing = await departmentRepository.getSoftDeletedById(id);
     if (!existing) {
       throw new AppError(404, "Department not found");
     }
 
-    const deleted = await departmentRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await departmentRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Department cannot be deleted because it is used by jobs");
+    }
+
+    const deleted = await departmentRepository.hardDelete(id);
 
     if (!deleted) {
       throw new AppError(500, "Failed to permanently delete department");
