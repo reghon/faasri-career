@@ -46,9 +46,25 @@ export class ApplyService {
       .pipe(map((response) => response.data));
   }
 
-  getMineDetail(id: string): Observable<ApplyMeDetail> {
+  getApplyListByApplicantProfileId(applicantProfileId: string): Observable<ApplyHistoryList[]> {
     return this.http
-      .get<ApiResponse<ApplyMeDetail>>(`${API_ENDPOINTS.apply.root}/me/${id}/detail`)
+      .get<
+        ApiResponse<ApplyHistoryList[]>
+      >(`${API_ENDPOINTS.apply.root}/applicant/${applicantProfileId}`)
+      .pipe(map((response) => response.data));
+  }
+
+  getApplyDetailById(id: string): Observable<ApplyMeDetail> {
+    return this.http
+      .get<ApiResponse<ApplyMeDetail>>(`${API_ENDPOINTS.apply.root}/me/detail/${id}`)
+      .pipe(map((response) => response.data));
+  }
+
+  getApplyDetail(applicantProfileId: string, applyId: string): Observable<ApplyMeDetail> {
+    return this.http
+      .get<
+        ApiResponse<ApplyMeDetail>
+      >(`${API_ENDPOINTS.apply.root}/applicant/detail/${applicantProfileId}/${applyId}`)
       .pipe(map((response) => response.data));
   }
 

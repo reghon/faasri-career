@@ -112,6 +112,26 @@ export const applyService = {
     }
   },
 
+  async getApplyListByApplicantProfileId(applicantProfileId: string) {
+    const client = await pool.connect();
+
+    try {
+      return applyRepository.getByApplicantProfileId(client, applicantProfileId);
+    } finally {
+      client.release();
+    }
+  },
+
+  async getApplyDetailById(applicantProfileId: string, applyId: string) {
+    const client = await pool.connect();
+
+    try {
+      return applyRepository.getApplyDetail(client, applyId, applicantProfileId);
+    } finally {
+      client.release();
+    }
+  },
+
   async updateStatus(userId: string, applyId: string, data: UpdateApplyStatusBodyInput) {
     const client = await pool.connect();
 
@@ -178,7 +198,7 @@ export const applyService = {
         throw new AppError(404, "Applicant profile not found");
       }
 
-      const data = await applyRepository.getMineDetail(client, applyId, profile.id);
+      const data = await applyRepository.getApplyDetail(client, applyId, profile.id);
 
       if (!data) {
         throw new AppError(404, "Apply not found");

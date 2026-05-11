@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { requireUserId } from "../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams } from "../../utils/validated-request.util";
 import { applyService } from "./apply.services";
-import { ApplyJobParamsInput, ApplyParamsInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
+import { ApplyDetailParamsSchema, ApplyJobParamsInput, ApplyParamsInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
 
 export const applyController = {
   async getAll(req: Request, res: Response) {
@@ -19,6 +19,28 @@ export const applyController = {
 
     res.status(200).json({
       message: "Apply list fetched successfully",
+      data,
+    });
+  },
+
+  async getApplyListByApplicantProfileId(req: Request, res: Response) {
+    const params = getValidatedParams<ApplyParamsInput>(req);
+
+    const data = await applyService.getApplyListByApplicantProfileId(params.id);
+
+    res.status(200).json({
+      message: "Apply list fetched successfully",
+      data,
+    });
+  },
+
+  async getApplyDetailById(req: Request, res: Response) {
+    const params = getValidatedParams<ApplyDetailParamsSchema>(req);
+
+    const data = await applyService.getApplyDetailById(params.applicantProfileId, params.applyId);
+
+    res.status(200).json({
+      message: "Apply detail fetched successfully",
       data,
     });
   },
@@ -56,7 +78,7 @@ export const applyController = {
       data,
     });
   },
-  async getMineDetail(req: Request, res: Response) {
+  async getMineDetailById(req: Request, res: Response) {
     const params = getValidatedParams<ApplyParamsInput>(req);
 
     const data = await applyService.getMineDetail(requireUserId(req), params.id);
