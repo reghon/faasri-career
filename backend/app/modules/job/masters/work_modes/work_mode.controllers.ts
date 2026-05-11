@@ -71,7 +71,7 @@ export const workModeController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<WorkModeParamsInput>(req);
 
-    const data = await workModeService.hardDelete(params.id, requireUserEmail(req));
+    const data = await workModeService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Work mode permanently deleted successfully",

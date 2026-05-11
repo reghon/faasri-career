@@ -1,6 +1,6 @@
 import { queryCamel, queryCamelOne } from "../../../../utils/db.util";
 import { workModeQueries } from "./work_mode.queries";
-import { WorkMode, WorkModeDetail, WorkModePayload } from "./work_mode.types";
+import { CountResult, WorkMode, WorkModeDetail, WorkModePayload } from "./work_mode.types";
 
 type WorkModeLookup = Pick<WorkMode, "id" | "code" | "name">;
 
@@ -16,7 +16,7 @@ export const workModeRepository = {
   async getById(id: string): Promise<WorkMode | null> {
     return queryCamelOne<WorkMode>(workModeQueries.getById, [id]);
   },
-  
+
   async getSoftDeletedById(id: string): Promise<WorkMode | null> {
     return queryCamelOne<WorkMode>(workModeQueries.getSoftDeletedById, [id]);
   },
@@ -41,12 +41,22 @@ export const workModeRepository = {
     return queryCamelOne<WorkMode>(workModeQueries.update, [data.code, data.name, data.isActive, actorId, id]);
   },
 
+  async countOpenJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(workModeQueries.countOpenJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async countJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(workModeQueries.countJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
   async softDelete(id: string, actorId: string): Promise<WorkModeDetail | null> {
     return queryCamelOne<WorkModeDetail>(workModeQueries.softDelete, [id, actorId]);
   },
 
-  async hardDelete(id: string, actorId: string): Promise<WorkModeDetail | null> {
-    return queryCamelOne<WorkModeDetail>(workModeQueries.hardDelete, [id, actorId]);
+  async hardDelete(id: string): Promise<WorkModeDetail | null> {
+    return queryCamelOne<WorkModeDetail>(workModeQueries.hardDelete, [id]);
   },
 
   async restore(id: string, actorId: string): Promise<WorkModeDetail | null> {

@@ -69,13 +69,16 @@ export const workModeService = {
 
   async softDelete(id: string, actorId: string) {
     const existing = await workModeRepository.getById(id);
-
     if (!existing) {
       throw new AppError(404, "Work mode not found");
     }
 
-    const deleted = await workModeRepository.softDelete(id, actorId);
+    const openJobsUsageCount = await workModeRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Work mode cannot be deleted because it is used by jobs");
+    }
 
+    const deleted = await workModeRepository.softDelete(id, actorId);
     if (!deleted) {
       throw new AppError(500, "Failed to delete work mode");
     }
@@ -83,15 +86,18 @@ export const workModeService = {
     return deleted;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existing = await workModeRepository.getById(id);
-
+  async hardDelete(id: string) {
+    const existing = await workModeRepository.getSoftDeletedById(id);
     if (!existing) {
       throw new AppError(404, "Work mode not found");
     }
 
-    const deleted = await workModeRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await workModeRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Work mode cannot be permanently deleted because it is used by jobs");
+    }
 
+    const deleted = await workModeRepository.hardDelete(id);
     if (!deleted) {
       throw new AppError(500, "Failed to permanently delete work mode");
     }
@@ -106,7 +112,7 @@ export const workModeService = {
       throw new AppError(404, "Work mode not found");
     }
 
-    const updated = await workModeRepository.restore(id,actorId);
+    const updated = await workModeRepository.restore(id, actorId);
 
     if (!updated) {
       throw new AppError(500, "Failed to restore work mode");

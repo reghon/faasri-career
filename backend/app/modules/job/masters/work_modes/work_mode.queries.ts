@@ -85,6 +85,20 @@ export const workModeQueries = {
     RETURNING ${SELECT_FIELDS}
   `,
 
+  countOpenJobsUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM jobs j
+  JOIN job_statuses js ON js.id = j.status_id
+  WHERE j.work_mode_id = $1
+    AND UPPER(js.code) = 'OPEN'
+`,
+
+  countJobsUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM jobs j
+  WHERE j.work_mode_id = $1
+`,
+
   softDelete: `
     UPDATE work_modes
     SET
