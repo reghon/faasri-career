@@ -69,13 +69,16 @@ export const jobLocationService = {
 
   async softDelete(id: string, actorId: string) {
     const existing = await jobLocationRepository.getById(id);
-
     if (!existing) {
       throw new AppError(404, "Job location not found");
     }
 
-    const deleted = await jobLocationRepository.softDelete(id, actorId);
+    const openJobsUsageCount = await jobLocationRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Job location cannot be deleted because it is used by jobs");
+    }
 
+    const deleted = await jobLocationRepository.softDelete(id, actorId);
     if (!deleted) {
       throw new AppError(500, "Failed to delete job location");
     }
@@ -83,15 +86,19 @@ export const jobLocationService = {
     return deleted;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existing = await jobLocationRepository.getById(id);
+  async hardDelete(id: string) {
+    const existing = await jobLocationRepository.getSoftDeletedById(id);
 
     if (!existing) {
       throw new AppError(404, "Job location not found");
     }
 
-    const deleted = await jobLocationRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await jobLocationRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Job location cannot be permanently deleted because it is used by jobs");
+    }
 
+    const deleted = await jobLocationRepository.hardDelete(id);
     if (!deleted) {
       throw new AppError(500, "Failed to permanently delete job location");
     }
@@ -101,13 +108,11 @@ export const jobLocationService = {
 
   async restore(id: string, actorId: string) {
     const existing = await jobLocationRepository.getSoftDeletedById(id);
-
     if (!existing) {
       throw new AppError(404, "Job location not found");
     }
 
     const updated = await jobLocationRepository.restore(id, actorId);
-
     if (!updated) {
       throw new AppError(500, "Failed to restore job location");
     }

@@ -71,7 +71,7 @@ export const jobLocationController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<JobLocationParamsInput>(req);
 
-    const data = await jobLocationService.hardDelete(params.id, requireUserEmail(req));
+    const data = await jobLocationService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Job location permanently deleted successfully",

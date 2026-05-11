@@ -1,6 +1,6 @@
 import { queryCamel, queryCamelOne } from "../../../../utils/db.util";
 import { jobLocationQueries } from "./job_location.queries";
-import { JobLocation, JobLocationDetail, JobLocationPayload } from "./job_location.types";
+import { CountResult, JobLocation, JobLocationDetail, JobLocationPayload } from "./job_location.types";
 
 type JobLocationLookup = Pick<JobLocation, "id" | "name" | "code">;
 
@@ -41,12 +41,22 @@ export const jobLocationRepository = {
     return queryCamelOne<JobLocation>(jobLocationQueries.update, [data.code, data.name, data.city, data.province, data.country, data.address, data.postalCode, data.isActive, actorId, id]);
   },
 
+  async countOpenJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(jobLocationQueries.countOpenJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async countJobsUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(jobLocationQueries.countJobsUsage, [id]);
+    return result?.count ?? 0;
+  },
+
   async softDelete(id: string, actorId: string): Promise<JobLocationDetail | null> {
     return queryCamelOne<JobLocationDetail>(jobLocationQueries.softDelete, [id, actorId]);
   },
 
-  async hardDelete(id: string, actorId: string): Promise<JobLocationDetail | null> {
-    return queryCamelOne<JobLocationDetail>(jobLocationQueries.hardDelete, [id, actorId]);
+  async hardDelete(id: string): Promise<JobLocationDetail | null> {
+    return queryCamelOne<JobLocationDetail>(jobLocationQueries.hardDelete, [id]);
   },
 
   async restore(id: string, actorId: string): Promise<JobLocationDetail | null> {

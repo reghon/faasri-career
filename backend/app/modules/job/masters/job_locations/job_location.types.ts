@@ -38,3 +38,7 @@ export type JobLocationPayload = {
   postalCode: string;
   isActive: boolean;
 };
+
+export type CountResult = {
+  count: number;
+};
