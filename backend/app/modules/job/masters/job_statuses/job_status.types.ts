@@ -26,3 +26,7 @@ export type JobStatusPayload = {
   description: string | null;
   isActive: boolean;
 };
+
+export type CountResult = {
+  count: number;
+};

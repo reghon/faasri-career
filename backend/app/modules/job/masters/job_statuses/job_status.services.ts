@@ -79,13 +79,16 @@ export const jobStatusService = {
 
   async softDelete(id: string, actorId: string) {
     const existingJobStatus = await jobStatusRepository.getById(id);
-
     if (!existingJobStatus) {
       throw new AppError(404, "Job status not found");
     }
 
-    const deletedJobStatus = await jobStatusRepository.softDelete(id, actorId);
+    const openJobsUsageCount = await jobStatusRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Job status cannot be deleted because it is used by jobs");
+    }
 
+    const deletedJobStatus = await jobStatusRepository.softDelete(id, actorId);
     if (!deletedJobStatus) {
       throw new AppError(500, "Failed to delete job status");
     }
@@ -93,15 +96,18 @@ export const jobStatusService = {
     return deletedJobStatus;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existingJobStatus = await jobStatusRepository.getById(id);
-
+  async hardDelete(id: string) {
+    const existingJobStatus = await jobStatusRepository.getSoftDeletedById(id);
     if (!existingJobStatus) {
       throw new AppError(404, "Job status not found");
     }
 
-    const deletedJobStatus = await jobStatusRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await jobStatusRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Job status cannot be permanently deleted because it is used by jobs");
+    }
 
+    const deletedJobStatus = await jobStatusRepository.hardDelete(id);
     if (!deletedJobStatus) {
       throw new AppError(500, "Failed to permanently delete job status");
     }

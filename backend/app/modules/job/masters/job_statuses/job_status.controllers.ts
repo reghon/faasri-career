@@ -71,7 +71,7 @@ export const jobStatusController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<JobStatusParamsInput>(req);
 
-    const data = await jobStatusService.hardDelete(params.id, requireUserEmail(req));
+    const data = await jobStatusService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Job status permanently deleted successfully",
