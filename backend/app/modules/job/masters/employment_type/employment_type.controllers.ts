@@ -71,7 +71,7 @@ export const employmentTypeController = {
   async hardDelete(req: Request, res: Response) {
     const params = getValidatedParams<EmploymentTypeParamsInput>(req);
 
-    const data = await employmentTypeService.hardDelete(params.id, requireUserEmail(req));
+    const data = await employmentTypeService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Employment type permanently deleted successfully",

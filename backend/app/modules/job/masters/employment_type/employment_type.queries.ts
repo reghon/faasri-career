@@ -98,6 +98,20 @@ export const employmentTypeQueries = {
     RETURNING ${DETAIL_FIELDS}
   `,
 
+  countOpenJobsUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM jobs j
+  JOIN job_statuses js ON js.id = j.status_id
+  WHERE j.employment_type_id = $1
+    AND UPPER(js.code) = 'OPEN'
+`,
+
+  countJobsUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM jobs j
+  WHERE j.employment_type_id = $1
+`,
+
   hardDelete: `
     DELETE FROM employment_types
     WHERE id = $1

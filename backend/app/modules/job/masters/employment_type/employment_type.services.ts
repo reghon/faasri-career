@@ -79,13 +79,16 @@ export const employmentTypeService = {
 
   async softDelete(id: string, actorId: string) {
     const existingEmploymentType = await employmentTypeRepository.getById(id);
-
     if (!existingEmploymentType) {
       throw new AppError(404, "Employment type not found");
     }
 
-    const deletedEmploymentType = await employmentTypeRepository.softDelete(id, actorId);
+    const openJobsUsageCount = await employmentTypeRepository.countOpenJobsUsage(id);
+    if (openJobsUsageCount > 0) {
+      throw new AppError(409, "Employment type cannot be deleted because it is used by open jobs");
+    }
 
+    const deletedEmploymentType = await employmentTypeRepository.softDelete(id, actorId);
     if (!deletedEmploymentType) {
       throw new AppError(500, "Failed to delete employment type");
     }
@@ -93,14 +96,18 @@ export const employmentTypeService = {
     return deletedEmploymentType;
   },
 
-  async hardDelete(id: string, actorId: string) {
-    const existingEmploymentType = await employmentTypeRepository.getById(id);
-
+  async hardDelete(id: string) {
+    const existingEmploymentType = await employmentTypeRepository.getSoftDeletedById(id);
     if (!existingEmploymentType) {
       throw new AppError(404, "Employment type not found");
     }
 
-    const deletedEmploymentType = await employmentTypeRepository.hardDelete(id, actorId);
+    const jobsUsageCount = await employmentTypeRepository.countJobsUsage(id);
+    if (jobsUsageCount > 0) {
+      throw new AppError(409, "Employment type cannot be permanently deleted because it is used by jobs");
+    }
+
+    const deletedEmploymentType = await employmentTypeRepository.hardDelete(id);
 
     if (!deletedEmploymentType) {
       throw new AppError(500, "Failed to permanently delete employment type");
