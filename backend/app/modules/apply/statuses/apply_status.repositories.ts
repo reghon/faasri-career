@@ -1,6 +1,6 @@
 import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { applyStatusQueries } from "./apply_status.queries";
-import { ApplyStatus, ApplyStatusDetail, ApplyStatusPayload } from "./apply_status.types";
+import { CountResult, ApplyStatus, ApplyStatusDetail, ApplyStatusPayload } from "./apply_status.types";
 import { PoolClient } from "pg";
 
 type ApplyStatusLookup = Pick<ApplyStatus, "id" | "name" | "code">;
@@ -16,6 +16,10 @@ export const applyStatusRepository = {
 
   async getById(id: string): Promise<ApplyStatus | null> {
     return queryCamelOne<ApplyStatus>(applyStatusQueries.getById, [id]);
+  },
+
+  async getSoftDeletedById(id: string): Promise<ApplyStatus | null> {
+    return queryCamelOne<ApplyStatus>(applyStatusQueries.getSoftDeletedById, [id]);
   },
 
   async getDefaultByJobId(client: PoolClient, jobId: string): Promise<ApplyStatusLookup | null> {
@@ -42,12 +46,21 @@ export const applyStatusRepository = {
     return queryCamelOne<ApplyStatus>(applyStatusQueries.update, [data.code, data.name, data.description, data.isActive, actorId, id]);
   },
 
+  async countActiveUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(applyStatusQueries.countActiveUsage, [id]);
+    return result?.count ?? 0;
+  },
+
+  async countUsage(id: string): Promise<number> {
+    const result = await queryCamelOne<CountResult>(applyStatusQueries.countUsage, [id]);
+    return result?.count ?? 0;
+  },
   async softDelete(id: string, actorId: string): Promise<ApplyStatusDetail | null> {
     return queryCamelOne<ApplyStatusDetail>(applyStatusQueries.softDelete, [id, actorId]);
   },
 
-  async permanentDelete(id: string, actorId: string): Promise<ApplyStatusDetail | null> {
-    return queryCamelOne<ApplyStatusDetail>(applyStatusQueries.permanentDelete, [id, actorId]);
+  async permanentDelete(id: string): Promise<ApplyStatusDetail | null> {
+    return queryCamelOne<ApplyStatusDetail>(applyStatusQueries.permanentDelete, [id]);
   },
 
   async restore(id: string, actorId: string): Promise<ApplyStatusDetail | null> {

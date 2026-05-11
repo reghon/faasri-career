@@ -34,6 +34,14 @@ export const applyStatusQueries = {
     LIMIT 1
   `,
 
+  getSoftDeletedById: `
+    SELECT ${SELECT_FIELDS}
+    FROM apply_statuses
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
+    LIMIT 1
+  `,
+
   getDetailById: `
     SELECT ${DETAIL_FIELDS}
     FROM apply_statuses
@@ -77,6 +85,44 @@ export const applyStatusQueries = {
       AND deleted_at IS NULL
     RETURNING ${SELECT_FIELDS}
   `,
+
+  countActiveUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM (
+    SELECT 1
+    FROM applies a
+    WHERE a.status_id = $1
+      AND a.deleted_at IS NULL
+
+    UNION ALL
+
+    SELECT 1
+    FROM job_apply_statuses jas
+    WHERE jas.apply_status_id = $1
+      AND jas.deleted_at IS NULL
+  ) usage
+`,
+
+  countUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM (
+    SELECT 1
+    FROM applies a
+    WHERE a.status_id = $1
+
+    UNION ALL
+
+    SELECT 1
+    FROM apply_status_histories ash
+    WHERE ash.apply_status_id = $1
+
+    UNION ALL
+
+    SELECT 1
+    FROM job_apply_statuses jas
+    WHERE jas.apply_status_id = $1
+  ) usage
+`,
 
   softDelete: `
     UPDATE apply_statuses

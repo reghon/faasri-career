@@ -71,7 +71,7 @@ export const applyStatusController = {
   async permanentDelete(req: Request, res: Response) {
     const params = getValidatedParams<ApplyStatusParamsInput>(req);
 
-    const data = await applyStatusService.permanentDelete(params.id, requireUserEmail(req));
+    const data = await applyStatusService.permanentDelete(params.id);
 
     res.status(200).json({
       message: "Apply status permanently deleted successfully",

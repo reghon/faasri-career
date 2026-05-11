@@ -79,13 +79,16 @@ export const applyStatusService = {
 
   async delete(id: string, actorId: string) {
     const existingApplyStatus = await applyStatusRepository.getById(id);
-
     if (!existingApplyStatus) {
       throw new AppError(404, "Apply status not found");
     }
 
-    const deletedApplyStatus = await applyStatusRepository.softDelete(id, actorId);
+    const activeCountUsage = await applyStatusRepository.countActiveUsage(id);
+    if (activeCountUsage > 0) {
+      throw new AppError(409, "Apply status cannot be deleted because it is still being used");
+    }
 
+    const deletedApplyStatus = await applyStatusRepository.softDelete(id, actorId);
     if (!deletedApplyStatus) {
       throw new AppError(500, "Failed to delete apply status");
     }
@@ -93,15 +96,18 @@ export const applyStatusService = {
     return deletedApplyStatus;
   },
 
-  async permanentDelete(id: string, actorId: string) {
-    const existingApplyStatus = await applyStatusRepository.getById(id);
-
+  async permanentDelete(id: string) {
+    const existingApplyStatus = await applyStatusRepository.getSoftDeletedById(id);
     if (!existingApplyStatus) {
       throw new AppError(404, "Apply status not found");
     }
 
-    const permanentDeletedApplyStatus = await applyStatusRepository.permanentDelete(id, actorId);
+    const countUsage = await applyStatusRepository.countUsage(id);
+    if (countUsage > 0) {
+      throw new AppError(409, "Apply status cannot be permanently deleted because related records still exist");
+    }
 
+    const permanentDeletedApplyStatus = await applyStatusRepository.permanentDelete(id);
     if (!permanentDeletedApplyStatus) {
       throw new AppError(500, "Failed to permanently delete apply status");
     }
