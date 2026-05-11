@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   },
   job: {
     list: `${API_URL}/api/job/jobs`,
+    listOpen: `${API_URL}/api/job/jobs/open`,
     detail: (id: string) => `${API_URL}/api/job/jobs/${id}`,
     jobs: `${API_URL}/api/job/jobs`,
     slug: (slug: string) => `${API_URL}/api/job/jobs/slug/${slug}`,
@@ -50,5 +51,6 @@ export const API_ENDPOINTS = {
     modules: `${API_URL}/api/modules`,
     permissions: `${API_URL}/api/permissions`,
     rolePermissions: `${API_URL}/api/role-permissions`,
+    dashboard: `${API_URL}/api/dashboard`,
   },
 };
