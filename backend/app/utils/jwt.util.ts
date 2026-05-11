@@ -5,6 +5,11 @@ export interface JwtPayloadCustom {
   userId: string;
 }
 
+export interface AuthUser {
+  userId: string;
+  email: string;
+}
+
 export const signAccessToken = (payload: JwtPayloadCustom): string => {
   return jwt.sign(payload, config.jwt.secret, {
     expiresIn: config.jwt.expiresIn,

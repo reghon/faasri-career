@@ -1,10 +1,10 @@
 import "express";
-import type { JwtPayloadCustom } from "../utils/jwt.util";
+import type { AuthUser } from "../utils/jwt.util";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayloadCustom;
+      user?: AuthUser;
       validated?: {
         body?: unknown;
         params?: unknown;

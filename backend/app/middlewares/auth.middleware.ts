@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/app-error";
+import { authRepository } from "../modules/auth/auth.repositories";
 import { verifyAccessToken } from "../utils/jwt.util";
 
-export const authenticate = (req: Request, _res: Response, next: NextFunction): void => {
+export const authenticate = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -17,11 +18,24 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
     }
 
     const payload = verifyAccessToken(token);
+
     if (!payload.userId) {
       return next(new AppError(401, "Invalid access token payload"));
     }
+
+    const user = await authRepository.findById(payload.userId);
+
+    if (!user) {
+      return next(new AppError(401, "User not found"));
+    }
+
+    if (!user.isActive) {
+      return next(new AppError(403, "User is inactive"));
+    }
+
     req.user = {
-      userId: payload.userId,
+      userId: user.id,
+      email: user.email,
     };
 
     next();
