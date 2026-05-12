@@ -14,6 +14,24 @@ export const userController = {
     });
   },
 
+  async getAllManagement(_req: Request, res: Response) {
+    const data = await userService.getAllManagement();
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
+  async getAllDeleted(_req: Request, res: Response) {
+    const data = await userService.getAllDeleted();
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
   async getById(req: Request, res: Response) {
     const params = getValidatedParams<UserParamsInput>(req);
 
@@ -50,14 +68,37 @@ export const userController = {
     });
   },
 
-  async delete(req: Request, res: Response) {
+  async restore(req: Request, res: Response) {
     const params = getValidatedParams<UserParamsInput>(req);
     const actorId = requireUserId(req);
 
-    const data = await userService.delete(params.id, actorId);
+    const data = await userService.restore(params.id, actorId);
+
+    res.status(200).json({
+      message: "User restored successfully",
+      data,
+    });
+  },
+
+  async softDelete(req: Request, res: Response) {
+    const params = getValidatedParams<UserParamsInput>(req);
+    const actorId = requireUserId(req);
+
+    const data = await userService.softDelete(params.id, actorId);
 
     res.status(200).json({
       message: "User deleted successfully",
+      data,
+    });
+  },
+
+  async hardDelete(req: Request, res: Response) {
+    const params = getValidatedParams<UserParamsInput>(req);
+
+    const data = await userService.hardDelete(params.id);
+
+    res.status(200).json({
+      message: "User deleted permanently successfully",
       data,
     });
   },

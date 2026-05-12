@@ -1,22 +1,34 @@
 import { queryCamel, queryCamelOne } from "../../utils/db.util";
 import { userQueries } from "./user.queries";
-import { UserCrudCreateParams, UserCrudUpdateParams, UserDetail, UserEmailLookup, UserListItem, UserRoleLookup } from "./user.types";
+import { CountResult, UserCrudCreateParams, UserCrudUpdateParams, UserDetail, UserEmailLookup, UserListItem, UserRoleLookup } from "./user.types";
 
 export const userRepository = {
-  async findAll(): Promise<UserListItem[]> {
-    return queryCamel<UserListItem>(userQueries.findAll);
+  async getAll(): Promise<UserListItem[]> {
+    return queryCamel<UserListItem>(userQueries.getAll);
   },
 
-  async findDetailById(id: string): Promise<UserDetail | null> {
-    return queryCamelOne<UserDetail>(userQueries.findDetailById, [id]);
+  async getAllManagement(): Promise<UserListItem[]> {
+    return queryCamel<UserListItem>(userQueries.getAllManagement);
   },
 
-  async findByEmail(email: string): Promise<UserEmailLookup | null> {
-    return queryCamelOne<UserEmailLookup>(userQueries.findByEmail, [email]);
+  async getAllDeleted(): Promise<UserListItem[]> {
+    return queryCamel<UserListItem>(userQueries.getAllDeleted);
   },
 
-  async findRoleByName(name: string): Promise<UserRoleLookup | null> {
-    return queryCamelOne<UserRoleLookup>(userQueries.findRoleByName, [name]);
+  async getById(id: string): Promise<UserDetail | null> {
+    return queryCamelOne<UserDetail>(userQueries.getById, [id]);
+  },
+
+  async getSoftDeletedById(id: string): Promise<UserDetail | null> {
+    return queryCamelOne<UserDetail>(userQueries.getSoftDeletedById, [id]);
+  },
+
+  async getByEmail(email: string): Promise<UserEmailLookup | null> {
+    return queryCamelOne<UserEmailLookup>(userQueries.getByEmail, [email]);
+  },
+
+  async getRoleByName(name: string): Promise<UserRoleLookup | null> {
+    return queryCamelOne<UserRoleLookup>(userQueries.getRoleByName, [name]);
   },
 
   async create(params: UserCrudCreateParams): Promise<UserDetail | null> {
@@ -27,7 +39,15 @@ export const userRepository = {
     return queryCamelOne<UserDetail>(userQueries.update, [params.roleId, params.email, params.hashedPassword, params.isActive, params.actorId, id]);
   },
 
+  async restore(id: string, actorId: string): Promise<UserDetail | null> {
+    return queryCamelOne<UserDetail>(userQueries.restore, [id, actorId]);
+  },
+
   async softDelete(id: string, actorId: string): Promise<UserDetail | null> {
     return queryCamelOne<UserDetail>(userQueries.softDelete, [id, actorId]);
+  },
+
+  async hardDelete(id: string): Promise<UserDetail | null> {
+    return queryCamelOne<UserDetail>(userQueries.hardDelete, [id]);
   },
 };

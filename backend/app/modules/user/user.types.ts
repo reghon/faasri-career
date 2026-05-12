@@ -49,3 +49,7 @@ export type UserCrudUpdateParams = {
   isActive: boolean;
   actorId: string;
 };
+
+export type CountResult = {
+  count: number;
+};

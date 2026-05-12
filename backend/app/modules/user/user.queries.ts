@@ -1,5 +1,5 @@
 export const userQueries = {
-  findAll: `
+  getAll: `
     SELECT
       u.id,
       u.role_id,
@@ -16,7 +16,39 @@ export const userQueries = {
     ORDER BY u.created_at DESC
   `,
 
-  findDetailById: `
+  getAllManagement: `
+  SELECT
+    u.id,
+    u.role_id,
+    u.email,
+    u.is_active,
+    u.created_at,
+    r.name AS role_name
+  FROM users u
+  LEFT JOIN roles r ON u.role_id = r.id
+  WHERE u.deleted_at IS NULL
+    AND LOWER(r.name) <> 'applicant'
+  ORDER BY u.created_at DESC
+`,
+
+  getAllDeleted: `
+    SELECT
+      u.id,
+      u.role_id,
+      u.email,
+      u.is_active,
+      u.created_at,
+      u.created_by,
+      u.updated_at,
+      u.updated_by,
+      r.name AS role_name
+    FROM users u
+    LEFT JOIN roles r ON u.role_id = r.id
+    WHERE u.deleted_at IS NOT NULL
+    ORDER BY u.created_at DESC
+  `,
+
+  getById: `
     SELECT
       u.id,
       u.role_id,
@@ -36,7 +68,20 @@ export const userQueries = {
     LIMIT 1
   `,
 
-  findByEmail: `
+  getSoftDeletedById: `
+    SELECT
+      id,
+      role_id,
+      email,
+      is_active,
+      created_at
+    FROM users 
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
+    LIMIT 1
+  `,
+
+  getByEmail: `
     SELECT
       u.id,
       u.email
@@ -46,7 +91,7 @@ export const userQueries = {
     LIMIT 1
   `,
 
-  findRoleByName: `
+  getRoleByName: `
     SELECT
       id,
       name
@@ -121,12 +166,53 @@ export const userQueries = {
   softDelete: `
     UPDATE users
     SET
+     is_active = FALSE,
       deleted_at = NOW(),
       deleted_by = $2,
       updated_at = NOW(),
       updated_by = $2
     WHERE id = $1
       AND deleted_at IS NULL
+    RETURNING
+      id,
+      role_id,
+      email,
+      is_active,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by,
+      deleted_at,
+      deleted_by
+  `,
+
+  hardDelete: `
+    DELETE FROM users
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
+    RETURNING
+      id,
+      role_id,
+      email,
+      is_active,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by,
+      deleted_at,
+      deleted_by
+  `,
+
+  restore: `
+    UPDATE users
+    SET
+    is_active = TRUE,
+      deleted_at = NULL,
+      deleted_by = NULL,
+      updated_at = NOW(),
+      updated_by = $2
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
     RETURNING
       id,
       role_id,
