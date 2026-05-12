@@ -14,6 +14,16 @@ export const roleController = {
     });
   },
 
+
+  async getAllDeleted(_req: Request, res: Response) {
+    const data = await roleService.getAllDeleted();
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
   async getById(req: Request, res: Response) {
     const params = getValidatedParams<RoleParamsInput>(req);
 
@@ -48,10 +58,32 @@ export const roleController = {
     });
   },
 
-  async delete(req: Request, res: Response) {
+  async restore(req: Request, res: Response) {
     const params = getValidatedParams<RoleParamsInput>(req);
 
-    const data = await roleService.delete(params.id, requireUserId(req));
+    const data = await roleService.restore(params.id, requireUserId(req));
+
+    res.status(200).json({
+      message: "Role restored successfully",
+      data,
+    });
+  },
+
+  async softDelete(req: Request, res: Response) {
+    const params = getValidatedParams<RoleParamsInput>(req);
+
+    const data = await roleService.softDelete(params.id, requireUserId(req));
+
+    res.status(200).json({
+      message: "Role deleted successfully",
+      data,
+    });
+  },
+
+  async hardDelete(req: Request, res: Response) {
+    const params = getValidatedParams<RoleParamsInput>(req);
+
+    const data = await roleService.hardDelete(params.id);
 
     res.status(200).json({
       message: "Role deleted successfully",

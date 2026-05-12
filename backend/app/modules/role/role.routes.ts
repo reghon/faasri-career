@@ -10,9 +10,12 @@ const router: Router = Router();
 router.use(authenticate);
 
 router.get("/", asyncHandler(roleController.getAll));
+router.get("/deleted", asyncHandler(roleController.getAllDeleted));
 router.get("/:id", validate({ params: roleParamsSchema }), asyncHandler(roleController.getById));
 router.post("/", validate({ body: roleBodySchema }), asyncHandler(roleController.create));
 router.put("/:id", validate({ params: roleParamsSchema, body: roleBodySchema }), asyncHandler(roleController.update));
-router.delete("/:id", validate({ params: roleParamsSchema }), asyncHandler(roleController.delete));
+router.patch("/:id/restore", validate({ params: roleParamsSchema }), asyncHandler(roleController.restore));
+router.delete("/:id", validate({ params: roleParamsSchema }), asyncHandler(roleController.softDelete));
+router.delete("/:id/permanent", validate({ params: roleParamsSchema }), asyncHandler(roleController.hardDelete));
 
 export default router;

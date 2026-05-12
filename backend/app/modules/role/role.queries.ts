@@ -16,11 +16,26 @@ export const roleQueries = {
     ORDER BY name ASC
   `,
 
+  getAllDeleted: `
+    SELECT ${SELECT_FIELDS}
+    FROM roles
+    WHERE deleted_at IS NOT NULL
+    ORDER BY name ASC
+  `,
+
   getById: `
     SELECT ${DETAIL_FIELDS}
     FROM roles
     WHERE id = $1
       AND deleted_at IS NULL
+    LIMIT 1
+  `,
+
+  getSoftDeletedById: `
+    SELECT ${DETAIL_FIELDS}
+    FROM roles
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
     LIMIT 1
   `,
 
@@ -67,15 +82,43 @@ export const roleQueries = {
     RETURNING ${SELECT_FIELDS}
   `,
 
+  countRoleUsage: `
+  SELECT COUNT(*)::int AS count
+  FROM roles r
+  JOIN users u ON r.id = u.role_id
+  WHERE r.id = $1
+`,
+
   softDelete: `
     UPDATE roles
     SET
       deleted_at = NOW(),
       deleted_by = $2,
       updated_at = NOW(),
-      updated_by = $2
+      updated_by = $2,
+      is_active = FALSE
     WHERE id = $1
       AND deleted_at IS NULL
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  restore: `
+    UPDATE roles
+    SET
+      deleted_at = NULL,
+      deleted_by = NULL,
+      updated_at = NOW(),
+      updated_by = $2,
+      is_active = TRUE
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
+    RETURNING ${DETAIL_FIELDS}
+  `,
+
+  hardDelete: `
+    DELETE FROM roles
+    WHERE id = $1
+      AND deleted_at IS NOT NULL
     RETURNING ${DETAIL_FIELDS}
   `,
 };
