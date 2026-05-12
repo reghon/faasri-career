@@ -20,6 +20,9 @@ export class RoleService {
   getAll(): Observable<Role[]> {
     return this.http.get<ApiResponse<Role[]>>(this.url).pipe(map((res) => res.data));
   }
+  getAllDeleted(): Observable<Role[]> {
+    return this.http.get<ApiResponse<Role[]>>(`${this.url}/deleted`).pipe(map((res) => res.data));
+  }
 
   getById(id: string): Observable<Role> {
     return this.http.get<ApiResponse<Role>>(`${this.url}/${id}`).pipe(map((res) => res.data));
@@ -39,5 +42,15 @@ export class RoleService {
     return this.http
       .delete<ApiResponse<RoleDetail>>(`${this.url}/${id}`)
       .pipe(map((res) => res.data));
+  }
+
+  permanentDelete(id: string): Observable<RoleDetail> {
+    return this.http
+      .delete<ApiResponse<RoleDetail>>(`${this.url}/${id}/permanent`)
+      .pipe(map((res) => res.data));
+  }
+
+  restore(id: string): Observable<Role> {
+    return this.http.patch<ApiResponse<Role>>(`${this.url}/${id}/restore`, {}).pipe(map((res) => res.data));
   }
 }
