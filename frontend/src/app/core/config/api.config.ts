@@ -52,5 +52,6 @@ export const API_ENDPOINTS = {
     permissions: `${API_URL}/api/permissions`,
     rolePermissions: `${API_URL}/api/role-permissions`,
     dashboard: `${API_URL}/api/dashboard`,
+    managementProfile: `${API_URL}/api/management-profile`,
   },
 };
