@@ -1,0 +1,106 @@
+<div class="overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm">
+  <div class="flex flex-col gap-5 p-4 md:flex-row md:items-start">
+    <div class="avatar">
+      <div class="h-16 w-16 rounded-full bg-base-300">
+        <img *ngIf="avatarUrl(); else avatarFallback" [src]="avatarUrl()!" [alt]="fullName()" />
+
+        <ng-template #avatarFallback>
+          <div
+            class="flex h-full w-full items-center justify-center text-xl font-bold text-base-content/60"
+          >
+            {{ fullName().charAt(0) }}
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="grid flex-1 gap-4 md:grid-cols-3">
+      <div>
+        <p class="text-xs font-medium text-base-content/40">Nama Lengkap</p>
+        <p class="mt-1 text-sm font-regular">{{ fullName() }}</p>
+      </div>
+
+      <div>
+        <p class="text-xs font-medium text-base-content/40">Tempat, Tanggal Lahir</p>
+        <p class="mt-1 text-sm font-regular">{{ birthInfo() }}</p>
+      </div>
+
+      <div>
+        <p class="text-xs font-medium text-base-content/40">Nomor Telepon</p>
+        <p class="mt-1 text-sm font-regular">{{ phone() }}</p>
+      </div>
+
+      <div>
+        <p class="text-xs font-medium text-base-content/40">Email</p>
+        <p class="mt-1 text-sm font-regular">{{ email() }}</p>
+      </div>
+
+      <div>
+        <p class="text-xs font-medium text-base-content/40">Jenis Kelamin</p>
+        <p class="mt-1 text-sm font-regular">{{ gender() }}</p>
+      </div>
+
+      <div>
+        <p class="text-xs font-medium text-base-content/40">URL Linkedin</p>
+        <a
+          *ngIf="linkedinUrl() !== '-'; else noLinkedin"
+          [href]="linkedinUrl()"
+          target="_blank"
+          rel="noopener"
+          class="mt-1 block break-all text-sm font-regular hover:link hover:link-primary"
+        >
+          {{ linkedinUrl() }}
+        </a>
+
+        <ng-template #noLinkedin>
+          <p class="mt-1 text-sm font-regular">-</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="flex flex-col border-t border-base-300 md:flex-row md:items-center md:justify-between"
+  >
+    <div class="tabs tabs-bordered px-4">
+      <button
+        type="button"
+        class="tab"
+        [ngClass]="isActive('profile') ? 'tab-active text-primary border-primary' : ''"
+        (click)="selectTab('profile')"
+      >
+        Profil
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        [ngClass]="isActive('applications') ? 'tab-active text-primary border-primary' : ''"
+        (click)="selectTab('applications')"
+      >
+        Lamaran
+      </button>
+
+    </div>
+
+    <div class="flex items-center gap-5 px-4 py-3 text-xs md:justify-end">
+      <div class="flex items-center gap-2">
+        <span class="text-info">▣</span>
+        <span>Melamar</span>
+        <span class="font-bold">2</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-warning">▣</span>
+        <span>Dalam Proses</span>
+        <span class="font-bold">1</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-error">⊗</span>
+        <span>Ditolak</span>
+        <span class="font-bold">1</span>
+      </div>
+    </div>
+  </div>
+</div>
