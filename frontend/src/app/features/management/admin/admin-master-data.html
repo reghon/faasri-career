@@ -39,13 +39,15 @@
                   {{ crudActiveConfig.description }}
                 </p>
               </div>
-              <button
-                class="btn btn-primary-faasri btn-sm"
-                type="button"
-                (click)="openCreateModal()"
-              >
-                Tambah Baru
-              </button>
+              @if (!isTrashMode) {
+                <button
+                  class="btn btn-primary-faasri btn-sm"
+                  type="button"
+                  (click)="openCreateModal()"
+                >
+                  Tambah Baru
+                </button>
+              }
             </div>
 
             @if (pageFeedbackMessage) {
@@ -71,9 +73,21 @@
                 />
               </label>
 
-              <button class="btn btn-ghost rounded-xl" type="button" (click)="loadData()">
-                Refresh
-              </button>
+              <div class="flex gap-2">
+                <button class="btn btn-ghost rounded-xl" type="button" (click)="loadData()">
+                  Refresh
+                </button>
+
+                <button
+                  class="btn rounded-xl"
+                  [class.btn-error]="isTrashMode"
+                  [class.btn-ghost]="!isTrashMode"
+                  type="button"
+                  (click)="toggleTrashMode()"
+                >
+                  {{ isTrashMode ? 'Kembali' : 'Trash' }}
+                </button>
+              </div>
             </div>
 
             <div class="mt-5">
@@ -81,8 +95,8 @@
                 [columns]="crudActiveConfig.columns"
                 [items]="filteredItems"
                 [isLoading]="isLoading"
-                [label]="crudActiveConfig.label"
-                (edit)="openEditModal($event)"
+                [label]="deleteModalLabel"
+                (edit)="isTrashMode ? restoreSelected($event) : openEditModal($event)"
                 (delete)="openDeleteModal($event)"
                 [pageSize]="5"
                 [pageSizeOptions]="[5, 10, 20, 50]"
@@ -112,11 +126,9 @@
 
       <app-master-data-delete-modal
         [open]="isDeleteModalOpen"
-        [label]="crudActiveConfig.label"
+        [label]="deleteModalLabel"
         [item]="selectedItem"
         [isDeleting]="isDeleting"
-        [feedbackType]="feedbackType"
-        [feedbackMessage]="feedbackType === 'error' ? feedbackMessage : ''"
         (close)="closeDeleteModal()"
         (confirm)="deleteSelected()"
       />

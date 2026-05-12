@@ -170,6 +170,7 @@ export class AdminMasterData implements OnInit {
   isFormModalOpen = false;
   isDeleteModalOpen = false;
   isEditMode = false;
+  isTrashMode = false;
 
   selectedItem: AdminRecord | null = null;
   form: Record<string, any> = {};
@@ -201,6 +202,7 @@ export class AdminMasterData implements OnInit {
     this.activeKey = key;
     this.search = '';
     this.selectedItem = null;
+    this.isTrashMode = false;
 
     this.pageFeedbackMessage = '';
     this.pageFeedbackType = '';
@@ -217,6 +219,23 @@ export class AdminMasterData implements OnInit {
     this.loadData();
   }
 
+  toggleTrashMode(): void {
+    if (this.isRbacTab) return;
+
+    this.isTrashMode = !this.isTrashMode;
+    this.search = '';
+    this.selectedItem = null;
+    this.closeFormModal();
+    this.closeDeleteModal();
+    this.clearFeedback();
+    this.loadData();
+  }
+
+  get deleteModalLabel(): string {
+    const label = this.crudActiveConfig?.label ?? '';
+    return this.isTrashMode ? `${label} permanently` : label;
+  }
+
   loadData(): void {
     if (this.isRbacTab) {
       this.items = [];
@@ -229,7 +248,7 @@ export class AdminMasterData implements OnInit {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    this.getServiceCall('getAll')
+    this.getServiceCall(this.isTrashMode ? 'getAllDeleted' : 'getAll')
       .pipe(
         finalize(() => {
           this.isLoading = false;
@@ -279,7 +298,7 @@ export class AdminMasterData implements OnInit {
 
   openCreateModal(): void {
     const config = this.crudActiveConfig;
-    if (!config) return;
+    if (!config || this.isTrashMode) return;
 
     this.isEditMode = false;
     this.selectedItem = null;
@@ -293,7 +312,7 @@ export class AdminMasterData implements OnInit {
 
   openEditModal(item: AdminRecord): void {
     const config = this.crudActiveConfig;
-    if (!config) return;
+    if (!config || this.isTrashMode) return;
 
     this.isEditMode = true;
     this.selectedItem = item;
@@ -447,7 +466,7 @@ export class AdminMasterData implements OnInit {
     this.isDeleting = true;
     this.cdr.detectChanges();
 
-    this.getServiceCall('delete', this.selectedItem.id)
+    this.getServiceCall(this.isTrashMode ? 'permanentDelete' : 'delete', this.selectedItem.id)
       .pipe(
         finalize(() => {
           this.isDeleting = false;
@@ -457,38 +476,82 @@ export class AdminMasterData implements OnInit {
       .subscribe({
         next: () => {
           this.isDeleteModalOpen = false;
-          this.showPageSuccess('Data deleted successfully.');
+          this.showPageSuccess(
+            this.isTrashMode
+              ? 'Data permanently deleted successfully.'
+              : 'Data deleted successfully.',
+          );
           this.loadData();
           this.cdr.detectChanges();
         },
         error: (error: any) => {
-          this.feedbackType = 'error';
-          this.feedbackMessage = this.extractErrorMessage(error, 'Failed to delete data.');
+          this.isDeleteModalOpen = false;
+          this.showPageError(this.extractErrorMessage(error, 'Failed to delete data.'));
           this.cdr.detectChanges();
         },
       });
   }
 
-  private getServiceCall(action: 'getAll'): Observable<any[]>;
+  restoreSelected(item: AdminRecord): void {
+    if (this.isRbacTab || !item?.id) return;
+
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
+    this.getServiceCall('restore', item.id)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.showPageSuccess('Data restored successfully.');
+          this.loadData();
+          this.cdr.detectChanges();
+        },
+        error: (error: any) => {
+          this.showPageError(this.extractErrorMessage(error, 'Failed to restore data.'));
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  private getServiceCall(action: 'getAll' | 'getAllDeleted'): Observable<any[]>;
   private getServiceCall(action: 'create', payload: any): Observable<any>;
   private getServiceCall(action: 'update', id: string, payload: any): Observable<any>;
-  private getServiceCall(action: 'delete', id: string): Observable<any>;
+  private getServiceCall(action: 'delete' | 'permanentDelete', id: string): Observable<any>;
+  private getServiceCall(action: 'restore', id: string): Observable<any>;
   private getServiceCall(
-    action: 'getAll' | 'create' | 'update' | 'delete',
+    action:
+      | 'getAll'
+      | 'getAllDeleted'
+      | 'create'
+      | 'update'
+      | 'delete'
+      | 'permanentDelete'
+      | 'restore',
     arg1?: any,
     arg2?: any,
   ): Observable<any> {
     switch (this.activeKey) {
       case 'roles':
         if (action === 'getAll') return this.roleService.getAll();
+        if (action === 'getAllDeleted') return this.roleService.getAllDeleted();
         if (action === 'create') return this.roleService.create(arg1);
         if (action === 'update') return this.roleService.update(arg1, arg2);
+        if (action === 'restore') return this.roleService.restore(arg1);
+        if (action === 'permanentDelete') return this.roleService.permanentDelete(arg1);
         return this.roleService.delete(arg1);
 
       case 'users':
-        if (action === 'getAll') return this.userService.getAll();
+        if (action === 'getAll') return this.userService.getAllManagement();
+        if (action === 'getAllDeleted') return this.userService.getAllDeleted();
         if (action === 'create') return this.userService.create(arg1);
         if (action === 'update') return this.userService.update(arg1, arg2);
+        if (action === 'restore') return this.userService.restore(arg1);
+        if (action === 'permanentDelete') return this.userService.permanentDelete(arg1);
         return this.userService.delete(arg1);
 
       case 'rbac':
@@ -586,6 +649,15 @@ export class AdminMasterData implements OnInit {
         this.formErrors[fieldKey] = message;
       }
     }
+  }
+
+  private clearFeedback(): void {
+    this.pageFeedbackType = '';
+    this.pageFeedbackMessage = '';
+    this.formFeedbackType = '';
+    this.formFeedbackMessage = '';
+    this.feedbackType = '';
+    this.feedbackMessage = '';
   }
 
   private showPageSuccess(message: string): void {
