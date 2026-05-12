@@ -35,6 +35,16 @@ export class UserService {
     return this.http.get<ApiResponse<User[]>>(this.url).pipe(map((response) => response.data));
   }
 
+  getAllManagement(): Observable<User[]> {
+    return this.http.get<ApiResponse<User[]>>(`${this.url}/management`).pipe(map((response) => response.data));
+  }
+
+  getAllDeleted(): Observable<User[]> {
+    return this.http
+      .get<ApiResponse<User[]>>(`${this.url}/deleted`)
+      .pipe(map((response) => response.data));
+  }
+
   getById(id: string): Observable<UserDetail> {
     return this.http
       .get<ApiResponse<UserDetail>>(`${this.url}/${id}`)
@@ -56,6 +66,18 @@ export class UserService {
   delete(id: string): Observable<UserDetail> {
     return this.http
       .delete<ApiResponse<UserDetail>>(`${this.url}/${id}`)
+      .pipe(map((response) => response.data));
+  }
+
+  restore(id: string): Observable<UserDetail> {
+    return this.http
+      .patch<ApiResponse<UserDetail>>(`${this.url}/${id}/restore`, {})
+      .pipe(map((response) => response.data));
+  }
+
+  permanentDelete(id: string): Observable<UserDetail> {
+    return this.http
+      .delete<ApiResponse<UserDetail>>(`${this.url}/${id}/permanent`)
       .pipe(map((response) => response.data));
   }
 
