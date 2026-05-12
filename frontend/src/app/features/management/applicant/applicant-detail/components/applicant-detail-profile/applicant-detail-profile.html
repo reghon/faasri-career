@@ -1,0 +1,389 @@
+<div class="divide-y divide-base-300">
+  <section>
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-base-200/40"
+      (click)="toggleAccordion('profile')"
+    >
+      <span class="text-base font-semibold">Detail Profil</span>
+
+      <span
+        class="text-sm text-base-content/60 transition-transform duration-300"
+        [ngClass]="chevronClass('profile')"
+      >
+        ▼
+      </span>
+    </button>
+
+    <div class="grid transition-all duration-300 ease-in-out" [ngClass]="accordionClass('profile')">
+      <div class="overflow-hidden">
+        <div
+          class="grid gap-4 px-5 pb-5 md:grid-cols-2 lg:grid-cols-3"
+          *ngIf="profile() as profile"
+        >
+          <div>
+            <p class="text-xs text-base-content/50">Alamat</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.address || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-base-content/50">Kelurahan</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.kelurahan || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-base-content/50">Kecamatan</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.kecamatan || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-base-content/50">Kota</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.city || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-base-content/50">Provinsi</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.province || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-base-content/50">Kode Pos</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.postalCode || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-base-content/50">File CV</p>
+            <p class="mt-1 text-sm font-medium">{{ profile.cvFileName || '-' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-base-200/40"
+      (click)="toggleAccordion('workExperiences')"
+    >
+      <span class="text-base font-semibold">Pengalaman Kerja</span>
+
+      <span
+        class="text-sm text-base-content/60 transition-transform duration-300"
+        [ngClass]="chevronClass('workExperiences')"
+      >
+        ▼
+      </span>
+    </button>
+
+    <div
+      class="grid transition-all duration-300 ease-in-out"
+      [ngClass]="accordionClass('workExperiences')"
+    >
+      <div class="overflow-hidden px-5 pb-5">
+        <div *ngIf="workExperiences().length === 0" class="text-sm text-base-content/60">
+          Belum ada pengalaman kerja.
+        </div>
+
+        <div class="space-y-5">
+          <div
+            *ngFor="let item of workExperiences()"
+            class="border-t border-base-300 pt-4 first:border-t-0 first:pt-0"
+          >
+            <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h3 class="text-sm font-semibold">{{ item.position || '-' }}</h3>
+
+                <p class="text-xs text-base-content/60">
+                  {{ item.company || '-' }} · {{ item.industry || '-' }}
+                </p>
+              </div>
+
+              <span *ngIf="item.isCurrentJob" class="badge badge-primary badge-sm"> Saat Ini </span>
+            </div>
+
+            <div class="mt-4 grid gap-4 md:grid-cols-3">
+              <div>
+                <p class="text-xs text-base-content/50">Jenis Pekerjaan</p>
+                <p class="mt-1 text-sm font-medium">{{ item.employmentType || '-' }}</p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">Level Jabatan</p>
+                <p class="mt-1 text-sm font-medium">{{ item.jobLevel || '-' }}</p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">Jumlah Tim</p>
+                <p class="mt-1 text-sm font-medium">{{ item.teamSize || '-' }}</p>
+              </div>
+
+              <div class="md:col-span-3">
+                <p class="text-xs text-base-content/50">Periode</p>
+
+                <p class="mt-1 text-sm font-medium">
+                  {{
+                    formatPeriod(
+                      item.startDay,
+                      item.startMonth,
+                      item.startYear,
+                      item.endDay,
+                      item.endMonth,
+                      item.endYear,
+                      item.isCurrentJob
+                    )
+                  }}
+                </p>
+              </div>
+
+              <div class="md:col-span-3">
+                <p class="text-xs text-base-content/50">Tanggung Jawab</p>
+
+                <p class="mt-1 text-sm leading-relaxed">
+                  {{ item.responsibilities || '-' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">Nama Referensi</p>
+                <p class="mt-1 text-sm font-medium">{{ item.referenceName || '-' }}</p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">Posisi Referensi</p>
+                <p class="mt-1 text-sm font-medium">
+                  {{ item.referencePosition || '-' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">Kontak Referensi</p>
+                <p class="mt-1 text-sm font-medium">
+                  {{ item.referencePhoneCode || '' }} {{ item.referencePhone || '-' }}
+                </p>
+              </div>
+
+              <div class="md:col-span-3">
+                <p class="text-xs text-base-content/50">Email Referensi</p>
+                <p class="mt-1 text-sm font-medium">{{ item.referenceEmail || '-' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-base-200/40"
+      (click)="toggleAccordion('educations')"
+    >
+      <span class="text-base font-semibold">Pendidikan</span>
+
+      <span
+        class="text-sm text-base-content/60 transition-transform duration-300"
+        [ngClass]="chevronClass('educations')"
+      >
+        ▼
+      </span>
+    </button>
+
+    <div
+      class="grid transition-all duration-300 ease-in-out"
+      [ngClass]="accordionClass('educations')"
+    >
+      <div class="overflow-hidden px-5 pb-5">
+        <div *ngIf="educations().length === 0" class="text-sm text-base-content/60">
+          Belum ada riwayat pendidikan.
+        </div>
+
+        <div class="space-y-5">
+          <div
+            *ngFor="let item of educations()"
+            class="border-t border-base-300 pt-4 first:border-t-0 first:pt-0"
+          >
+            <div class="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h3 class="text-sm font-semibold">
+                  {{ item.level || '-' }} - {{ item.major || '-' }}
+                </h3>
+
+                <p class="text-xs text-base-content/60">
+                  {{ item.institution || '-' }} · {{ item.country || '-' }}
+                </p>
+              </div>
+
+              <span *ngIf="item.isStillStudying" class="badge badge-primary badge-sm">
+                Masih Studi
+              </span>
+            </div>
+
+            <div class="mt-4 grid gap-4 md:grid-cols-3">
+              <div>
+                <p class="text-xs text-base-content/50">Periode</p>
+
+                <p class="mt-1 text-sm font-medium">
+                  {{
+                    formatPeriod(
+                      item.startDay,
+                      item.startMonth,
+                      item.startYear,
+                      item.endDay,
+                      item.endMonth,
+                      item.endYear,
+                      item.isStillStudying
+                    )
+                  }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">IPK</p>
+
+                <p class="mt-1 text-sm font-medium">
+                  {{ item.gpa || '-' }}/{{ item.gpaScale || '-' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-base-200/40"
+      (click)="toggleAccordion('technicalSkills')"
+    >
+      <span class="text-base font-semibold">Keahlian Teknis</span>
+
+      <span
+        class="text-sm text-base-content/60 transition-transform duration-300"
+        [ngClass]="chevronClass('technicalSkills')"
+      >
+        ▼
+      </span>
+    </button>
+
+    <div
+      class="grid transition-all duration-300 ease-in-out"
+      [ngClass]="accordionClass('technicalSkills')"
+    >
+      <div class="overflow-hidden px-5 pb-5">
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let item of technicalSkills()" class="badge badge-primary badge-outline">
+            {{ item.skillName }}
+          </span>
+
+          <span *ngIf="technicalSkills().length === 0" class="text-sm text-base-content/60">
+            Belum ada keahlian teknis.
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-base-200/40"
+      (click)="toggleAccordion('certifications')"
+    >
+      <span class="text-base font-semibold">Sertifikasi</span>
+
+      <span
+        class="text-sm text-base-content/60 transition-transform duration-300"
+        [ngClass]="chevronClass('certifications')"
+      >
+        ▼
+      </span>
+    </button>
+
+    <div
+      class="grid transition-all duration-300 ease-in-out"
+      [ngClass]="accordionClass('certifications')"
+    >
+      <div class="overflow-hidden px-5 pb-5">
+        <div *ngIf="certifications().length === 0" class="text-sm text-base-content/60">
+          Belum ada sertifikasi.
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div
+            *ngFor="let item of certifications()"
+            class="border-t border-base-300 pt-4 first:border-t-0 first:pt-0 md:border-t-0 md:pt-0"
+          >
+            <h3 class="text-sm font-semibold">{{ item.name || '-' }}</h3>
+
+            <p class="text-xs text-base-content/60">{{ item.issuer || '-' }}</p>
+
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+              <div>
+                <p class="text-xs text-base-content/50">Tanggal Terbit</p>
+
+                <p class="mt-1 text-sm font-medium">
+                  {{ item.issuedDay || '-' }}-{{ item.issuedMonth || '-' }}-{{
+                    item.issuedYear || '-'
+                  }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs text-base-content/50">Tanggal Berakhir</p>
+
+                <p class="mt-1 text-sm font-medium">
+                  {{ item.expiredDay || '-' }}-{{ item.expiredMonth || '-' }}-{{
+                    item.expiredYear || '-'
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <button
+      type="button"
+      class="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-base-200/40"
+      (click)="toggleAccordion('languages')"
+    >
+      <span class="text-base font-semibold">Bahasa</span>
+
+      <span
+        class="text-sm text-base-content/60 transition-transform duration-300"
+        [ngClass]="chevronClass('languages')"
+      >
+        ▼
+      </span>
+    </button>
+
+    <div
+      class="grid transition-all duration-300 ease-in-out"
+      [ngClass]="accordionClass('languages')"
+    >
+      <div class="overflow-hidden px-5 pb-5">
+        <div *ngIf="languages().length === 0" class="text-sm text-base-content/60">
+          Belum ada data bahasa.
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <div
+            *ngFor="let item of languages()"
+            class="flex items-center justify-between border-t border-base-300 pt-3 first:border-t-0 first:pt-0 md:border-t-0 md:pt-0"
+          >
+            <span class="text-sm font-medium">{{ item.language || '-' }}</span>
+
+            <span class="badge badge-outline">{{ item.proficiency || '-' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
