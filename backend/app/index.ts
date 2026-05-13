@@ -33,6 +33,8 @@ import permissionRoutes from "./modules/rbac/permissions/permission.routes";
 import applyStatusHistoryRoutes from "./modules/apply/status_histories/apply_status_history.routes";
 import savedJobRoutes from "./modules/job/saved_job/saved_job.routes";
 import jobApplyStatusRoutes from "./modules/job/masters/job_apply_statuses/job_apply_status.routes";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes";
+import managementProfileRoutes from "./modules/management/management_profile/management_profile.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -86,11 +88,12 @@ app.use("/api/apply/status", applyStatusRoutes);
 app.use("/api/apply/statusHistories", applyStatusHistoryRoutes);
 app.use("/api/role", roleRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/permission-actions", permissionActionRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/role-permissions", rolePermissionRoutes);
-
+app.use("/api/management-profile", managementProfileRoutes);
 app.use(errorMiddleware);
 
 async function bootstrap() {
