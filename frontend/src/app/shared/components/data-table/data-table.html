@@ -1,5 +1,5 @@
-<div class="mt-5 overflow-hidden rounded-xl border border-base-300">
-  <div class="overflow-x-auto">
+<div class="mt-5 overflow-visible rounded-xl border border-base-300">
+  <div class="overflow-visible max-md:overflow-x-auto">
     <table class="table table-zebra">
       <!-- HEADER -->
       <thead class="bg-base-200/60">
@@ -52,13 +52,18 @@
                 >
                   <!-- ACTION -->
                   @if (column.type === 'action') {
-                    <div class="flex items-center justify-end gap-2">
+                    <div class="relative z-50 flex items-center justify-end gap-2">
                       <app-table-action
                         [showView]="showView"
                         [showEdit]="showEdit"
+                        [showDelete]="showDelete"
+                        [useDropdown]="useActionDropdown"
+                        [actions]="actionsGetter ? actionsGetter(row) : actions"
                         (view)="view.emit(row)"
                         (edit)="edit.emit(row)"
-                      ></app-table-action>
+                        (delete)="delete.emit(row)"
+                        (actionClick)="onActionClick($event, row)"
+                      />
                     </div>
 
                     <!-- BADGE -->

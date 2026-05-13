@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PaginationComponent } from '../pagination/pagination';
-import { TableActionComponent } from '../table-action/table-action';
+import { TableActionComponent, TableActionItem } from '../table-action/table-action';
 
 export type DataTableColumn<T = any> = {
   key: keyof T | string;
@@ -33,6 +33,7 @@ export class DataTableComponent<T = any> {
   @Input() columns: DataTableColumn<T>[] = [];
   @Input() data: T[] = [];
   @Input() isLoading = false;
+  @Input() actionsGetter?: (row: T) => TableActionItem[];
 
   @Input() loadingText = 'Loading data...';
   @Input() emptyTitle = 'Data belum tersedia';
@@ -50,14 +51,29 @@ export class DataTableComponent<T = any> {
 
   @Input() showView = true;
   @Input() showEdit = true;
+  @Input() showDelete = false;
+
+  @Input() useActionDropdown = false;
+  @Input() actions: TableActionItem[] = [];
 
   @Output() view = new EventEmitter<T>();
   @Output() edit = new EventEmitter<T>();
+  @Output() delete = new EventEmitter<T>();
+
+  @Output() actionClick = new EventEmitter<{
+    action: string;
+    row: T;
+  }>();
+
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
   get columnCount(): number {
     return this.columns.length || 1;
+  }
+
+  onActionClick(action: string, row: T) {
+    this.actionClick.emit({ action, row });
   }
 
   getCellValue(row: T, column: DataTableColumn<T>): string | number {
