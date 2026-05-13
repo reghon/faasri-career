@@ -8,91 +8,105 @@
   (close)="onClose()"
   (save)="onSubmit()"
 >
-  <div>
-    <p class="mb-5 text-sm text-base-content/60">
-      {{ description }}
-    </p>
+  <form (ngSubmit)="onSubmit()">
+    <div>
+      <p class="mb-5 text-sm text-base-content/60">
+        {{ description }}
+      </p>
 
-    <div class="grid gap-4 md:grid-cols-2">
-      @for (field of fields; track field.key) {
-        @if (field.type === 'text' || field.type === 'number') {
-          <div class="md:col-span-1" [attr.data-field]="field.key">
-            <label class="faasri-label">
-              {{ field.label }}
-              @if (field.required) {
-                <span class="text-error">*</span>
-              }
-            </label>
+      <div class="grid gap-4 md:grid-cols-2">
+        @for (field of fields; track field.key) {
+          @if (field.type === 'text' || field.type === 'number') {
+            <div class="md:col-span-1" [attr.data-field]="field.key">
+              <label class="faasri-label">
+                {{ field.label }}
 
-            <input
-              [type]="field.type"
-              class="input input-bordered w-full"
-              [class.input-error]="!!errors[field.key]"
-              [placeholder]="field.placeholder || field.label"
-              [ngModel]="form[field.key]"
-              (ngModelChange)="updateField(field.key, $event)"
-            />
-
-            @if (errors[field.key]) {
-              <p class="mt-1 text-xs text-error">{{ errors[field.key] }}</p>
-            }
-          </div>
-        }
-
-        @if (field.type === 'textarea') {
-          <div class="md:col-span-2" [attr.data-field]="field.key">
-            <label class="faasri-label">
-              {{ field.label }}
-              @if (field.required) {
-                <span class="text-error">*</span>
-              }
-            </label>
-
-            <textarea
-              class="textarea textarea-bordered w-full"
-              [class.textarea-error]="!!errors[field.key]"
-              [rows]="field.rows || 3"
-              [placeholder]="field.placeholder || field.label"
-              [ngModel]="form[field.key]"
-              (ngModelChange)="updateField(field.key, $event)"
-            ></textarea>
-
-            @if (errors[field.key]) {
-              <p class="mt-1 text-xs text-error">{{ errors[field.key] }}</p>
-            }
-          </div>
-        }
-
-        @if (field.type === 'switch') {
-          <div class="md:col-span-2" [attr.data-field]="field.key">
-            <label
-              class="flex cursor-pointer items-center justify-between rounded-xl border border-base-300 px-4 py-4"
-            >
-              <div>
-                <span class="block text-sm font-medium text-base-content">
-                  {{ field.label }}
-                </span>
-                <span class="mt-1 block text-sm text-base-content/60">
-                  Aktifkan jika data ini siap digunakan di sistem.
-                </span>
-              </div>
+                @if (field.required) {
+                  <span class="text-error">*</span>
+                }
+              </label>
 
               <input
-                type="checkbox"
-                class="toggle toggle-faasri"
+                [type]="field.type"
+                class="input input-bordered w-full"
+                [class.input-error]="!!errors[field.key]"
+                [placeholder]="field.placeholder || field.label"
                 [ngModel]="form[field.key]"
+                [name]="field.key"
                 (ngModelChange)="updateField(field.key, $event)"
               />
-            </label>
-          </div>
-        }
-      }
-    </div>
 
-    @if (feedbackType === 'error' && feedbackMessage) {
-      <div class="alert alert-error mt-5 rounded-xl">
-        <span>{{ feedbackMessage }}</span>
+              @if (errors[field.key]) {
+                <p class="mt-1 text-xs text-error">
+                  {{ errors[field.key] }}
+                </p>
+              }
+            </div>
+          }
+
+          @if (field.type === 'textarea') {
+            <div class="md:col-span-2" [attr.data-field]="field.key">
+              <label class="faasri-label">
+                {{ field.label }}
+
+                @if (field.required) {
+                  <span class="text-error">*</span>
+                }
+              </label>
+
+              <textarea
+                class="textarea textarea-bordered w-full"
+                [class.textarea-error]="!!errors[field.key]"
+                [rows]="field.rows || 3"
+                [placeholder]="field.placeholder || field.label"
+                [ngModel]="form[field.key]"
+                [name]="field.key"
+                (ngModelChange)="updateField(field.key, $event)"
+              ></textarea>
+
+              @if (errors[field.key]) {
+                <p class="mt-1 text-xs text-error">
+                  {{ errors[field.key] }}
+                </p>
+              }
+            </div>
+          }
+
+          @if (field.type === 'switch') {
+            <div class="md:col-span-2" [attr.data-field]="field.key">
+              <label
+                class="flex cursor-pointer items-center justify-between rounded-xl border border-base-300 px-4 py-4"
+              >
+                <div>
+                  <span class="block text-sm font-medium text-base-content">
+                    {{ field.label }}
+                  </span>
+
+                  <span class="mt-1 block text-sm text-base-content/60">
+                    Aktifkan jika data ini siap digunakan di sistem.
+                  </span>
+                </div>
+
+                <input
+                  type="checkbox"
+                  class="toggle toggle-faasri"
+                  [ngModel]="form[field.key]"
+                  [name]="field.key"
+                  (ngModelChange)="updateField(field.key, $event)"
+                />
+              </label>
+            </div>
+          }
+        }
       </div>
-    }
-  </div>
+
+      @if (feedbackType === 'error' && feedbackMessage) {
+        <div class="alert alert-error mt-5 rounded-xl">
+          <span>{{ feedbackMessage }}</span>
+        </div>
+      }
+
+      <button type="submit" class="hidden"></button>
+    </div>
+  </form>
 </app-generic-modal>
