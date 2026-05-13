@@ -425,7 +425,7 @@ export class Apply implements OnInit {
           this.cdr.detectChanges();
 
           alert('Lamaran berhasil dikirim');
-          this.router.navigate(['/jobs']);
+          this.router.navigate(['/apply-history']);
         },
         error: (error) => {
           console.error('Failed to submit apply', error);
