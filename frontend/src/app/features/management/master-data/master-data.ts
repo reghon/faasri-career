@@ -221,19 +221,26 @@ export class MasterData implements OnInit {
         next: () => {
           this.isDeleteModalOpen.set(false);
           this.showSuccess(
-            this.isTrashMode() ? 'Data permanently deleted successfully.' : 'Data deleted successfully.',
+            this.isTrashMode()
+              ? 'Data permanently deleted successfully.'
+              : 'Data deleted successfully.',
           );
           this.loadData();
         },
-        error: (error: any) =>
-          this.showError(this.extractErrorMessage(error, 'Failed to delete data.')),
+        error: (error: any) => {
+          this.isDeleteModalOpen.set(false);
+          this.showError(this.extractErrorMessage(error, 'Failed to delete data.'));
+        },
       });
   }
 
   restoreSelected(item: MasterRecord): void {
     if (!item?.id) return;
 
-    const payload = buildPayload(this.activeConfig().fields, buildFormFromRecord(this.activeConfig().fields, item));
+    const payload = buildPayload(
+      this.activeConfig().fields,
+      buildFormFromRecord(this.activeConfig().fields, item),
+    );
 
     this.isSubmitting.set(true);
 
@@ -255,7 +262,14 @@ export class MasterData implements OnInit {
   private getServiceCall(action: 'delete' | 'permanentDelete', id: string): any;
   private getServiceCall(action: 'restore', id: string, payload: any): any;
   private getServiceCall(
-    action: 'getAll' | 'getAllDeleted' | 'create' | 'update' | 'delete' | 'permanentDelete' | 'restore',
+    action:
+      | 'getAll'
+      | 'getAllDeleted'
+      | 'create'
+      | 'update'
+      | 'delete'
+      | 'permanentDelete'
+      | 'restore',
     arg1?: any,
     arg2?: any,
   ): any {
