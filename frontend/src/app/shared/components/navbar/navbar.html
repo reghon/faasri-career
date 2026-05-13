@@ -87,8 +87,14 @@
       </ul>
     </div>
 
+    <!-- SKELETON -->
+    <div class="flex items-center gap-3" *ngIf="!isAuthReady()">
+      <div class="h-8 w-20 animate-pulse rounded-lg bg-base-300"></div>
+      <div class="h-8 w-8 animate-pulse rounded-full bg-base-300"></div>
+    </div>
+
     <!-- MENU: belum login -->
-    <div class="flex items-center gap-4" *ngIf="!isLoggedIn()">
+    <div class="flex items-center gap-4" *ngIf="isAuthReady() && !isLoggedIn()">
       <a routerLink="/register" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite()">
         Sign Up
       </a>
@@ -98,7 +104,7 @@
     </div>
 
     <!-- MENU: sudah login -->
-    <div class="flex items-center gap-4" *ngIf="isLoggedIn()">
+    <div class="flex items-center gap-4" *ngIf="isAuthReady() && isLoggedIn()">
       <a
         *ngIf="!isManagement()"
         routerLink="/"

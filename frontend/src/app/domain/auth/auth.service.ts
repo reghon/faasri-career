@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { tap, finalize } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../core/config/api.config';
 import { ToastService } from '../../core/services/toast/toast.service';
 
@@ -17,6 +17,7 @@ export interface User {
 export class AuthService {
   currentUser = signal<User | null>(null);
   accessToken = signal<string | null>(null);
+  readonly isReady = signal(false);
 
   constructor(
     private http: HttpClient,
@@ -24,9 +25,22 @@ export class AuthService {
     private toastService: ToastService,
   ) {
     const token = localStorage.getItem('accessToken');
+
     if (token) {
       this.accessToken.set(token);
-      this.getMe().subscribe();
+      this.getMe()
+        .pipe(
+          finalize(() => {
+            console.log('finalize jalan, isReady = true');
+            this.isReady.set(true);
+          }),
+        )
+        .subscribe({
+          next: (res) => console.log('getMe sukses', res),
+          error: (err) => console.log('getMe error', err),
+        });
+    } else {
+      this.isReady.set(true);
     }
   }
 
@@ -55,7 +69,7 @@ export class AuthService {
         this.accessToken.set(null);
         this.currentUser.set(null);
         localStorage.removeItem('accessToken');
-        this.toastService.show('Logut Berhasil');
+        this.toastService.show('Logout Berhasil');
         this.router.navigate(['/login']);
       }),
     );

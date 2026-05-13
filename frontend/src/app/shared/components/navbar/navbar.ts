@@ -1,6 +1,9 @@
 import { Component, computed, HostListener, input, OnInit, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, take } from 'rxjs/operators';
 import { AuthService } from '../../../domain/auth/auth.service';
 
 @Component({
@@ -14,6 +17,7 @@ export class Navbar implements OnInit {
   variant = input<'public' | 'management'>('public');
 
   isScrolled = signal(false);
+  isAuthReady = signal(false);
 
   isManagement = computed(() => this.variant() === 'management');
 
@@ -36,8 +40,18 @@ export class Navbar implements OnInit {
     const user = this.currentUser();
     return !!user && user.roleName !== 'applicant';
   });
-  
-  constructor(private readonly authService: AuthService) {}
+
+  constructor(private readonly authService: AuthService) {
+    toObservable(this.authService.isReady)
+      .pipe(
+        filter((ready) => ready),
+        take(1),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        this.isAuthReady.set(true);
+      });
+  }
 
   @HostListener('window:scroll')
   onScroll(): void {
