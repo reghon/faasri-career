@@ -12,8 +12,6 @@ export class MasterDataDeleteModal {
   @Input() label = 'Data';
   @Input() item: Record<string, any> | null = null;
   @Input() isDeleting = false;
-  @Input() feedbackType: 'success' | 'error' | '' = '';
-  @Input() feedbackMessage = '';
 
   @Output() close = new EventEmitter<void>();
   @Output() confirm = new EventEmitter<void>();
