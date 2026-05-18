@@ -25,7 +25,12 @@ import {
   DataTablePagination,
 } from '../../../../../shared/components/data-table/data-table';
 import { TableActionItem } from '../../../../../shared/components/table-action/table-action';
+import {
+  buildMoveStatusActions,
+  mapJobApplyStatusesWithCount,
+} from '../../../../../shared/utils/apply-status-movement';
 import { ConfirmModalComponent } from './components/confirm-modal';
+
 export type JobApplicationSummary = {
   total: number;
   rejected: number;
@@ -247,24 +252,7 @@ export class JobApplicationListComponent implements OnChanges {
   }
 
   private buildStatuses(statuses: JobApplyStatus[]): void {
-    const countMap = new Map<string, number>();
-
-    this.applies.forEach((item) => {
-      countMap.set(item.statusId, (countMap.get(item.statusId) || 0) + 1);
-    });
-
-    this.statuses = statuses
-      .filter((status) => status.isActive)
-      .map((status) => ({
-        id: status.applyStatusId,
-        applyStatusId: status.applyStatusId,
-        name: status.applyStatusName,
-        code: status.applyStatusCode,
-        sortOrder: status.sortOrder,
-        isFinal: status.isFinal,
-        count: countMap.get(status.applyStatusId) || 0,
-      }))
-      .sort((a, b) => a.sortOrder - b.sortOrder);
+    this.statuses = mapJobApplyStatusesWithCount(statuses, this.applies) as StatusItem[];
 
     if (!this.selectedStatusId && this.statuses.length > 0) {
       this.selectedStatusId = this.statuses[0].id;
@@ -360,46 +348,9 @@ export class JobApplicationListComponent implements OnChanges {
     const status = this.getStatusText(item);
     return status.includes('hire') || status.includes('hired') || status.includes('joined');
   }
+
   getApplicationActions(row: ApplyByJobItem): TableActionItem[] {
-    const currentStatus = this.statuses.find((status) => status.id === row.statusId);
-
-    if (!currentStatus) {
-      return [];
-    }
-
-    if (currentStatus.isFinal) {
-      return [
-        {
-          label: 'Status sudah final',
-          value: 'status_final_locked',
-          class: 'menu-title pointer-events-none text-xs text-base-content/50',
-          disabled: true,
-        },
-      ];
-    }
-
-    const moveStatusActions = this.statuses
-      .filter((status) => status.id !== row.statusId)
-      .map((status) => {
-        const disabled = status.sortOrder <= currentStatus.sortOrder;
-
-        return {
-          label: status.name,
-          value: `move_status:${status.id}`,
-          class: disabled ? 'text-base-content/40 pointer-events-none' : 'text-base-content',
-          disabled,
-        };
-      });
-
-    return [
-      {
-        label: 'Move Status',
-        value: 'move_status_header',
-        class: 'menu-title pointer-events-none text-xs text-base-content/50',
-        disabled: true,
-      },
-      ...moveStatusActions,
-    ];
+    return buildMoveStatusActions(this.statuses, row.statusId);
   }
 
   handleApplicationAction(event: { action: string; row: ApplyByJobItem }): void {
