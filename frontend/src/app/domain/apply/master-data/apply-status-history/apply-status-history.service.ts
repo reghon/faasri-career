@@ -55,4 +55,16 @@ export class ApplyStatusHistoryService {
       .delete<ApiResponse<ApplyStatusHistoryDetail>>(`${this.url}/${id}`)
       .pipe(map((res) => res.data));
   }
+  
+  moveApplicationStatus(
+    applyId: string,
+    applyStatusId: string,
+    notes: string | null,
+  ): Observable<ApplyStatusHistory[]> {
+    return this.create({
+      applyId,
+      applyStatusId,
+      notes,
+    });
+  }
 }

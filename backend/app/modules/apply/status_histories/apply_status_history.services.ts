@@ -61,11 +61,32 @@ export const applyStatusHistoryService = {
         throw new AppError(400, "Apply status cannot move backward or stay at the same status");
       }
 
-      const statusesToCreate = await applyStatusHistoryRepository.getStatusesBySortOrderRange(client, apply.jobId, currentSortOrder + 1, targetSortOrder);
+      const rawStatusesToCreate = await applyStatusHistoryRepository.getStatusesBySortOrderRange(client, apply.jobId, currentSortOrder + 1, targetSortOrder);
+
       const expectedTotal = targetSortOrder - currentSortOrder;
 
-      if (statusesToCreate.length !== expectedTotal) {
+      if (rawStatusesToCreate.length !== expectedTotal) {
         throw new AppError(400, "Apply status sequence is incomplete");
+      }
+
+      const targetStatusText = `${targetStatus.code} ${targetStatus.name}`.toLowerCase();
+
+      const isRejectedOrWithdrawnTarget = targetStatusText.includes("reject") || targetStatusText.includes("withdraw");
+
+      const statusesToCreate = isRejectedOrWithdrawnTarget
+        ? rawStatusesToCreate.filter((status) => status.id === targetStatus.id)
+        : rawStatusesToCreate.filter((status) => {
+            const isTargetStatus = status.id === targetStatus.id;
+
+            if (isTargetStatus) {
+              return true;
+            }
+
+            return !status.isFinal;
+          });
+
+      if (statusesToCreate.length === 0) {
+        throw new AppError(400, "Apply target status cannot be processed");
       }
 
       const createdAt = new Date();
@@ -87,11 +108,13 @@ export const applyStatusHistoryService = {
 
         createdHistories.push(createdHistory);
       }
+
       const updatedApply = await applyStatusHistoryRepository.updateApplyStatus(client, data.applyId, targetStatus.id, actorId);
 
       if (!updatedApply) {
         throw new AppError(500, "Failed to update apply current status");
       }
+
       await client.query("COMMIT");
 
       return createdHistories;

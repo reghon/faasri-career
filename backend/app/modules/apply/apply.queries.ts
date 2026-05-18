@@ -59,6 +59,7 @@ export const applyQueries = {
     jl.name AS job_location,
     a.status_id,
     s.name AS status_name,
+    jas.is_final AS status_is_final,
     a.applied_at,
     a.is_active,
     a.created_at,
@@ -66,10 +67,16 @@ export const applyQueries = {
   FROM applies a
   LEFT JOIN apply_statuses s 
     ON s.id = a.status_id
+   AND s.deleted_at IS NULL
   LEFT JOIN jobs j
     ON j.id = a.job_id
+   AND j.deleted_at IS NULL
   LEFT JOIN job_locations jl
     ON jl.id = j.job_location_id
+  LEFT JOIN job_apply_statuses jas
+    ON jas.job_id = a.job_id
+   AND jas.apply_status_id = a.status_id
+   AND jas.deleted_at IS NULL
   WHERE a.applicant_profile_id = $1
     AND a.deleted_at IS NULL
   ORDER BY a.applied_at DESC, a.created_at DESC

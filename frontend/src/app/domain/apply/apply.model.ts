@@ -152,6 +152,7 @@ export interface ApplyHistoryList {
   jobLocation: string;
   statusId: string;
   statusName: string;
+  statusIsFinal: boolean | null;
   appliedAt: string;
   isActive: boolean;
   createdAt: string;
