@@ -1,0 +1,71 @@
+<div class="min-h-screen bg-base-200/40">
+  <div class="mx-auto flex max-w-7xl flex-col gap-2 p-4 md:p-6">
+    <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+
+    <div class="rounded-xl border border-base-300 bg-base-100 shadow-sm">
+      <div
+        class="flex flex-col gap-4 border-b border-base-300 p-5 md:flex-row md:items-center md:justify-between"
+      >
+        <div>
+          <h1 class="text-2xl font-bold text-base-content">Daftar Application</h1>
+          <p class="mt-1 text-sm text-base-content/70">
+            Kelola dan pantau application applicant dengan cepat, rapi, dan terstruktur.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-4 md:p-5">
+        <div class="flex flex-col gap-4">
+          <app-table-toolbar
+            searchPlaceholder="Search applicant, job, status, linkedin..."
+            [search]="searchTerm()"
+            [sortBy]="sortField()"
+            [sortDirection]="sortDirection()"
+            [filters]="toolbarFilters()"
+            [sortOptions]="toolbarSortOptions"
+            [actions]="toolbarActions"
+            (searchChange)="onToolbarSearchChange($event)"
+            (filterChange)="onToolbarFilterChange($event)"
+            (sortDirectionChange)="onToolbarSortDirectionChange($event)"
+            (sortByChange)="onToolbarSortByChange($event)"
+            (action)="onToolbarAction($event)"
+          ></app-table-toolbar>
+
+          @if (errorMessage()) {
+            <div class="alert alert-error rounded-xl">
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          <app-data-table
+            [columns]="applicationColumns"
+            [data]="pagedApplications()"
+            [isLoading]="isLoading()"
+            loadingText="Loading applications..."
+            emptyTitle="Belum ada application"
+            emptyDescription="Data application belum tersedia atau tidak cocok dengan filter pencarian."
+            [pagination]="tablePagination()"
+            [showView]="true"
+            [showEdit]="false"
+            [showDelete]="false"
+            [useActionDropdown]="true"
+            [actionsGetter]="getApplicationActions.bind(this)"
+            (view)="viewApplication($event)"
+            (actionClick)="handleApplicationAction($event)"
+            (pageChange)="goToPage($event)"
+            (pageSizeChange)="onPageSizeChange($event)"
+          ></app-data-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-confirm-modal
+    [isOpen]="isMoveStatusModalOpen()"
+    [message]="moveStatusModalMessage()"
+    [isLoading]="isMovingStatus()"
+    [requireNotes]="shouldShowMoveNotes()"
+    (close)="closeMoveStatusModal()"
+    (confirm)="confirmMoveStatus($event)"
+  />
+</div>
