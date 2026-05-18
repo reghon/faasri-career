@@ -1,0 +1,250 @@
+<section class="container-app">
+  <div class="mx-auto max-w-6xl py-8">
+    <h2 class="mb-6 text-2xl font-bold text-gray-900">Daftar Riwayat Lamaran</h2>
+
+    @if (loading()) {
+      <div
+        class="rounded-2xl border border-primary/20 bg-white p-8 text-sm text-gray-500 shadow-sm"
+      >
+        Memuat riwayat lamaran...
+      </div>
+    }
+
+    @if (!loading() && applies().length === 0) {
+      <div
+        class="rounded-2xl border border-primary/20 bg-white p-8 text-sm text-gray-500 shadow-sm"
+      >
+        Belum ada riwayat lamaran.
+      </div>
+    }
+
+    <div class="flex flex-col gap-5">
+      @for (apply of applies(); track apply.id) {
+        <article
+          class="overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md"
+        >
+          <div class="p-6">
+            <div class="flex items-start justify-between gap-5">
+              <div class="min-w-0">
+                <h2 class="text-lg font-semibold leading-snug text-gray-900">
+                  {{ apply.jobName }}
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                  <span class="font-medium text-gray-700">{{ apply.jobLocation }}</span>
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="shrink-0 rounded-full border border-primary/15 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5"
+                (click)="toggleDetail(apply)"
+              >
+                {{ expandedApplyId() === apply.id ? 'Sembunyikan' : 'Detail Progres' }}
+              </button>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-4 rounded-xl bg-gray-50 p-5 md:grid-cols-3">
+              <div>
+                <span class="block text-xs font-medium uppercase tracking-wide text-gray-400"
+                  >Tanggal Lamar</span
+                >
+                <strong class="mt-1 block text-sm font-semibold text-gray-800">
+                  {{ apply.appliedAt | date: 'dd/MM/yyyy' }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="block text-xs font-medium uppercase tracking-wide text-gray-400"
+                  >Status</span
+                >
+                <strong class="mt-1 block text-sm font-semibold text-gray-800">
+                  {{ getApplyProcessLabel(apply) }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="block text-xs font-medium uppercase tracking-wide text-gray-400"
+                  >Tahap Rekrutmen</span
+                >
+                <strong class="mt-1 block text-sm font-semibold text-gray-800">
+                  {{ apply.statusName }}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="grid transition-all duration-300 ease-in-out"
+            [class.grid-rows-[1fr]]="expandedApplyId() === apply.id"
+            [class.grid-rows-[0fr]]="expandedApplyId() !== apply.id"
+          >
+            <div class="overflow-hidden">
+              <div
+                class="px-6 pb-6 transition-all duration-300"
+                [class.translate-y-0]="expandedApplyId() === apply.id"
+                [class.opacity-100]="expandedApplyId() === apply.id"
+                [class.-translate-y-2]="expandedApplyId() !== apply.id"
+                [class.opacity-0]="expandedApplyId() !== apply.id"
+              >
+                @if (loadingDetailId() === apply.id) {
+                  <div
+                    class="rounded-xl border border-primary/10 bg-white p-5 text-sm text-gray-500"
+                  >
+                    Memuat detail progres...
+                  </div>
+                }
+
+                @if (getDetail(apply.id)(); as detail) {
+                  <div class="overflow-hidden rounded-xl border border-primary/10 bg-white">
+                    <div class="w-full overflow-x-auto px-7 pb-8 pt-8">
+                      <div class="flex min-w-[760px] w-full">
+                        @for (
+                          stage of getVisibleStages(apply.id)();
+                          track stage.id;
+                          let i = $index
+                        ) {
+                          <div class="relative flex-1 text-center">
+                            @if (i !== 0) {
+                              <div
+                                class="absolute left-[-50%] top-[10px] h-0.5 w-full"
+                                [class.bg-primary]="
+                                  isStagePassed(detail, stage.applyStatusId) ||
+                                  isCurrentStage(detail, stage.applyStatusId)
+                                "
+                                [class.bg-gray-200]="
+                                  !isStagePassed(detail, stage.applyStatusId) &&
+                                  !isCurrentStage(detail, stage.applyStatusId)
+                                "
+                              ></div>
+                            }
+
+                            @if (
+                              isCurrentStage(detail, stage.applyStatusId) ||
+                              isStagePassed(detail, stage.applyStatusId)
+                            ) {
+                              <div
+                                class="relative z-10 mx-auto mb-3 rounded-full ring-4 ring-white bg-primary transition-all duration-300"
+                                [class.h-5]="isCurrentStage(detail, stage.applyStatusId)"
+                                [class.w-5]="isCurrentStage(detail, stage.applyStatusId)"
+                                [class.h-4]="!isCurrentStage(detail, stage.applyStatusId)"
+                                [class.w-4]="!isCurrentStage(detail, stage.applyStatusId)"
+                              ></div>
+                            } @else {
+                              <div
+                                class="relative z-10 mx-auto mb-3 h-4 w-4 rounded-full bg-gray-300 ring-4 ring-white transition-all duration-300"
+                              ></div>
+                            }
+
+                            <div class="px-2 text-sm">
+                              <span
+                                class="block font-medium leading-snug"
+                                [class.text-gray-800]="
+                                  isStagePassed(detail, stage.applyStatusId) ||
+                                  isCurrentStage(detail, stage.applyStatusId)
+                                "
+                                [class.text-gray-300]="
+                                  !isStagePassed(detail, stage.applyStatusId) &&
+                                  !isCurrentStage(detail, stage.applyStatusId)
+                                "
+                              >
+                                {{ stage.name }}
+                              </span>
+
+                              @if (
+                                isCurrentStage(detail, stage.applyStatusId) &&
+                                !isFinalStatus(detail)
+                              ) {
+                                <small
+                                  class="mt-2 inline-flex rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-semibold text-yellow-700"
+                                >
+                                  Dalam Proses
+                                </small>
+                              }
+
+                              @if (
+                                !isCurrentStage(detail, stage.applyStatusId) &&
+                                isStagePassed(detail, stage.applyStatusId)
+                              ) {
+                                <small class="mt-2 block text-xs text-gray-500">
+                                  {{
+                                    getStageDate(detail, stage.applyStatusId) | date: 'dd/MM/yyyy'
+                                  }}
+                                </small>
+                              }
+
+                              @if (
+                                isFinalStatus(detail) &&
+                                getLastPassedNonFinalStage(detail).applyStatusId ===
+                                  stage.applyStatusId
+                              ) {
+                                <div
+                                  class="mt-4 rounded-xl border px-3 py-2"
+                                  [class.border-green-100]="isHiredStatus(detail)"
+                                  [class.bg-green-50]="isHiredStatus(detail)"
+                                  [class.border-red-100]="isRejectedStatus(detail)"
+                                  [class.bg-red-50]="isRejectedStatus(detail)"
+                                  [class.border-orange-100]="isWithdrawnStatus(detail)"
+                                  [class.bg-orange-50]="isWithdrawnStatus(detail)"
+                                >
+                                  <span
+                                    class="block text-xs font-semibold"
+                                    [class.text-green-700]="isHiredStatus(detail)"
+                                    [class.text-red-700]="isRejectedStatus(detail)"
+                                    [class.text-orange-700]="isWithdrawnStatus(detail)"
+                                  >
+                                    {{ detail.currentStatus?.name || '-' }}
+                                  </span>
+
+                                  @if (getFinalHistory(detail); as finalHistory) {
+                                    <small class="mt-1 block text-xs text-gray-500">
+                                      {{ finalHistory.createdAt | date: 'dd/MM/yyyy' }}
+                                    </small>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    @if (canWithdraw(detail)) {
+                      <div class="border-t border-primary/10 bg-white px-7 py-5">
+                        <button
+                          type="button"
+                          class="rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          [disabled]="withdrawingId() === detail.id"
+                          (click)="withdrawApply(detail)"
+                        >
+                          {{
+                            withdrawingId() === detail.id
+                              ? 'Memproses pengunduran diri...'
+                              : 'Mengundurkan Diri'
+                          }}
+                        </button>
+                      </div>
+                    }
+
+                    <div
+                      class="border-t border-primary/10 bg-gray-50 px-7 py-5 text-sm text-gray-600"
+                    >
+                      Lamaran Anda berada pada tahap
+                      <strong class="font-semibold text-gray-800">{{
+                        detail.currentStatus?.name || '-'
+                      }}</strong>
+                      dengan status
+                      <strong class="font-semibold text-gray-800">{{
+                        getProcessLabel(detail)
+                      }}</strong
+                      >.
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
