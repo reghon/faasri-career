@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { requireUserId } from "../../../utils/request-user.util";
+import { requireUserEmail } from "../../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams } from "../../../utils/validated-request.util";
 import { applyStatusHistoryService } from "./apply_status_history.services";
 import { ApplyStatusHistoryApplyParamsInput, ApplyStatusHistoryBodyInput, ApplyStatusHistoryParamsInput, ApplyStatusHistoryUpdateBodyInput } from "./apply_status_history.schemas";
@@ -39,7 +39,7 @@ export const applyStatusHistoryController = {
   async create(req: Request, res: Response) {
     const body = getValidatedBody<ApplyStatusHistoryBodyInput>(req);
 
-    const data = await applyStatusHistoryService.create(body, requireUserId(req));
+    const data = await applyStatusHistoryService.create(body, requireUserEmail(req));
 
     res.status(201).json({
       message: "Apply status history created successfully",
@@ -51,7 +51,7 @@ export const applyStatusHistoryController = {
     const params = getValidatedParams<ApplyStatusHistoryParamsInput>(req);
     const body = getValidatedBody<ApplyStatusHistoryUpdateBodyInput>(req);
 
-    const data = await applyStatusHistoryService.update(params.id, body, requireUserId(req));
+    const data = await applyStatusHistoryService.update(params.id, body, requireUserEmail(req));
 
     res.status(200).json({
       message: "Apply status history updated successfully",
@@ -62,7 +62,7 @@ export const applyStatusHistoryController = {
   async delete(req: Request, res: Response) {
     const params = getValidatedParams<ApplyStatusHistoryParamsInput>(req);
 
-    const data = await applyStatusHistoryService.delete(params.id, requireUserId(req));
+    const data = await applyStatusHistoryService.delete(params.id, requireUserEmail(req));
 
     res.status(200).json({
       message: "Apply status history deleted successfully",
