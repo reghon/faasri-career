@@ -16,8 +16,8 @@ export const applyStatusHistoryRepository = {
     return queryCamelOne<ApplyStatusHistoryDetail>(applyStatusHistoryQueries.getDetailById, [id]);
   },
 
-  async getByApplyId(applyId: string): Promise<ApplyStatusHistory[]> {
-    return queryCamel<ApplyStatusHistory>(applyStatusHistoryQueries.getByApplyId, [applyId]);
+  async getByApplyId(applyId: string): Promise<ApplyStatusHistoryDetail[]> {
+    return queryCamel<ApplyStatusHistoryDetail>(applyStatusHistoryQueries.getByApplyId, [applyId]);
   },
 
   async getApplyById(client: PoolClient, applyId: string): Promise<ApplyLookup | null> {

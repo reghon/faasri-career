@@ -32,7 +32,7 @@ export const applyStatusHistoryQueries = {
   `,
 
   getByApplyId: `
-    SELECT ${SELECT_FIELDS}
+    SELECT ${DETAIL_FIELDS}
     FROM apply_status_histories
     WHERE apply_id = $1
       AND deleted_at IS NULL
