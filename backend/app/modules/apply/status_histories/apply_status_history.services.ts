@@ -33,6 +33,7 @@ export const applyStatusHistoryService = {
   },
 
   async create(data: ApplyStatusHistoryPayload, actorId: string) {
+    const SKIPPED_STATUS_NOTES = "Tahap ini dilewati secara otomatis.";
     const client = await pool.connect();
 
     try {
@@ -97,7 +98,7 @@ export const applyStatusHistoryService = {
           applyId: data.applyId,
           applyStatusId: status.id,
           applyStatusName: status.name,
-          notes: status.id === targetStatus.id ? data.notes : null,
+          notes: status.id === targetStatus.id ? data.notes : SKIPPED_STATUS_NOTES,
         };
 
         const createdHistory = await applyStatusHistoryRepository.create(client, item, actorId, createdAt);
