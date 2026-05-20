@@ -33,5 +33,9 @@ export const applyProfileBodySchema = z.object({
   cvUrl: nullableTrimmedString(255, "CV URL"),
   cvFileName: nullableTrimmedString(255, "CV file name"),
 });
-
+export const applyProfileParamsSchema = z.object({
+  applyId: z.string().uuid("Apply id must be a valid UUID"),
+});
+  
+export type ApplyProfileParamsInput = z.infer<typeof applyProfileParamsSchema>;
 export type ApplyProfileBodyInput = z.infer<typeof applyProfileBodySchema>;

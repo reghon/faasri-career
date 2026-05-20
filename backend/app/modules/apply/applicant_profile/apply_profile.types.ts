@@ -1,6 +1,10 @@
 export type ApplyProfile = {
   id: string;
   applyId: string;
+  jobId: string | null;
+  jobTitle: string | null;
+  jobLocation: string | null;
+  appliedAt: string | null;
   fullName: string | null;
   email: string | null;
   birthPlace: string | null;

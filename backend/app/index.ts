@@ -35,6 +35,7 @@ import savedJobRoutes from "./modules/job/saved_job/saved_job.routes";
 import jobApplyStatusRoutes from "./modules/job/masters/job_apply_statuses/job_apply_status.routes";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import managementProfileRoutes from "./modules/management/management_profile/management_profile.routes";
+import applyProfileRoutes from "./modules/apply/applicant_profile/apply_profile.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -94,6 +95,7 @@ app.use("/api/permission-actions", permissionActionRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/role-permissions", rolePermissionRoutes);
 app.use("/api/management-profile", managementProfileRoutes);
+app.use("/api/apply-profile", applyProfileRoutes);
 app.use(errorMiddleware);
 
 async function bootstrap() {
