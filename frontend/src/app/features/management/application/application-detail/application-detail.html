@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-base-200/40">
+  <div class="mx-auto flex max-w-6xl flex-col gap-5 p-4 md:p-6">
+    <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <div class="overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm">
+      <div class="p-4">
+        <div class="grid gap-4 md:grid-cols-4">
+          <div>
+            <p class="text-xs font-medium text-base-content/40">Nama Pekerjaan</p>
+            <p class="mt-1 text-sm font-regular">
+              {{ jobTitle() }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-xs font-medium text-base-content/40">Lokasi</p>
+            <p class="mt-1 text-sm font-regular">
+              {{ jobLocation() }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-xs font-medium text-base-content/40">Tanggal Melamar</p>
+            <p class="mt-1 text-sm font-regular">
+              {{ appliedAt() ? (appliedAt() | date: 'dd MMM yyyy, HH:mm') : '-' }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-xs font-medium text-base-content/40">CV / Resume</p>
+
+            <div class="mt-1 flex items-center justify-between gap-3">
+              <p class="truncate text-sm font-regular text-base-content">
+                {{ cvName() }}
+              </p>
+
+              <div class="flex shrink-0 gap-1">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs"
+                  [disabled]="!isCvAvailable()"
+                  (click)="viewCv()"
+                >
+                  Lihat
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-primary btn-xs"
+                  [disabled]="!isCvAvailable()"
+                  (click)="downloadCv()"
+                >
+                  Unduh
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-base-300">
+        <div class="flex flex-col gap-5 p-4 md:flex-row md:items-start">
+          <div class="avatar">
+            <div class="h-16 w-16 rounded-full bg-base-300">
+              @if (avatarUrl()) {
+                <img [src]="avatarUrl()!" [alt]="fullName()" />
+              } @else {
+                <div
+                  class="flex h-full w-full items-center justify-center text-xl font-bold text-base-content/60"
+                >
+                  {{ fullName().charAt(0) }}
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="grid flex-1 gap-4 md:grid-cols-3">
+            <div>
+              <p class="text-xs font-medium text-base-content/40">Nama Lengkap</p>
+              <p class="mt-1 text-sm font-regular">
+                {{ fullName() }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs font-medium text-base-content/40">Tempat, Tanggal Lahir</p>
+              <p class="mt-1 text-sm font-regular">
+                {{ birthInfo() }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs font-medium text-base-content/40">Nomor Telepon</p>
+              <p class="mt-1 text-sm font-regular">
+                {{ phone() }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs font-medium text-base-content/40">Email</p>
+              <p class="mt-1 break-all text-sm font-regular">
+                {{ email() }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs font-medium text-base-content/40">Jenis Kelamin</p>
+              <p class="mt-1 text-sm font-regular">
+                {{ gender() }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs font-medium text-base-content/40">URL Linkedin</p>
+
+              @if (linkedinUrl() !== '-') {
+                <a
+                  [href]="linkedinUrl()"
+                  target="_blank"
+                  rel="noopener"
+                  class="mt-1 block break-all text-sm font-regular hover:link hover:link-primary"
+                >
+                  {{ linkedinUrl() }}
+                </a>
+              } @else {
+                <p class="mt-1 text-sm font-regular">-</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+      <div class="flex flex-col gap-4 px-5 py-4 md:flex-row md:items-start">
+        <div class="flex-1">
+          <h2 class="text-base font-semibold text-base-content">Timeline Rekrutmen</h2>
+
+          <p class="mt-1 text-xs text-base-content/60">
+            Semua tahapan dari job ini. Tahapan yang sudah memiliki riwayat akan menampilkan waktu
+            dan catatan.
+          </p>
+        </div>
+
+        <div class="dropdown dropdown-end md:ml-auto">
+          <button tabindex="0" class="btn btn-primary btn-sm" [disabled]="isLoading()">
+            Perbarui Status
+          </button>
+
+          <ul
+            tabindex="0"
+            class="menu dropdown-content z-[1] mt-2 w-64 rounded-box border border-base-300 bg-base-100 p-2 shadow"
+          >
+            @for (action of moveStatusActions(); track action.value) {
+              <li>
+                <button
+                  [disabled]="action.disabled"
+                  (click)="openMoveStatusModal(action.value.split(':')[1])"
+                >
+                  {{ action.label }}
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-base-300 px-5 py-5">
+        <app-recruitment-timeline [items]="recruitmentTimeline()" [isLoading]="isLoading()" />
+      </div>
+    </div>
+
+    <app-confirm-modal
+      [isOpen]="isMoveStatusModalOpen()"
+      [message]="moveStatusModalMessage()"
+      [isLoading]="isMovingStatus()"
+      [requireNotes]="shouldShowMoveNotes()"
+      (close)="closeMoveStatusModal()"
+      (confirm)="confirmMoveStatus($event)"
+    />
+  </div>
+</div>
