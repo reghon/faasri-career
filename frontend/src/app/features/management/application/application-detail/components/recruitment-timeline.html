@@ -1,0 +1,62 @@
+<!-- shared/components/recruitment-timeline/recruitment-timeline.html -->
+
+@if (isLoading()) {
+  <div class="flex items-center gap-3 text-sm text-base-content/60">
+    <span class="loading loading-spinner loading-sm text-primary"></span>
+    Memuat riwayat lamaran...
+  </div>
+} @else {
+  @if (items().length) {
+    <div>
+      @for (item of items(); track item.id) {
+        <div class="border-l border-base-300 pb-6 pl-4 last:pb-0">
+          <div class="relative">
+            <div
+              class="absolute -left-[21px] top-0 h-3 w-3 rounded-full"
+              [ngClass]="item.dotClass"
+            ></div>
+
+            <div class="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h4 class="text-sm font-semibold text-base-content">{{ item.name }}</h4>
+
+                @if (item.history?.createdAt) {
+                  <p class="mt-1 text-xs text-base-content/50">
+                    {{ item.history?.createdAt | date: 'dd MMM yyyy, HH:mm' }}
+                  </p>
+                } @else {
+                  <p class="mt-1 text-xs text-base-content/40">Belum ada waktu pada tahap ini.</p>
+                }
+              </div>
+
+              <span
+                class="w-fit rounded-full px-2.5 py-1 text-xs font-semibold"
+                [ngClass]="item.statusClass"
+              >
+                {{ item.statusLabel }}
+              </span>
+            </div>
+
+            <div class="mt-3 border border-base-300 px-3 py-3" [ngClass]="item.cardClass">
+              @if (item.history) {
+                <p class="text-sm leading-6 text-base-content/70">
+                  {{ item.history.notes || 'Tidak ada catatan pada tahap ini.' }}
+                </p>
+              } @else {
+                <p class="text-sm leading-6 text-base-content/40">
+                  Tahap ini belum dilalui applicant.
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="border border-dashed border-base-300 px-5 py-8 text-center">
+      <p class="text-sm font-medium text-base-content/50">
+        Belum ada tahapan yang terhubung dengan job ini.
+      </p>
+    </div>
+  }
+}
