@@ -32,9 +32,9 @@ export class ApplyStatusHistoryService {
       .pipe(map((res) => res.data));
   }
 
-  getByApplyId(applyId: string): Observable<ApplyStatusHistory[]> {
+  getByApplyId(applyId: string): Observable<ApplyStatusHistoryDetail[]> {
     return this.http
-      .get<ApiResponse<ApplyStatusHistory[]>>(`${this.url}/apply/${applyId}`)
+      .get<ApiResponse<ApplyStatusHistoryDetail[]>>(`${this.url}/apply/${applyId}`)
       .pipe(map((res) => res.data));
   }
 
@@ -55,7 +55,7 @@ export class ApplyStatusHistoryService {
       .delete<ApiResponse<ApplyStatusHistoryDetail>>(`${this.url}/${id}`)
       .pipe(map((res) => res.data));
   }
-  
+
   moveApplicationStatus(
     applyId: string,
     applyStatusId: string,
