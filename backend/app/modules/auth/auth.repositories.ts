@@ -34,4 +34,28 @@ export const authRepository = {
   async deleteRefreshToken(token: string): Promise<void> {
     await queryCamelOne(authQueries.deleteRefreshToken, [token]);
   },
+
+  async updateOtp(userId: string, otp: string, otpExpiredAt: Date): Promise<void> {
+    await queryCamelOne(authQueries.updateOtp, [otp, otpExpiredAt, userId]);
+  },
+
+  async updateEmail(userId: string, newEmail: string): Promise<void> {
+    await queryCamelOne(authQueries.updateEmail, [newEmail, userId]);
+  },
+
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    await queryCamelOne(authQueries.updatePassword, [hashedPassword, userId]);
+  },
+
+  async findByEmailExcludeId(email: string, excludeId: string): Promise<{ id: string } | null> {
+    return queryCamelOne<{ id: string }>(authQueries.findByEmailExcludeId, [email, excludeId]);
+  },
+
+  async findByIdFull(id: string): Promise<Auth | null> {
+    return queryCamelOne<Auth>(authQueries.findByIdFull, [id]);
+  },
+
+  async deleteRefreshTokenByUserId(userId: string): Promise<void> {
+    await queryCamelOne(authQueries.deleteRefreshTokenByUserId, [userId]);
+  },
 };

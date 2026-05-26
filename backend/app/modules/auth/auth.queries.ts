@@ -77,4 +77,53 @@ export const authQueries = {
     DELETE FROM refresh_tokens
     WHERE token = $1
   `,
+
+  updateEmail: `
+  UPDATE users
+  SET email = $1, updated_at = NOW()
+  WHERE id = $2
+`,
+
+  updateOtp: `
+  UPDATE users
+  SET otp = $1, otp_expired_at = $2, updated_at = NOW()
+  WHERE id = $3
+`,
+
+  updatePassword: `
+  UPDATE users
+  SET password = $1, updated_at = NOW()
+  WHERE id = $2
+`,
+
+  findByEmailExcludeId: `
+  SELECT id FROM users
+  WHERE email = $1
+    AND id != $2
+    AND deleted_at IS NULL
+  LIMIT 1
+`,
+
+  findByIdFull: `
+  SELECT
+    u.id, u.role_id, u.email, u.password, u.is_active,
+    u.otp, u.otp_expired_at, r.name AS role_name
+  FROM users u
+  LEFT JOIN roles r ON u.role_id = r.id
+  WHERE u.id = $1
+    AND u.deleted_at IS NULL
+  LIMIT 1
+`,
+
+  deleteRefreshTokenByUserId: `
+  DELETE FROM refresh_tokens WHERE user_id = $1
+`,
+
+  verifyForgotPasswordOtp: `
+  SELECT id, otp, otp_expired_at
+  FROM users
+  WHERE email = $1
+    AND deleted_at IS NULL
+  LIMIT 1
+`,
 };

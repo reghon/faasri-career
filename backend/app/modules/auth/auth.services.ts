@@ -150,4 +150,106 @@ export const authService = {
 
     return user;
   },
+
+  async requestChangeEmail(userId: string, newEmail: string) {
+    const existing = await authRepository.findByEmailExcludeId(newEmail, userId);
+    if (existing) {
+      throw new AppError(409, "Email already in use");
+    }
+
+    const otp = generateOtp();
+    const otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await authRepository.updateOtp(userId, otp, otpExpiredAt);
+    await sendOtpEmail(newEmail, otp);
+
+    return { message: "OTP sent to new email" };
+  },
+
+  async confirmChangeEmail(userId: string, newEmail: string, otp: string) {
+    const user = await authRepository.findById(userId);
+    if (!user) throw new AppError(404, "User not found");
+
+    const fullUser = await authRepository.findByIdFull(userId);
+    if (!fullUser) throw new AppError(404, "User not found");
+
+    if (!fullUser.otp || fullUser.otp !== otp) {
+      throw new AppError(400, "Invalid OTP");
+    }
+
+    if (!fullUser.otpExpiredAt || new Date() > new Date(fullUser.otpExpiredAt)) {
+      throw new AppError(400, "OTP expired");
+    }
+    const existing = await authRepository.findByEmailExcludeId(newEmail, userId);
+    if (existing) throw new AppError(409, "Email already in use");
+
+    await authRepository.updateEmail(userId, newEmail);
+    await authRepository.updateOtp(userId, "", new Date(0)); // clear otp
+
+    return { message: "Email updated successfully" };
+  },
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await authRepository.findByIdFull(userId);
+    if (!user) throw new AppError(404, "User not found");
+
+    const isValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isValid) throw new AppError(400, "Old password is incorrect");
+
+    const hashed = await bcrypt.hash(newPassword, config.bcrypt.saltRounds);
+    await authRepository.updatePassword(userId, hashed);
+
+    return { message: "Password changed successfully" };
+  },
+
+  async requestForgotPassword(email: string) {
+    const user = await authRepository.findByEmail(email);
+    if (!user) return { message: "If the email is registered, an OTP has been sent" };
+
+    if (!user.isActive) throw new AppError(403, "Account is not active");
+
+    const otp = generateOtp();
+    const otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await authRepository.updateOtp(user.id, otp, otpExpiredAt);
+    await sendOtpEmail(email, otp);
+
+    return { message: "If the email is registered, an OTP has been sent" };
+  },
+
+  async confirmForgotPassword(email: string, otp: string, newPassword: string) {
+    const user = await authRepository.findByEmail(email);
+    if (!user) throw new AppError(400, "Invalid request");
+
+    if (!user.otp || user.otp !== otp) {
+      throw new AppError(400, "Invalid OTP");
+    }
+
+    if (!user.otpExpiredAt || new Date() > new Date(user.otpExpiredAt)) {
+      throw new AppError(400, "OTP expired");
+    }
+
+    const hashed = await bcrypt.hash(newPassword, config.bcrypt.saltRounds);
+    await authRepository.updatePassword(user.id, hashed);
+    await authRepository.updateOtp(user.id, "", new Date(0));
+
+    await authRepository.deleteRefreshTokenByUserId(user.id);
+
+    return { message: "Password reset successfully" };
+  },
+
+  async verifyForgotPasswordOtp(email: string, otp: string) {
+    const user = await authRepository.findByEmail(email);
+    if (!user) throw new AppError(400, "Invalid request");
+
+    if (!user.otp || user.otp !== otp) {
+      throw new AppError(400, "Invalid OTP");
+    }
+
+    if (!user.otpExpiredAt || new Date() > new Date(user.otpExpiredAt)) {
+      throw new AppError(400, "OTP expired");
+    }
+
+    return { message: "OTP verified" };
+  },
 };

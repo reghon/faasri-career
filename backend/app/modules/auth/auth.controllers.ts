@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { requireUserId } from "../../utils/request-user.util";
 import { getValidatedBody } from "../../utils/validated-request.util";
-import { LoginBodyInput, RegisterBodyInput, VerifyOtpBodyInput } from "./auth.schemas";
+import { ChangeEmailConfirmBodyInput, ChangeEmailRequestBodyInput, ChangePasswordBodyInput, ForgotPasswordConfirmBodyInput, ForgotPasswordRequestBodyInput, LoginBodyInput, RegisterBodyInput, VerifyForgotPasswordOtpBodyInput, VerifyOtpBodyInput } from "./auth.schemas";
 import { authService } from "./auth.services";
 
 const refreshCookieOptions = {
@@ -86,5 +86,54 @@ export const authController = {
       message: "Success",
       data: user,
     });
+  },
+
+  async requestChangeEmail(req: Request, res: Response) {
+    const body = getValidatedBody<ChangeEmailRequestBodyInput>(req);
+    const userId = requireUserId(req);
+
+    const result = await authService.requestChangeEmail(userId, body.newEmail);
+
+    res.status(200).json({ message: result.message });
+  },
+
+  async confirmChangeEmail(req: Request, res: Response) {
+    const body = getValidatedBody<ChangeEmailConfirmBodyInput>(req);
+    const userId = requireUserId(req);
+
+    const result = await authService.confirmChangeEmail(userId, body.newEmail, body.otp);
+
+    res.status(200).json({ message: result.message });
+  },
+
+  async changePassword(req: Request, res: Response) {
+    const body = getValidatedBody<ChangePasswordBodyInput>(req);
+    const userId = requireUserId(req);
+
+    const result = await authService.changePassword(userId, body.oldPassword, body.newPassword);
+
+    res.status(200).json({ message: result.message });
+  },
+
+  async requestForgotPassword(req: Request, res: Response) {
+    const body = getValidatedBody<ForgotPasswordRequestBodyInput>(req);
+
+    const result = await authService.requestForgotPassword(body.email);
+
+    res.status(200).json({ message: result.message });
+  },
+
+  async confirmForgotPassword(req: Request, res: Response) {
+    const body = getValidatedBody<ForgotPasswordConfirmBodyInput>(req);
+
+    const result = await authService.confirmForgotPassword(body.email, body.otp, body.newPassword);
+
+    res.status(200).json({ message: result.message });
+  },
+
+  async verifyForgotPasswordOtp(req: Request, res: Response) {
+    const body = getValidatedBody<VerifyForgotPasswordOtpBodyInput>(req);
+    const result = await authService.verifyForgotPasswordOtp(body.email, body.otp);
+    res.status(200).json({ message: result.message });
   },
 };
