@@ -6,6 +6,7 @@ import { ManagementLayout } from './layouts/management-layout/management-layout'
 import { unsavedChangesGuard } from './core/guards/unsaved-changes-guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { managementGuard } from './core/guards/management.guard';
+import { hasAppliedGuard } from './core/guards/has-applied.guard';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,7 @@ export const routes: Routes = [
         path: 'job/:id/apply',
         loadComponent: () => import('./features/applicant/apply/apply').then((m) => m.Apply),
         canDeactivate: [unsavedChangesGuard],
+        canActivate: [hasAppliedGuard],
       },
       {
         path: 'profile',
@@ -44,7 +46,9 @@ export const routes: Routes = [
       {
         path: 'apply-history',
         loadComponent: () =>
-          import('./features/applicant/apply/apply-history/apply-history').then((m) => m.ApplyHistory),
+          import('./features/applicant/apply/apply-history/apply-history').then(
+            (m) => m.ApplyHistory,
+          ),
       },
     ],
   },
@@ -94,6 +98,20 @@ export const routes: Routes = [
         path: 'application',
         loadComponent: () =>
           import('./features/management/application/application').then((m) => m.Application),
+      },
+      {
+        path: 'application/:id',
+        loadComponent: () =>
+          import('./features/management/application/application-detail/application-detail').then(
+            (m) => m.ApplicationDetail,
+          ),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/management/profile/management-profile').then(
+            (m) => m.ManagementProfileComponent,
+          ),
       },
     ],
   },
