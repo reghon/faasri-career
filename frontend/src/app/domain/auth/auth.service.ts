@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { tap, finalize, switchMap, catchError } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../../core/config/api.config';
 import { ToastService } from '../../core/services/toast/toast.service';
 
@@ -18,26 +19,36 @@ export class AuthService {
   currentUser = signal<User | null>(null);
   accessToken = signal<string | null>(null);
   readonly isReady = signal(false);
-
+  readonly isLoggedIn = computed(() => !!this.currentUser());
+  readonly isApplicant = computed(
+    () => this.currentUser()?.roleName?.toLowerCase() === 'applicant',
+  );
   constructor(
     private http: HttpClient,
     private router: Router,
     private toastService: ToastService,
   ) {
+    console.log('AUTH SERVICE CREATED');
     const token = localStorage.getItem('accessToken');
 
     if (token) {
       this.accessToken.set(token);
+
       this.getMe()
         .pipe(
+          catchError((error) => {
+            console.error('getMe error', error);
+            return of(null);
+          }),
+
           finalize(() => {
-            console.log('finalize jalan, isReady = true');
+            console.log('Auth initialization finished');
+
             this.isReady.set(true);
           }),
         )
-        .subscribe({
-          next: (res) => console.log('getMe sukses', res),
-          error: (err) => console.log('getMe error', err),
+        .subscribe((res) => {
+          console.log('getMe success', res);
         });
     } else {
       this.isReady.set(true);
@@ -58,6 +69,11 @@ export class AuthService {
         tap((res) => {
           this.accessToken.set(res.data.accessToken);
           localStorage.setItem('accessToken', res.data.accessToken);
+        }),
+
+        switchMap(() => this.getMe()),
+
+        tap(() => {
           this.toastService.show('Login berhasil!');
         }),
       );
@@ -90,11 +106,13 @@ export class AuthService {
 
   getMe() {
     return this.http
-      .get<{ data: User }>(API_ENDPOINTS.auth.me)
-      .pipe(tap((res) => this.currentUser.set(res.data)));
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.accessToken();
+      .get<{ data: User }>(API_ENDPOINTS.auth.me, {
+        withCredentials: true,
+      })
+      .pipe(
+        tap((res) => {
+          this.currentUser.set(res.data);
+        }),
+      );
   }
 }
