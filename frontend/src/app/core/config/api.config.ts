@@ -10,10 +10,16 @@ export const API_ENDPOINTS = {
     refresh: `${API_URL}/api/auth/refresh`,
     me: `${API_URL}/api/auth/me`,
     verifyOtp: `${API_URL}/api/auth/verify-otp`,
+    forgotPasswordRequest: `${API_URL}/api/auth/forgot-password/request`,
+    forgotPasswordConfirm: `${API_URL}/api/auth/forgot-password/confirm`,
+    changeEmailRequest: `${API_URL}/api/auth/change-email/request`,
+    changeEmailConfirm: `${API_URL}/api/auth/change-email/confirm`,
+    changePassword: `${API_URL}/api/auth/change-password`,
+    verifyForgotPasswordOtp: `${API_URL}/api/auth/forgot-password/verify-otp`,
   },
   applicant: {
     applicantMaster: `${API_URL}/api/applicant/applicant-master/me`,
-    getByid: (id: string) =>`${API_URL}/api/applicant/applicant-master/${id}`,
+    getByid: (id: string) => `${API_URL}/api/applicant/applicant-master/${id}`,
     applicantProfile: `${API_URL}/api/applicant/profile/me`,
     workExperiences: `${API_URL}/api/applicant/work-experiences`,
     educations: `${API_URL}/api/applicant/educations`,
@@ -32,6 +38,7 @@ export const API_ENDPOINTS = {
   apply: {
     root: `${API_URL}/api/apply`,
     applyStatusHistories: `${API_URL}/api/apply/statusHistories`,
+    profile: `${API_URL}/api/apply-profile`,
   },
   master: {
     employmentTypes: `${API_URL}/api/job/employment-types`,
