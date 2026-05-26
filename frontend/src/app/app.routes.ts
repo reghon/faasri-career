@@ -50,6 +50,10 @@ export const routes: Routes = [
             (m) => m.ApplyHistory,
           ),
       },
+      {
+        path: 'setting',
+        loadComponent: () => import('./features/applicant/setting/setting').then((m) => m.Setting),
+      },
     ],
   },
   {
@@ -135,6 +139,15 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         loadComponent: () => import('./features/public/auth/otp/otp').then((m) => m.Otp),
       },
+      {
+        path: 'forgot-password',
+        canActivate: [guestGuard],
+        loadComponent: () =>
+          import('./features/public/auth/forgot-password/forgot-password').then(
+            (m) => m.ForgotPassword,
+          ),
+      },
+
       {
         path: '',
         redirectTo: 'login',
