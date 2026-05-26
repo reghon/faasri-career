@@ -115,4 +115,69 @@ export class AuthService {
         }),
       );
   }
+  requestChangeEmail(newEmail: string) {
+    return this.http.post<{ message: string }>(
+      API_ENDPOINTS.auth.changeEmailRequest,
+      { newEmail },
+      { withCredentials: true },
+    );
+  }
+
+  confirmChangeEmail(newEmail: string, otp: string) {
+    return this.http
+      .post<{
+        message: string;
+      }>(API_ENDPOINTS.auth.changeEmailConfirm, { newEmail, otp }, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          const user = this.currentUser();
+          if (user) {
+            this.currentUser.set({ ...user, email: newEmail });
+          }
+          this.toastService.show('Email berhasil diubah');
+        }),
+      );
+  }
+
+  changePassword(oldPassword: string, newPassword: string, confirmPassword: string) {
+    return this.http
+      .post<{
+        message: string;
+      }>(
+        API_ENDPOINTS.auth.changePassword,
+        { oldPassword, newPassword, confirmPassword },
+        { withCredentials: true },
+      )
+      .pipe(
+        tap(() => {
+          this.toastService.show('Password berhasil diubah');
+        }),
+      );
+  }
+
+  verifyForgotPasswordOtp(email: string, otp: string) {
+    return this.http.post<{ message: string }>(API_ENDPOINTS.auth.verifyForgotPasswordOtp, {
+      email,
+      otp,
+    });
+  }
+  
+  requestForgotPassword(email: string) {
+    return this.http.post<{ message: string }>(API_ENDPOINTS.auth.forgotPasswordRequest, {
+      email,
+    });
+  }
+
+  confirmForgotPassword(email: string, otp: string, newPassword: string, confirmPassword: string) {
+    return this.http
+      .post<{
+        message: string;
+      }>(API_ENDPOINTS.auth.forgotPasswordConfirm, { email, otp, newPassword, confirmPassword })
+      .pipe(
+        tap(() => {
+          this.toastService.show('Password berhasil direset, silakan login');
+          this.router.navigate(['/login']);
+        }),
+      );
+  }
 }
