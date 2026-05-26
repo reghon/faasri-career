@@ -27,6 +27,17 @@ export const managementProfileQueries = {
     LIMIT 1
   `,
 
+  updateMe: `
+    UPDATE management_profiles
+    SET
+      full_name = $1,
+      updated_at = NOW(),
+      updated_by = $2
+    WHERE user_id = $2
+      AND deleted_at IS NULL
+    RETURNING ${SELECT_FIELDS}
+  `,
+
   getDetailById: `
     SELECT ${DETAIL_FIELDS}
     FROM management_profiles
@@ -36,7 +47,7 @@ export const managementProfileQueries = {
   `,
 
   getByUserId: `
-    SELECT id, user_id, role_id, full_name
+    SELECT ${SELECT_FIELDS}
     FROM management_profiles
     WHERE user_id = $1
       AND deleted_at IS NULL

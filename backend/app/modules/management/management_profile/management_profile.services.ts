@@ -7,6 +7,30 @@ export const managementProfileService = {
     return managementProfileRepository.getAll();
   },
 
+  async getMe(userId: string) {
+    const managementProfile = await managementProfileRepository.getByUserId(userId);
+
+    if (!managementProfile) {
+      throw new AppError(404, "Management profile not found");
+    }
+
+    return managementProfile;
+  },
+  async updateMe(userId: string, fullName: string) {
+    const existing = await managementProfileRepository.getByUserId(userId);
+
+    if (!existing) {
+      throw new AppError(404, "Management profile not found");
+    }
+
+    const updated = await managementProfileRepository.updateMe(userId, fullName);
+
+    if (!updated) {
+      throw new AppError(500, "Failed to update profile");
+    }
+
+    return updated;
+  },
   async getById(id: string) {
     const managementProfile = await managementProfileRepository.getById(id);
 

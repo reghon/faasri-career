@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { requireUserId } from "../../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams } from "../../../utils/validated-request.util";
 import { managementProfileService } from "./management_profile.services";
-import { ManagementProfileBodyInput, ManagementProfileParamsInput } from "./management_profile.schemas";
+import { UpdateMyManagementProfileInput, ManagementProfileBodyInput, ManagementProfileParamsInput } from "./management_profile.schemas";
 
 export const managementProfileController = {
   async getAll(_req: Request, res: Response) {
@@ -10,6 +10,30 @@ export const managementProfileController = {
 
     res.status(200).json({
       message: "Success",
+      data,
+    });
+  },
+
+  async getMe(req: Request, res: Response) {
+    const userId = requireUserId(req);
+
+    const data = await managementProfileService.getMe(userId);
+
+    res.status(200).json({
+      message: "Success",
+      data,
+    });
+  },
+
+  async updateMe(req: Request, res: Response) {
+    const userId = requireUserId(req);
+
+    const body = getValidatedBody<UpdateMyManagementProfileInput>(req);
+
+    const data = await managementProfileService.updateMe(userId, body.fullName);
+
+    res.status(200).json({
+      message: "Profile updated successfully",
       data,
     });
   },

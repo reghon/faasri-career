@@ -18,9 +18,16 @@ export const managementProfileBodySchema = z.object({
   isActive: z.boolean(),
 });
 
+export const updateMyManagementProfileSchema = z.object({
+  fullName: requiredTrimmedString(255, "Full name"),
+});
+
 export const managementProfileParamsSchema = z.object({
   id: z.string().uuid("Invalid management profile id"),
 });
 
 export type ManagementProfileBodyInput = z.infer<typeof managementProfileBodySchema>;
+
+export type UpdateMyManagementProfileInput = z.infer<typeof updateMyManagementProfileSchema>;
+
 export type ManagementProfileParamsInput = z.infer<typeof managementProfileParamsSchema>;

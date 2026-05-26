@@ -11,6 +11,10 @@ export const managementProfileRepository = {
     return queryCamelOne<ManagementProfile>(managementProfileQueries.getById, [id]);
   },
 
+  async updateMe(userId: string, fullName: string): Promise<ManagementProfile | null> {
+    return queryCamelOne<ManagementProfile>(managementProfileQueries.updateMe, [fullName, userId]);
+  },
+
   async getByUserId(userId: string): Promise<ManagementProfile | null> {
     return queryCamelOne<ManagementProfile>(managementProfileQueries.getByUserId, [userId]);
   },
