@@ -73,4 +73,10 @@ export class ApplyService {
       .get<ApiResponse<ApplyByJobItem[]>>(`${API_ENDPOINTS.apply.root}/job/${jobId}`)
       .pipe(map((response) => response.data));
   }
+
+  hasApplied(jobId: string): Observable<boolean> {
+    return this.http
+      .get<ApiResponse<boolean>>(`${API_ENDPOINTS.apply.root}/check/${jobId}`)
+      .pipe(map((response) => response.data));
+  }
 }
