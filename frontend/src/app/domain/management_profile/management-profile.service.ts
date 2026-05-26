@@ -1,5 +1,3 @@
-// management_profile.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
@@ -23,6 +21,20 @@ export class ManagementProfileService {
       .pipe(map((response) => response.data));
   }
 
+  getMe(): Observable<ManagementProfile> {
+    return this.http
+      .get<ApiResponse<ManagementProfile>>(`${API_ENDPOINTS.admin.managementProfile}/me`)
+      .pipe(map((response) => response.data));
+  }
+
+  updateMe(fullName: string): Observable<ManagementProfile> {
+    return this.http
+      .put<ApiResponse<ManagementProfile>>(`${API_ENDPOINTS.admin.managementProfile}/me`, {
+        fullName,
+      })
+      .pipe(map((response) => response.data));
+  }
+
   getById(id: string): Observable<ManagementProfile> {
     return this.http
       .get<ApiResponse<ManagementProfile>>(`${API_ENDPOINTS.admin.managementProfile}/${id}`)
@@ -37,7 +49,9 @@ export class ManagementProfileService {
 
   update(id: string, payload: ManagementProfilePayload): Observable<ManagementProfile> {
     return this.http
-      .put<ApiResponse<ManagementProfile>>(`${API_ENDPOINTS.admin.managementProfile}/${id}`, payload)
+      .put<
+        ApiResponse<ManagementProfile>
+      >(`${API_ENDPOINTS.admin.managementProfile}/${id}`, payload)
       .pipe(map((response) => response.data));
   }
 
