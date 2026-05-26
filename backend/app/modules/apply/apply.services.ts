@@ -209,4 +209,20 @@ export const applyService = {
       client.release();
     }
   },
+
+  async hasApplied(userId: string, jobId: string) {
+    const client = await pool.connect();
+
+    try {
+      const profile = await applicantProfileRepository.getByUserId(userId);
+
+      if (!profile) {
+        throw new AppError(404, "Applicant profile not found");
+      }
+
+      return applyRepository.hasApplied(client, profile.id, jobId);
+    } finally {
+      client.release();
+    }
+  },
 };

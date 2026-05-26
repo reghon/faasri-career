@@ -22,6 +22,11 @@ export const applyRepository = {
     return queryCamelOne<Apply>(client, applyQueries.create, [data.applicantProfileId, data.jobId, data.statusId, data.applicationCode, data.notes, actorId]);
   },
 
+  async hasApplied(client: PoolClient, applicantProfileId: string, jobId: string): Promise<boolean> {
+    const result = await queryCamelOne<{ id: string }>(client, applyQueries.hasApplied, [applicantProfileId, jobId]);
+    return !!result;
+  },
+  
   async updateStatus(client: PoolClient, id: string, data: UpdateApplyStatusPayload, actorId: string): Promise<Apply | null> {
     return queryCamelOne<Apply>(client, applyQueries.updateStatus, [data.statusId, data.notes, actorId, id]);
   },

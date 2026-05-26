@@ -251,4 +251,13 @@ export const applyQueries = {
 
   LIMIT 1
 `,
+
+  hasApplied: `
+  SELECT id
+  FROM applies
+  WHERE applicant_profile_id = $1
+    AND job_id = $2
+    AND deleted_at IS NULL
+  LIMIT 1
+`,
 };

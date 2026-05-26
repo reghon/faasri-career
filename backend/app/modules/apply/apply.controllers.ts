@@ -88,4 +88,15 @@ export const applyController = {
       data,
     });
   },
+
+  async hasApplied(req: Request, res: Response) {
+    const params = getValidatedParams<ApplyJobParamsInput>(req);
+
+    const data = await applyService.hasApplied(requireUserId(req), params.jobId);
+
+    res.status(200).json({
+      message: "Apply check success",
+      data,
+    });
+  },
 };

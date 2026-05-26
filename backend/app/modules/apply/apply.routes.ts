@@ -29,5 +29,6 @@ router.patch(
   }),
   asyncHandler(applyController.updateStatus),
 );
+router.get("/check/:jobId", validate({ params: applyJobParamsSchema }), asyncHandler(applyController.hasApplied));
 
 export default router;
