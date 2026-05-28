@@ -1,0 +1,203 @@
+<div class="container-app px-6">
+  <div class="flex flex-col items-center pt-8 pb-12">
+    <div class="w-full max-w-2xl">
+      <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-base-content">Pengaturan</h1>
+        <p class="mt-1 text-sm text-base-content/60">Kelola keamanan akun Anda.</p>
+      </div>
+
+      <div class="flex flex-col gap-6">
+        <div class="card border border-base-300 bg-base-100">
+          <div class="card-body gap-5">
+            <div>
+              <h2 class="text-lg font-semibold text-base-content">Ubah Email</h2>
+              <p class="mt-1 text-sm text-base-content/60">
+                Verifikasi email baru menggunakan OTP.
+              </p>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium text-base-content">Email Saat Ini</label>
+              <input
+                type="email"
+                class="input input-bordered w-full bg-base-200 text-base-content/50"
+                [value]="currentEmail()"
+                disabled
+                readonly
+              />
+            </div>
+
+            <div data-field="newEmail">
+              <label class="mb-1 block text-sm font-medium text-base-content">Email Baru</label>
+              <div class="flex gap-2">
+                <input
+                  type="email"
+                  class="input input-bordered flex-1"
+                  [class.input-error]="newEmailError() || hasError('newEmail')"
+                  [disabled]="otpSent()"
+                  placeholder="Masukkan email baru"
+                  [ngModel]="newEmail()"
+                  (ngModelChange)="newEmail.set($event)"
+                  name="newEmail"
+                />
+                <button
+                  type="button"
+                  class="btn"
+                  [class.btn-primary-faasri]="
+                    isNewEmailValid() && !isOtpCooldownActive() && !otpVerified()
+                  "
+                  [class.btn-neutral]="!isNewEmailValid() || isOtpCooldownActive() || otpVerified()"
+                  [disabled]="
+                    isSendingOtp() || isOtpCooldownActive() || otpVerified() || !isNewEmailValid()
+                  "
+                  (click)="sendOtp()"
+                >
+                  @if (isSendingOtp()) {
+                    <span class="loading loading-spinner loading-sm"></span>
+                  } @else if (isOtpCooldownActive()) {
+                    {{ otpCountdown() }}s
+                  } @else if (otpSent()) {
+                    Kirim Ulang OTP
+                  } @else {
+                    Kirim OTP
+                  }
+                </button>
+              </div>
+              @if (newEmailError()) {
+                <p class="mt-1 text-xs text-error">{{ newEmailError() }}</p>
+              } @else if (hasError('newEmail')) {
+                <p class="mt-1 text-xs text-error">{{ getError('newEmail') }}</p>
+              }
+            </div>
+            @if (otpSent()) {
+              <div data-field="otp">
+                <label class="mb-3 block text-sm font-medium text-base-content">Kode OTP</label>
+                <div class="flex justify-center gap-3">
+                  @for (digit of otp(); track $index) {
+                    <input
+                      #otpInput
+                      type="text"
+                      maxlength="1"
+                      inputmode="numeric"
+                      [value]="digit"
+                      [disabled]="otpVerified()"
+                      [class.input-success]="otpVerified()"
+                      [class.input-error]="hasError('otp')"
+                      class="input input-bordered h-14 w-14 text-center text-xl font-bold"
+                      (input)="onOtpInput($index, $event)"
+                      (keydown)="onOtpKeydown($index, $event)"
+                    />
+                  }
+                </div>
+
+                <div class="mt-4 flex justify-center">
+                  <button
+                    type="button"
+                    class="btn"
+                    [class.btn-primary-faasri]="!isVerifyingOtp() && !otpVerified()"
+                    [class.btn-neutral]="isVerifyingOtp() || otpVerified()"
+                    [class.btn-outline]="otpVerified()"
+                    [disabled]="isVerifyingOtp() || otpVerified()"
+                    (click)="confirmOtp()"
+                  >
+                    @if (isVerifyingOtp()) {
+                      <span class="loading loading-spinner loading-sm"></span>
+                    } @else if (otpVerified()) {
+                      ✓ OTP Terverifikasi
+                    } @else {
+                      Konfirmasi OTP
+                    }
+                  </button>
+                </div>
+
+                @if (hasError('otp')) {
+                  <p class="mt-2 text-center text-xs text-error">{{ getError('otp') }}</p>
+                }
+                @if (otpVerified()) {
+                  <p class="mt-2 text-center text-xs text-success">OTP berhasil diverifikasi</p>
+                }
+              </div>
+            }
+
+            @if (hasError('emailGeneral')) {
+              <p class="text-xs text-error">{{ getError('emailGeneral') }}</p>
+            }
+          </div>
+        </div>
+
+        <form class="card border border-base-300 bg-base-100" (ngSubmit)="submitPassword()">
+          <div class="card-body gap-5">
+            <div>
+              <h2 class="text-lg font-semibold text-base-content">Ubah Password</h2>
+              <p class="mt-1 text-sm text-base-content/60">
+                Gunakan password yang kuat untuk keamanan akun Anda.
+              </p>
+            </div>
+
+            <div data-field="oldPassword">
+              <label class="mb-1 block text-sm font-medium text-base-content"
+                >Password Saat Ini</label
+              >
+              <div class="relative">
+                <input
+                  [type]="showOldPassword() ? 'text' : 'password'"
+                  class="input input-bordered w-full pr-14"
+                  [class.input-error]="hasError('oldPassword')"
+                  placeholder="Masukkan password saat ini"
+                  [value]="oldPassword()"
+                  (input)="oldPassword.set($any($event.target).value)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm absolute right-1 top-1/2 -translate-y-1/2"
+                  (click)="toggleShowOldPassword()"
+                >
+                  {{ showOldPassword() ? 'Hide' : 'Show' }}
+                </button>
+              </div>
+              @if (hasError('oldPassword')) {
+                <p class="mt-1 text-xs text-error">{{ getError('oldPassword') }}</p>
+              }
+            </div>
+
+            <app-password-field
+              label="Password Baru"
+              placeholder="Masukkan password baru"
+              [value]="newPassword()"
+              (valueChange)="newPassword.set($event)"
+            />
+
+            <app-confirm-password-field
+              label="Konfirmasi Password Baru"
+              placeholder="Masukkan ulang password baru"
+              [password]="newPassword()"
+              [confirmPassword]="confirmPassword()"
+              (confirmPasswordChange)="confirmPassword.set($event)"
+            />
+
+            <div>
+              <button
+                type="submit"
+                class="btn"
+                [class.btn-primary-faasri]="canSubmitPassword()"
+                [class.btn-neutral]="!canSubmitPassword()"
+                [disabled]="!canSubmitPassword()"
+              >
+                @if (isSubmittingPassword()) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                  Menyimpan...
+                } @else {
+                  Simpan Password Baru
+                }
+              </button>
+            </div>
+
+            @if (hasError('passwordGeneral')) {
+              <p class="text-xs text-error">{{ getError('passwordGeneral') }}</p>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
