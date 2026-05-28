@@ -33,6 +33,10 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
       return next(new AppError(403, "User is inactive"));
     }
 
+    if ((payload.sessionVersion ?? 0) !== user.sessionVersion) {
+      return next(new AppError(401, "Session expired"));
+    }
+
     req.user = {
       userId: user.id,
       email: user.email,

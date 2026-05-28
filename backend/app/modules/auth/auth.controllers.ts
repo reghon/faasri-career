@@ -100,19 +100,21 @@ export const authController = {
   async confirmChangeEmail(req: Request, res: Response) {
     const body = getValidatedBody<ChangeEmailConfirmBodyInput>(req);
     const userId = requireUserId(req);
+    const refreshToken = req.cookies?.refreshToken as string | undefined;
 
-    const result = await authService.confirmChangeEmail(userId, body.newEmail, body.otp);
+    const result = await authService.confirmChangeEmail(userId, body.newEmail, body.otp, refreshToken);
 
-    res.status(200).json({ message: result.message });
+    res.status(200).json({ message: result.message, data: { accessToken: result.accessToken } });
   },
 
   async changePassword(req: Request, res: Response) {
     const body = getValidatedBody<ChangePasswordBodyInput>(req);
     const userId = requireUserId(req);
+    const refreshToken = req.cookies?.refreshToken as string | undefined;
 
-    const result = await authService.changePassword(userId, body.oldPassword, body.newPassword);
+    const result = await authService.changePassword(userId, body.oldPassword, body.newPassword, refreshToken);
 
-    res.status(200).json({ message: result.message });
+    res.status(200).json({ message: result.message, data: { accessToken: result.accessToken } });
   },
 
   async requestForgotPassword(req: Request, res: Response) {

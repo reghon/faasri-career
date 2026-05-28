@@ -39,12 +39,12 @@ export const authRepository = {
     await queryCamelOne(authQueries.updateOtp, [otp, otpExpiredAt, userId]);
   },
 
-  async updateEmail(userId: string, newEmail: string): Promise<void> {
-    await queryCamelOne(authQueries.updateEmail, [newEmail, userId]);
+  async updateEmail(userId: string, newEmail: string): Promise<{ sessionVersion: number } | null> {
+    return queryCamelOne<{ sessionVersion: number }>(authQueries.updateEmail, [newEmail, userId]);
   },
 
-  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
-    await queryCamelOne(authQueries.updatePassword, [hashedPassword, userId]);
+  async updatePassword(userId: string, hashedPassword: string): Promise<{ sessionVersion: number } | null> {
+    return queryCamelOne<{ sessionVersion: number }>(authQueries.updatePassword, [hashedPassword, userId]);
   },
 
   async findByEmailExcludeId(email: string, excludeId: string): Promise<{ id: string } | null> {
@@ -57,5 +57,9 @@ export const authRepository = {
 
   async deleteRefreshTokenByUserId(userId: string): Promise<void> {
     await queryCamelOne(authQueries.deleteRefreshTokenByUserId, [userId]);
+  },
+
+  async deleteOtherRefreshTokensByUserId(userId: string, currentRefreshToken: string): Promise<void> {
+    await queryCamelOne(authQueries.deleteOtherRefreshTokensByUserId, [userId, currentRefreshToken]);
   },
 };

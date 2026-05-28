@@ -1,8 +1,10 @@
 import jwt, { SignOptions } from "jsonwebtoken";
+import { randomUUID } from "crypto";
 import { config } from "../configurations/env";
 
 export interface JwtPayloadCustom {
   userId: string;
+  sessionVersion?: number;
 }
 
 export interface AuthUser {
@@ -19,6 +21,7 @@ export const signAccessToken = (payload: JwtPayloadCustom): string => {
 export const signRefreshToken = (payload: JwtPayloadCustom): string => {
   return jwt.sign(payload, config.jwt.refreshSecret, {
     expiresIn: config.jwt.refreshExpiresIn,
+    jwtid: randomUUID(),
   } as SignOptions);
 };
 

@@ -64,6 +64,7 @@ export const authService = {
 
     const accessToken = signAccessToken({
       userId: user.id,
+      sessionVersion: user.sessionVersion,
     });
 
     const refreshToken = signRefreshToken({
@@ -97,6 +98,7 @@ export const authService = {
 
     const accessToken = signAccessToken({
       userId: user.id,
+      sessionVersion: user.sessionVersion,
     });
 
     const refreshToken = signRefreshToken({
@@ -137,6 +139,7 @@ export const authService = {
     return {
       accessToken: signAccessToken({
         userId: user.id,
+        sessionVersion: user.sessionVersion,
       }),
     };
   },
@@ -166,7 +169,7 @@ export const authService = {
     return { message: "OTP sent to new email" };
   },
 
-  async confirmChangeEmail(userId: string, newEmail: string, otp: string) {
+  async confirmChangeEmail(userId: string, newEmail: string, otp: string, currentRefreshToken?: string) {
     const user = await authRepository.findById(userId);
     if (!user) throw new AppError(404, "User not found");
 
@@ -183,13 +186,22 @@ export const authService = {
     const existing = await authRepository.findByEmailExcludeId(newEmail, userId);
     if (existing) throw new AppError(409, "Email already in use");
 
-    await authRepository.updateEmail(userId, newEmail);
+    const updatedUser = await authRepository.updateEmail(userId, newEmail);
     await authRepository.updateOtp(userId, "", new Date(0)); // clear otp
+    if (currentRefreshToken) {
+      await authRepository.deleteOtherRefreshTokensByUserId(userId, currentRefreshToken);
+    }
 
-    return { message: "Email updated successfully" };
+    return {
+      message: "Email updated successfully",
+      accessToken: signAccessToken({
+        userId,
+        sessionVersion: updatedUser?.sessionVersion ?? fullUser.sessionVersion + 1,
+      }),
+    };
   },
 
-  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+  async changePassword(userId: string, oldPassword: string, newPassword: string, currentRefreshToken?: string) {
     const user = await authRepository.findByIdFull(userId);
     if (!user) throw new AppError(404, "User not found");
 
@@ -197,9 +209,18 @@ export const authService = {
     if (!isValid) throw new AppError(400, "Old password is incorrect");
 
     const hashed = await bcrypt.hash(newPassword, config.bcrypt.saltRounds);
-    await authRepository.updatePassword(userId, hashed);
+    const updatedUser = await authRepository.updatePassword(userId, hashed);
+    if (currentRefreshToken) {
+      await authRepository.deleteOtherRefreshTokensByUserId(userId, currentRefreshToken);
+    }
 
-    return { message: "Password changed successfully" };
+    return {
+      message: "Password changed successfully",
+      accessToken: signAccessToken({
+        userId,
+        sessionVersion: updatedUser?.sessionVersion ?? user.sessionVersion + 1,
+      }),
+    };
   },
 
   async requestForgotPassword(email: string) {

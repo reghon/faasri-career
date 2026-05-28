@@ -13,6 +13,7 @@ export type Auth = {
   deletedAt: string | null;
   deletedBy: string | null;
   roleName: string | null;
+  sessionVersion: number;
 };
 
 export type AuthMe = {
@@ -21,6 +22,7 @@ export type AuthMe = {
   isActive: boolean;
   roleId: string | null;
   roleName: string | null;
+  sessionVersion: number;
 };
 
 export type AuthRegisterResult = {

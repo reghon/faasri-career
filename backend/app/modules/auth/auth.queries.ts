@@ -2,6 +2,7 @@ export const authQueries = {
   findByEmail: `
     SELECT
       u.id, u.role_id, u.email, u.password, u.is_active, u.otp,
+      u.session_version,
       u.otp_expired_at, u.created_at, u.created_by, u.updated_at,
       u.updated_by, u.deleted_at, u.deleted_by, r.name AS role_name
     FROM users u
@@ -13,7 +14,7 @@ export const authQueries = {
 
   findById: `
     SELECT
-      u.id, u.role_id, u.email, u.is_active, r.name AS role_name
+      u.id, u.role_id, u.email, u.is_active, u.session_version, r.name AS role_name
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.id = $1
@@ -60,8 +61,8 @@ export const authQueries = {
     VALUES (
       gen_random_uuid(), $1, $2, $3
     )
-    ON CONFLICT (user_id)
-    DO UPDATE SET token = $2, expires_at = $3
+    ON CONFLICT (token)
+    DO UPDATE SET expires_at = $3
   `,
 
   findRefreshToken: `
@@ -80,8 +81,9 @@ export const authQueries = {
 
   updateEmail: `
   UPDATE users
-  SET email = $1, updated_at = NOW()
+  SET email = $1, session_version = session_version + 1, updated_at = NOW()
   WHERE id = $2
+  RETURNING session_version
 `,
 
   updateOtp: `
@@ -92,8 +94,9 @@ export const authQueries = {
 
   updatePassword: `
   UPDATE users
-  SET password = $1, updated_at = NOW()
+  SET password = $1, session_version = session_version + 1, updated_at = NOW()
   WHERE id = $2
+  RETURNING session_version
 `,
 
   findByEmailExcludeId: `
@@ -107,6 +110,7 @@ export const authQueries = {
   findByIdFull: `
   SELECT
     u.id, u.role_id, u.email, u.password, u.is_active,
+    u.session_version,
     u.otp, u.otp_expired_at, r.name AS role_name
   FROM users u
   LEFT JOIN roles r ON u.role_id = r.id
@@ -117,6 +121,12 @@ export const authQueries = {
 
   deleteRefreshTokenByUserId: `
   DELETE FROM refresh_tokens WHERE user_id = $1
+`,
+
+  deleteOtherRefreshTokensByUserId: `
+  DELETE FROM refresh_tokens
+  WHERE user_id = $1
+    AND token <> $2
 `,
 
   verifyForgotPasswordOtp: `
