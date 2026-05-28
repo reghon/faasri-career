@@ -6,6 +6,9 @@ import {
   ActivatedRouteSnapshot,
 } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
+
 import { AuthService } from '../../domain/auth/auth.service';
 
 export const managementGuard: CanActivateFn = async (
@@ -15,10 +18,12 @@ export const managementGuard: CanActivateFn = async (
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (!authService.isLoggedIn()) {
-    await router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-    return false;
-  }
+  await firstValueFrom(
+    toObservable(authService.isReady).pipe(
+      filter((ready) => ready),
+      take(1),
+    ),
+  );
 
   let user = authService.currentUser();
 
@@ -27,8 +32,9 @@ export const managementGuard: CanActivateFn = async (
       const res = await firstValueFrom(authService.getMe());
       user = res.data;
     } catch {
-      await router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-      return false;
+      return router.createUrlTree(['/login'], {
+        queryParams: { returnUrl: state.url },
+      });
     }
   }
 
