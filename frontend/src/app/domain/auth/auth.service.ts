@@ -127,9 +127,13 @@ export class AuthService {
     return this.http
       .post<{
         message: string;
+        data: { accessToken: string };
       }>(API_ENDPOINTS.auth.changeEmailConfirm, { newEmail, otp }, { withCredentials: true })
       .pipe(
-        tap(() => {
+        tap((res) => {
+          this.accessToken.set(res.data.accessToken);
+          localStorage.setItem('accessToken', res.data.accessToken);
+
           const user = this.currentUser();
           if (user) {
             this.currentUser.set({ ...user, email: newEmail });
@@ -143,13 +147,16 @@ export class AuthService {
     return this.http
       .post<{
         message: string;
+        data: { accessToken: string };
       }>(
         API_ENDPOINTS.auth.changePassword,
         { oldPassword, newPassword, confirmPassword },
         { withCredentials: true },
       )
       .pipe(
-        tap(() => {
+        tap((res) => {
+          this.accessToken.set(res.data.accessToken);
+          localStorage.setItem('accessToken', res.data.accessToken);
           this.toastService.show('Password berhasil diubah');
         }),
       );
