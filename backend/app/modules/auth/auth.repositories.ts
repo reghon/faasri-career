@@ -15,6 +15,10 @@ export const authRepository = {
     return queryCamelOne<AuthRegisterResult>(authQueries.create, [roleId, email, hashedPassword, otp, otpExpiredAt]);
   },
 
+  async updateUnverifiedRegistration(userId: string, hashedPassword: string, otp: string, otpExpiredAt: Date): Promise<AuthRegisterResult | null> {
+    return queryCamelOne<AuthRegisterResult>(authQueries.updateUnverifiedRegistration, [hashedPassword, otp, otpExpiredAt, userId]);
+  },
+
   async activateUser(id: string): Promise<void> {
     await queryCamelOne(authQueries.activateUser, [id]);
   },

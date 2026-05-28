@@ -35,6 +35,20 @@ export const authQueries = {
       id, email, is_active, created_at, role_id
   `,
 
+  updateUnverifiedRegistration: `
+    UPDATE users
+    SET
+      password = $1,
+      otp = $2,
+      otp_expired_at = $3,
+      updated_at = NOW()
+    WHERE id = $4
+      AND is_active = FALSE
+      AND deleted_at IS NULL
+    RETURNING
+      id, email, is_active, created_at, role_id
+  `,
+
   activateUser: `
     UPDATE users
     SET

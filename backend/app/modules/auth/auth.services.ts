@@ -15,7 +15,7 @@ export const authService = {
   async register(email: string, password: string) {
     const existingUser = await authRepository.findByEmail(email);
 
-    if (existingUser) {
+    if (existingUser?.isActive) {
       throw new AppError(409, "Email already registered");
     }
 
@@ -29,6 +29,18 @@ export const authService = {
 
     const otp = generateOtp();
     const otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    if (existingUser) {
+      const user = await authRepository.updateUnverifiedRegistration(existingUser.id, hashedPassword, otp, otpExpiredAt);
+
+      if (!user) {
+        throw new AppError(500, "Failed to update registration");
+      }
+
+      await sendOtpEmail(email, otp);
+
+      return user;
+    }
 
     const user = await authRepository.create(email, hashedPassword, defaultRole.id, otp, otpExpiredAt);
 
