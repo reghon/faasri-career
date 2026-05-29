@@ -6,7 +6,7 @@ import { authorizationService } from "./authorization.services";
 export const authorizePermission = (permissionCode: string) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      const roleId = requireRoleId(req);
+      const roleId = await requireRoleId(req);
 
       const hasPermission = await authorizationService.hasPermission(roleId, permissionCode);
 

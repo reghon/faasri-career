@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { AppError } from "../../errors/app-error";
 import { config } from "../../configurations/env";
 import { authRepository } from "./auth.repositories";
+import { authorizationService } from "../authorization/authorization.services";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../utils/jwt.util";
 import { sendOtpEmail } from "../../utils/mailer.util";
 
@@ -163,7 +164,15 @@ export const authService = {
       throw new AppError(404, "User not found");
     }
 
-    return user;
+    const rolePermissions = user.roleId ? await authorizationService.getRolePermissions(user.roleId) : [];
+
+    return {
+      id: user.id,
+      email: user.email,
+      isActive: user.isActive,
+      sessionVersion: user.sessionVersion,
+      permissions: rolePermissions.map((permission) => permission.permissionCode),
+    };
   },
 
   async requestChangeEmail(userId: string, newEmail: string) {
@@ -199,7 +208,7 @@ export const authService = {
     if (existing) throw new AppError(409, "Email already in use");
 
     const updatedUser = await authRepository.updateEmail(userId, newEmail);
-    await authRepository.updateOtp(userId, "", new Date(0)); // clear otp
+    await authRepository.updateOtp(userId, "", new Date(0));
     if (currentRefreshToken) {
       await authRepository.deleteOtherRefreshTokensByUserId(userId, currentRefreshToken);
     }

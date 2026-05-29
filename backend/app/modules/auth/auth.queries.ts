@@ -4,7 +4,8 @@ export const authQueries = {
       u.id, u.role_id, u.email, u.password, u.is_active, u.otp,
       u.session_version,
       u.otp_expired_at, u.created_at, u.created_by, u.updated_at,
-      u.updated_by, u.deleted_at, u.deleted_by, r.name AS role_name
+      u.updated_by, u.deleted_at, u.deleted_by, r.name AS role_name,
+      COALESCE(r.is_superadmin, FALSE) AS is_superadmin
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.email = $1
@@ -125,7 +126,8 @@ export const authQueries = {
   SELECT
     u.id, u.role_id, u.email, u.password, u.is_active,
     u.session_version,
-    u.otp, u.otp_expired_at, r.name AS role_name
+    u.otp, u.otp_expired_at, r.name AS role_name,
+    COALESCE(r.is_superadmin, FALSE) AS is_superadmin
   FROM users u
   LEFT JOIN roles r ON u.role_id = r.id
   WHERE u.id = $1
