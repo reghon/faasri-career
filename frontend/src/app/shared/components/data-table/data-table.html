@@ -4,7 +4,7 @@
       <!-- HEADER -->
       <thead class="bg-base-200/60">
         <tr>
-          @for (column of columns; track column.key) {
+          @for (column of visibleColumns; track column.key) {
             <th
               class="whitespace-nowrap"
               [class]="getTextAlignClass(column.align)"
@@ -44,21 +44,26 @@
         } @else {
           @for (row of data; track $index) {
             <tr class="hover">
-              @for (column of columns; track column.key) {
+              @for (column of visibleColumns; track column.key) {
                 <td
-                  class="whitespace-nowrap"
-                  [class]="getTextAlignClass(column.align) + ' ' + (column.className || '')"
+                  class="relative whitespace-nowrap"
+                  [class]="
+                    (column.type === 'action' ? 'overflow-visible ' : '') +
+                    getTextAlignClass(column.align) +
+                    ' ' +
+                    (column.className || '')
+                  "
                   [style.min-width]="column.minWidth || null"
                 >
                   <!-- ACTION -->
                   @if (column.type === 'action') {
-                    <div class="relative z-50 flex items-center justify-end gap-2">
+                    <div class="relative z-50 flex items-center justify-end gap-2 overflow-visible">
                       <app-table-action
                         [showView]="showView"
                         [showEdit]="showEdit"
                         [showDelete]="showDelete"
                         [useDropdown]="useActionDropdown"
-                        [actions]="actionsGetter ? actionsGetter(row) : actions"
+                        [actions]="getRowActions($index)"
                         (view)="view.emit(row)"
                         (edit)="edit.emit(row)"
                         (delete)="delete.emit(row)"
