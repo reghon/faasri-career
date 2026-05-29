@@ -10,8 +10,8 @@ export interface User {
   id: string;
   email: string;
   isActive: boolean;
-  roleId: string;
   roleName: string;
+  permissions: string[];
 }
 
 @Injectable({ providedIn: 'root' })
