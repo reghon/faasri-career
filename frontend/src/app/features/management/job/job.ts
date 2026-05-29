@@ -37,6 +37,7 @@ import {
 } from './utils/job-filter.utils';
 
 import { getUniqueOptions, paginate, formatDate } from '../../../shared/utils/';
+import { RbacService } from '../../../domain/authorization/rbac.service';
 
 const DEFAULT_SORT_FIELD: SortField = 'publishedAt';
 const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
@@ -60,6 +61,7 @@ export class Job implements OnInit {
   private readonly jobService = inject(JobService);
   private readonly router = inject(Router);
 
+  readonly rbac = inject(RbacService);
 
   readonly isLoading = signal(false);
   readonly jobs = signal<JobListItem[]>([]);

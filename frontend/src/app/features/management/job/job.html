@@ -20,7 +20,7 @@
         [open]="isJobFormModalOpen()"
         [jobId]="selectedJobId()"
         (close)="onCloseJobFormModal()"
-        (saved)="onJobSaved()"  
+        (saved)="onJobSaved()"
       ></app-job-form-modal>
 
       <div class="p-4 md:p-5">
@@ -49,8 +49,8 @@
             emptyTitle="Belum ada job"
             emptyDescription="Data job belum tersedia atau tidak cocok dengan filter pencarian."
             [pagination]="tablePagination()"
-            [showView]="true"
-            [showEdit]="true"
+            [showView]="rbac.job.canRead()"
+            [showEdit]="rbac.job.canUpdate()"
             (view)="viewJob($event)"
             (edit)="editJob($event)"
             (pageChange)="goToPage($event)"
