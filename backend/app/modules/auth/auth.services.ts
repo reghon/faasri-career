@@ -169,6 +169,7 @@ export const authService = {
     return {
       id: user.id,
       email: user.email,
+      roleName: user.roleName,
       isActive: user.isActive,
       sessionVersion: user.sessionVersion,
       permissions: rolePermissions.map((permission) => permission.permissionCode),
