@@ -39,7 +39,7 @@
             Dashboard
           </a>
         </li>
-        <li>
+        <li *ngIf="rbac.applicant.canRead()">
           <a
             routerLink="/management/applicant"
             routerLinkActive="color-blue-primary"
@@ -48,7 +48,7 @@
             Applicant
           </a>
         </li>
-        <li>
+        <li *ngIf="rbac.job.canRead()">
           <a
             routerLink="/management/job"
             routerLinkActive="color-blue-primary"
@@ -57,7 +57,7 @@
             Job
           </a>
         </li>
-        <li>
+        <li *ngIf="rbac.application.canRead()">
           <a
             routerLink="/management/application"
             routerLinkActive="color-blue-primary"
@@ -66,7 +66,7 @@
             Application
           </a>
         </li>
-        <li>
+        <li *ngIf="rbac.masterData.canRead()">
           <a
             routerLink="/management/master-data"
             routerLinkActive="color-blue-primary"
@@ -75,7 +75,7 @@
             Master Data
           </a>
         </li>
-        <li>
+        <li *ngIf="rbac.admin.canRead()">
           <a
             routerLink="/management/admin"
             routerLinkActive="color-blue-primary"
@@ -93,7 +93,7 @@
       <div class="h-8 w-8 animate-pulse rounded-full bg-base-300"></div>
     </div>
 
-    <!-- MENU: belum login -->
+    <!-- MENU: BEFORE LOGIN -->
     <div class="flex items-center gap-4" *ngIf="isAuthReady() && !isLoggedIn()">
       <a routerLink="/register" class="btn btn-ghost font-semibold" [class.text-white]="!isWhite()">
         Sign Up
@@ -103,7 +103,7 @@
       </a>
     </div>
 
-    <!-- MENU: sudah login -->
+    <!-- MENU: AFTER LOGIN-->
     <div class="flex items-center gap-4" *ngIf="isAuthReady() && isLoggedIn()">
       <a
         *ngIf="!isManagement()"
@@ -182,14 +182,15 @@
           tabindex="0"
           class="dropdown-content menu z-50 mt-2 w-48 rounded-box bg-base-100 p-2 shadow-lg"
         >
-          <li><a routerLink="/profile">Profile</a></li>
+          <li>
+            <a [routerLink]="isManagementRole() ? '/management/profile' : '/profile'"> Profile </a>
+          </li>
 
           <ng-container *ngIf="!isManagementRole()">
             <li><a routerLink="/saved-jobs">Lamaran Disimpan</a></li>
             <li><a routerLink="/apply-history">Riwayat Lamaran</a></li>
-            <li><a routerLink="/settings">Settings</a></li>
           </ng-container>
-
+          <li><a routerLink="/setting">Settings</a></li>
           <li><hr class="my-1" /></li>
           <li><a class="text-error" (click)="logout()">Logout</a></li>
         </ul>
