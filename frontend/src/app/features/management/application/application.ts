@@ -43,6 +43,7 @@ import {
   getUniqueJobIds,
   mapJobApplyStatuses,
 } from '../../../shared/utils/apply-status-movement';
+import { RbacService } from '../../../domain/authorization/rbac.service';
 
 const DEFAULT_SORT_FIELD: SortField = 'appliedAt';
 const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
@@ -74,6 +75,8 @@ export class Application implements OnInit {
   private readonly jobApplyStatusService = inject(JobApplyStatusService);
   private readonly applyStatusHistoryService = inject(ApplyStatusHistoryService);
   private readonly statusCache = new Map<string, ApplyStatusMovementItem[]>();
+
+  readonly rbac = inject(RbacService);
 
   readonly isLoading = signal(false);
   readonly isMovingStatus = signal(false);
