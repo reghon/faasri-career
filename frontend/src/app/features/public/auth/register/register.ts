@@ -1,22 +1,39 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, computed, signal } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../domain/auth/auth.service';
 import { ToastService } from '../../../../core/services/toast/toast.service';
+import { PasswordField } from '../../../../shared/components/password-field/password-field';
+import { ConfirmPasswordField } from '../../../../shared/components/password-field/confirm-password-field';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, PasswordField, ConfirmPasswordField],
   templateUrl: './register.html',
 })
 export class Register {
   fullName = '';
   email = '';
-  password = '';
-  confirmPassword = '';
+  password = signal('');
+  confirmPassword = signal('');
   errorMessage = '';
   isLoading = false;
+
+  isPasswordValid = computed(() => {
+    const password = this.password();
+
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^a-zA-Z0-9]/.test(password)
+    );
+  });
+
+  passwordsMatch = computed(
+    () => this.password() === this.confirmPassword() && this.confirmPassword().length > 0,
+  );
 
   constructor(
     private authService: AuthService,
@@ -26,16 +43,16 @@ export class Register {
   ) {}
 
   onRegister() {
-    if (!this.fullName || !this.email || !this.password || !this.confirmPassword) {
+    if (!this.fullName || !this.email || !this.password() || !this.confirmPassword()) {
       this.errorMessage = 'Semua field wajib diisi';
       return;
     }
-    if (this.password !== this.confirmPassword) {
+    if (!this.passwordsMatch()) {
       this.errorMessage = 'Kata sandi tidak cocok';
       return;
     }
-    if (this.password.length < 8) {
-      this.errorMessage = 'Kata sandi minimal 8 karakter';
+    if (!this.isPasswordValid()) {
+      this.errorMessage = 'Kata sandi belum memenuhi ketentuan';
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,7 +62,7 @@ export class Register {
     }
     this.isLoading = true;
     this.errorMessage = '';
-    this.authService.register(this.email, this.password).subscribe({
+    this.authService.register(this.email, this.password()).subscribe({
       next: () => {
         this.toastService.show('Registrasi berhasil! Cek email kamu.');
         this.router.navigate(['/otp'], { state: { email: this.email } });

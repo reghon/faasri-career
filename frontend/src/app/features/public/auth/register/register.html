@@ -36,18 +36,19 @@
         [(ngModel)]="email"
       />
 
-      <input
-        type="password"
+      <app-password-field
+        label="Kata Sandi"
         placeholder="Masukkan kata sandi"
-        class="input input-bordered w-full"
-        [(ngModel)]="password"
+        [value]="password()"
+        (valueChange)="password.set($event)"
       />
 
-      <input
-        type="password"
-        placeholder="Konfirmasi kata sandi"
-        class="input input-bordered w-full"
-        [(ngModel)]="confirmPassword"
+      <app-confirm-password-field
+        label="Konfirmasi Kata Sandi"
+        placeholder="Masukkan ulang kata sandi"
+        [password]="password()"
+        [confirmPassword]="confirmPassword()"
+        (confirmPasswordChange)="confirmPassword.set($event)"
       />
 
       <button class="btn btn-primary-faasri w-full" [disabled]="isLoading" (click)="onRegister()">
