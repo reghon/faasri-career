@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../../middlewares/auth.middleware";
+import { authorizePermission } from "../../authorization/authorization.middleware";
 import { validate } from "../../../middlewares/validate.middleware";
 import { asyncHandler } from "../../../utils/async-handler";
 import { moduleController } from "./module.controllers";
@@ -9,12 +10,12 @@ const router: Router = Router();
 
 router.use(authenticate);
 
-router.get("/", asyncHandler(moduleController.getAll));
+router.get("/", authorizePermission("ADMIN_LIST"), asyncHandler(moduleController.getAll));
 
-router.post("/", validate({ body: moduleBodySchema }), asyncHandler(moduleController.create));
+router.post("/", authorizePermission("ADMIN_CREATE"), validate({ body: moduleBodySchema }), asyncHandler(moduleController.create));
 
-router.put("/:id", validate({ params: moduleParamsSchema, body: moduleBodySchema }), asyncHandler(moduleController.update));
+router.put("/:id", authorizePermission("ADMIN_UPDATE"), validate({ params: moduleParamsSchema, body: moduleBodySchema }), asyncHandler(moduleController.update));
 
-router.delete("/:id", validate({ params: moduleParamsSchema }), asyncHandler(moduleController.delete));
+router.delete("/:id", authorizePermission("ADMIN_DELETE"), validate({ params: moduleParamsSchema }), asyncHandler(moduleController.delete));
 
 export default router;
