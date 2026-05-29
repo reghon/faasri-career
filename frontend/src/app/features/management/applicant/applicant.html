@@ -40,7 +40,7 @@
             emptyTitle="Belum ada pelamar"
             emptyDescription="Data pelamar belum tersedia atau tidak cocok dengan filter pencarian."
             [pagination]="tablePagination()"
-            [showView]="true"
+            [showView]="rbac.applicant.canRead()"
             [showEdit]="false"
             (view)="viewApplicant($event)"
             (pageChange)="goToPage($event)"

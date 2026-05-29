@@ -34,6 +34,7 @@ import {
 } from './utils/applicant-filter.utils';
 
 import { getUniqueOptions, paginate } from '../../../shared/utils';
+import { RbacService } from '../../../domain/authorization/rbac.service';
 
 const DEFAULT_SORT_FIELD: SortField = 'fullName';
 const DEFAULT_SORT_DIRECTION: SortDirection = 'asc';
@@ -55,6 +56,8 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 export class Applicant implements OnInit {
   private readonly applicantProfileService = inject(ApplicantProfileService);
   private readonly router = inject(Router);
+
+  readonly rbac = inject(RbacService);
 
   readonly isLoading = signal(false);
   readonly applications = signal<ApplicantProfile[]>([]);
