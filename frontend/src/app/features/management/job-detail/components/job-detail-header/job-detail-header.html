@@ -57,8 +57,13 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button class="btn btn-primary-faasri btn-sm rounded-lg">Edit Job</button>
-
+        <button
+          type="button"
+          class="btn btn-primary-faasri btn-sm rounded-lg"
+          (click)="onEditJob()"
+        >
+          Edit Job
+        </button>
         <details class="dropdown dropdown-end">
           <summary class="btn btn-outline btn-sm rounded-lg text-error">Close Job</summary>
 

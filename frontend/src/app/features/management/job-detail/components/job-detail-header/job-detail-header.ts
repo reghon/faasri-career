@@ -14,7 +14,7 @@ import { JobDetail as JobDetailModel } from '../../../../../domain/job/models/jo
 import { ApplyService } from '../../../../../domain/apply/apply.service';
 import { ApplyByJobItem } from '../../../../../domain/apply/apply.model';
 
-type JobDetailTab = 'detail' | 'candidate' | 'pipeline' | 'activity';
+type JobDetailTab = 'detail' | 'candidate';
 
 @Component({
   selector: 'app-job-detail-header',
@@ -30,6 +30,7 @@ export class JobDetailHeaderComponent implements OnChanges {
   @Input() activeTab: JobDetailTab = 'detail';
 
   @Output() tabChange = new EventEmitter<JobDetailTab>();
+  @Output() editJob = new EventEmitter<void>();
 
   applicantsCount = 0;
   rejectedCount = 0;
@@ -39,8 +40,6 @@ export class JobDetailHeaderComponent implements OnChanges {
   tabs: { label: string; value: JobDetailTab }[] = [
     { label: 'Detail', value: 'detail' },
     { label: 'Candidate', value: 'candidate' },
-    { label: 'Pipeline', value: 'pipeline' },
-    { label: 'Activity', value: 'activity' },
   ];
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -90,6 +89,10 @@ export class JobDetailHeaderComponent implements OnChanges {
 
   setTab(tab: JobDetailTab): void {
     this.tabChange.emit(tab);
+  }
+
+  onEditJob(): void {
+    this.editJob.emit();
   }
 
   getStatusBadgeClass(status: string | null | undefined): string {
