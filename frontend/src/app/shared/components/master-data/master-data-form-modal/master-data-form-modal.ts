@@ -3,7 +3,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GenericModalComponent } from '../../general/generic-modal.component';
 
-type FieldType = 'text' | 'textarea' | 'switch' | 'number';
+type FieldType = 'text' | 'textarea' | 'switch' | 'number' | 'select';
+
+export interface SelectOption {
+  label: string;
+  value: string;
+}
 
 export interface MasterDataFieldConfig {
   key: string;
@@ -16,6 +21,7 @@ export interface MasterDataFieldConfig {
   maxLength?: number;
   pattern?: RegExp;
   patternMessage?: string;
+  options?: SelectOption[];
 }
 
 @Component({

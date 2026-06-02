@@ -44,6 +44,40 @@
             </div>
           }
 
+          @if (field.type === 'select') {
+            <div class="md:col-span-1" [attr.data-field]="field.key">
+              <label class="faasri-label">
+                {{ field.label }}
+
+                @if (field.required) {
+                  <span class="text-error">*</span>
+                }
+              </label>
+
+              <select
+                class="select select-bordered w-full"
+                [class.select-error]="!!errors[field.key]"
+                [ngModel]="form[field.key]"
+                [name]="field.key"
+                (ngModelChange)="updateField(field.key, $event)"
+              >
+                <option value="">Pilih {{ field.label }}</option>
+
+                @for (option of field.options ?? []; track option.value) {
+                  <option [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+
+              @if (errors[field.key]) {
+                <p class="mt-1 text-xs text-error">
+                  {{ errors[field.key] }}
+                </p>
+              }
+            </div>
+          }
+
           @if (field.type === 'textarea') {
             <div class="md:col-span-2" [attr.data-field]="field.key">
               <label class="faasri-label">
