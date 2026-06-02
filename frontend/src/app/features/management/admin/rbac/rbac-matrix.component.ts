@@ -110,7 +110,12 @@ export class RbacMatrixComponent implements OnInit {
       )
       .subscribe({
         next: ({ roles, modules, actions, permissions, rolePermissions }) => {
-          this.roles = (roles ?? []).filter((item) => item.isActive);
+          this.roles = (roles ?? []).filter(
+            (item) =>
+              item.isActive &&
+              item.name?.toLowerCase() !== 'applicant' &&
+              item.code?.toLowerCase() !== 'applicant',
+          );
           this.modules = (modules ?? []).filter((item) => item.isActive);
           this.actions = this.sortActions((actions ?? []).filter((item) => item.isActive));
           this.permissions = (permissions ?? []).filter((item) => item.isActive);
