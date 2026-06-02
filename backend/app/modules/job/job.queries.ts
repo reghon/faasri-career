@@ -1,5 +1,5 @@
 const BASE_FIELDS = `
-  id,category_id,employment_type_id,status_id,job_location_id,education_level_id,department_id,
+  id,management_profile_id,category_id,employment_type_id,status_id,job_location_id,education_level_id,department_id,
   work_mode_id,title,slug,description,requirements,responsibilities,
   benefits,min_salary,max_salary,currency_code,salary_type,vacancy_count,experience_min_years,
   published_at,close_at,is_active,created_at,created_by,updated_at,updated_by,
@@ -25,7 +25,9 @@ const DETAIL_BASE_FIELDS = `
 const DETAIL_FIELDS = `
   ${DETAIL_BASE_FIELDS},jc.name AS category_name,et.name AS employment_type_name,
   js.name AS status_name,jl.name AS job_location_name,el.name AS education_level_name,
-  d.name AS department_name,wm.name AS work_mode_name, mp.full_name AS management_profile_name
+  d.name AS department_name,wm.name AS work_mode_name, j.management_profile_id,
+  mp.full_name AS management_profile_name,
+  creator_mp.full_name AS created_by_name
 `;
 export const jobQueries = {
   countAll: `
@@ -84,6 +86,7 @@ export const jobQueries = {
     JOIN departments d ON d.id = j.department_id
     JOIN work_modes wm ON wm.id = j.work_mode_id
     JOIN management_profiles mp ON mp.id = j.management_profile_id
+    LEFT JOIN management_profiles creator_mp ON creator_mp.user_id::text = j.created_by
     WHERE j.id = $1
       AND j.deleted_at IS NULL
     LIMIT 1
@@ -100,6 +103,7 @@ export const jobQueries = {
     JOIN departments d ON d.id = j.department_id
     JOIN work_modes wm ON wm.id = j.work_mode_id
     JOIN management_profiles mp ON mp.id = j.management_profile_id
+    LEFT JOIN management_profiles creator_mp ON creator_mp.user_id::text = j.created_by
     WHERE j.slug = $1
       AND j.deleted_at IS NULL
     LIMIT 1
@@ -107,7 +111,7 @@ export const jobQueries = {
 
   create: `
     INSERT INTO jobs (
-      category_id,employment_type_id,status_id,job_location_id,education_level_id,department_id,
+      management_profile_id,category_id,employment_type_id,status_id,job_location_id,education_level_id,department_id,
       work_mode_id,title,slug,description,requirements,responsibilities,benefits,
       min_salary,max_salary,currency_code,salary_type,vacancy_count,experience_min_years,
       published_at,close_at,is_active,created_at,created_by,updated_at,updated_by
@@ -115,14 +119,14 @@ export const jobQueries = {
     VALUES (
       $1, $2, $3, $4, $5, $6, $7,
       $8, $9, $10, $11, $12, $13,
-      $14, $15, $16, $17, $18, $19,
-      COALESCE($20, NOW()),
-      $21,
+      $14, $15, $16, $17, $18, $19, $20,
+      COALESCE($21, NOW()),
       $22,
-      NOW(),
       $23,
       NOW(),
-      $23
+      $24,
+      NOW(),
+      $24
     )
     RETURNING ${BASE_FIELDS}
   `,
@@ -130,31 +134,32 @@ export const jobQueries = {
   update: `
     UPDATE jobs
     SET
-      category_id = $1,
-      employment_type_id = $2,
-      status_id = $3,
-      job_location_id = $4,
-      education_level_id = $5,
-      department_id = $6,
-      work_mode_id = $7,
-      title = $8,
-      slug = $9,
-      description = $10,
-      requirements = $11,
-      responsibilities = $12,
-      benefits = $13,
-      min_salary = $14,
-      max_salary = $15,
-      currency_code = $16,
-      salary_type = $17,
-      vacancy_count = $18,
-      experience_min_years = $19,
-      published_at = COALESCE($20, published_at),
-      close_at = $21,
-      is_active = $22,
+      management_profile_id = $1,
+      category_id = $2,
+      employment_type_id = $3,
+      status_id = $4,
+      job_location_id = $5,
+      education_level_id = $6,
+      department_id = $7,
+      work_mode_id = $8,
+      title = $9,
+      slug = $10,
+      description = $11,
+      requirements = $12,
+      responsibilities = $13,
+      benefits = $14,
+      min_salary = $15,
+      max_salary = $16,
+      currency_code = $17,
+      salary_type = $18,
+      vacancy_count = $19,
+      experience_min_years = $20,
+      published_at = COALESCE($21, published_at),
+      close_at = $22,
+      is_active = $23,
       updated_at = NOW(),
-      updated_by = $23
-    WHERE id = $24
+      updated_by = $24
+    WHERE id = $25
       AND deleted_at IS NULL
     RETURNING ${BASE_FIELDS}
   `,

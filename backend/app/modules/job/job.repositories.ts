@@ -29,6 +29,7 @@ export const jobRepository = {
 
   async create(data: JobPayload, actorId: string): Promise<Job | null> {
     return queryCamelOne<Job>(jobQueries.create, [
+      data.managementProfileId,
       data.categoryId,
       data.employmentTypeId,
       data.statusId,
@@ -57,6 +58,7 @@ export const jobRepository = {
 
   async update(id: string, data: JobPayload, actorId: string): Promise<Job | null> {
     return queryCamelOne<Job>(jobQueries.update, [
+      data.managementProfileId,
       data.categoryId,
       data.employmentTypeId,
       data.statusId,

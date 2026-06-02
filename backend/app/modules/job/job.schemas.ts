@@ -28,6 +28,8 @@ const nullableTrimmedString = (max: number, fieldName: string) =>
 
 export const jobBodySchema = z
   .object({
+    managementProfileId: z.string().uuid("Invalid management profile id"),
+    
     categoryId: z.string().uuid("Invalid category id"),
     employmentTypeId: z.string().uuid("Invalid employment type id"),
     statusId: z.string().uuid("Invalid status id"),

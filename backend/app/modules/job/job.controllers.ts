@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { requireUserId } from "../../utils/request-user.util";
+import { requireUserEmail } from "../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams, getValidatedQuery } from "../../utils/validated-request.util";
 import { jobService } from "./job.services";
 import { JobBodyInput, JobParamsInput, JobQueryInput, JobSlugParamsInput } from "./job.schemas";
@@ -52,7 +52,7 @@ export const jobController = {
   async create(req: Request, res: Response) {
     const body = getValidatedBody<JobBodyInput>(req);
 
-    const job = await jobService.create(body, requireUserId(req));
+    const job = await jobService.create(body, requireUserEmail(req));
 
     res.status(201).json({
       message: "Job created successfully",
@@ -64,7 +64,7 @@ export const jobController = {
     const params = getValidatedParams<JobParamsInput>(req);
     const body = getValidatedBody<JobBodyInput>(req);
 
-    const job = await jobService.update(params.id, body, requireUserId(req));
+    const job = await jobService.update(params.id, body, requireUserEmail(req));
 
     res.status(200).json({
       message: "Job updated successfully",
@@ -75,7 +75,7 @@ export const jobController = {
   async delete(req: Request, res: Response) {
     const params = getValidatedParams<JobParamsInput>(req);
 
-    const job = await jobService.delete(params.id, requireUserId(req));
+    const job = await jobService.delete(params.id, requireUserEmail(req));
 
     res.status(200).json({
       message: "Job deleted successfully",

@@ -28,6 +28,12 @@ export interface JobDetail {
   id: string;
   slug: string;
   title: string;
+
+  managementProfileId: string | null;
+  managementProfileName: string | null;
+  createdBy: string | null;
+  createdByName: string | null;
+
   category: string;
   location: string;
   workType: string;
@@ -58,6 +64,7 @@ export interface JobDetail {
 }
 
 export interface JobPayload {
+  managementProfileId: string;
   categoryId: string;
   employmentTypeId: string;
   statusId: string;

@@ -22,6 +22,7 @@ export interface JobListItemApi {
 
 export interface JobDetailApi {
   id: string;
+  managementProfileId: string | null;
   categoryId: string;
   employmentTypeId: string;
   statusId: string;
@@ -57,7 +58,8 @@ export interface JobDetailApi {
   educationLevelName: string;
   departmentName: string;
   workModeName: string;
-  managementProfileName: string;
+  managementProfileName: string | null;
+  createdByName: string | null;
 }
 
 export interface PaginationMetaApi {

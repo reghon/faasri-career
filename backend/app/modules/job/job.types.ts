@@ -1,5 +1,6 @@
 export type Job = {
   id: string;
+  managementProfileId: string;
   categoryId: string;
   employmentTypeId: string;
   statusId: string;
@@ -53,6 +54,9 @@ export type JobListItem = {
 };
 
 export type JobDetail = Job & {
+  managementProfileId: string;
+  managementProfileName: string;
+  createdByName: string;
   categoryName: string;
   employmentTypeName: string;
   statusName: string;
@@ -60,10 +64,11 @@ export type JobDetail = Job & {
   educationLevelName: string;
   departmentName: string;
   workModeName: string;
-  managementProfileName: string;
 };
 
 export type JobPayload = {
+  managementProfileId: string;
+
   categoryId: string;
   employmentTypeId: string;
   statusId: string;
