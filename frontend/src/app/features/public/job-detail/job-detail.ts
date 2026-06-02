@@ -5,6 +5,8 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  computed,
+  inject,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, forkJoin } from 'rxjs';
@@ -12,6 +14,7 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../domain/auth/auth.service';
 import { JobDetail, JobListItem } from '../../../domain/job/models/job.model';
 import { JobService } from '../../../domain/job/services/job.service';
+import { ApplyService } from '../../../domain/apply/apply.service';
 import { HtmlContentComponent } from '../../../shared/components/html-content/html-content.component';
 import { JobCard } from '../../../shared/components/job-card/job-card';
 
@@ -22,8 +25,28 @@ import { JobCard } from '../../../shared/components/job-card/job-card';
   templateUrl: './job-detail.html',
 })
 export class JobDetailComponent implements OnInit, OnDestroy {
-  @ViewChild('loginRequiredModal') loginRequiredModal?: ElementRef<HTMLDialogElement>;
-  @ViewChild('applyRoleModal') applyRoleModal?: ElementRef<HTMLDialogElement>;
+  @ViewChild('loginRequiredModal')
+  loginRequiredModal?: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('applyRoleModal')
+  applyRoleModal?: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('alreadyAppliedModal')
+  alreadyAppliedModal?: ElementRef<HTMLDialogElement>;
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly jobService = inject(JobService);
+  private readonly authService = inject(AuthService);
+  private readonly applyService = inject(ApplyService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  readonly currentUser = this.authService.currentUser;
+  readonly isReady = this.authService.isReady;
+  readonly isLoggedIn = this.authService.isLoggedIn;
+  readonly isApplicant = computed(
+    () => this.currentUser()?.roleName?.toLowerCase() === 'applicant',
+  );
 
   job: JobDetail | null = null;
   otherJobs: JobListItem[] = [];
@@ -31,14 +54,6 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   errorMessage = '';
 
   private readonly destroy$ = new Subject<void>();
-
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly jobService: JobService,
-    private readonly authService: AuthService,
-    private readonly cdr: ChangeDetectorRef,
-  ) {}
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
@@ -52,46 +67,68 @@ export class JobDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
-
-  get currentUser() {
-    return this.authService.currentUser();
-  }
-
-  get isApplicantRole(): boolean {
-    return this.currentUser?.roleName === 'applicant';
-  }
-
   handleApplyClick(): void {
-    if (!this.isLoggedIn) {
+    const user = this.currentUser();
+
+    if (!user) {
       this.loginRequiredModal?.nativeElement.showModal();
+
       return;
     }
 
-    if (!this.isApplicantRole) {
+    if (user.roleName?.toLowerCase() !== 'applicant') {
       this.applyRoleModal?.nativeElement.showModal();
+
       return;
     }
 
-    this.goToApply();
+    if (!this.job?.id) {
+      return;
+    }
+
+    this.applyService
+      .hasApplied(this.job.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (hasApplied) => {
+          if (hasApplied) {
+            this.alreadyAppliedModal?.nativeElement.showModal();
+
+            return;
+          }
+
+          this.goToApply();
+        },
+
+        error: (error) => {
+          console.error(error);
+
+          alert('Gagal mengecek status apply');
+        },
+      });
   }
 
   goToRegister(): void {
     this.router.navigate(['/register'], {
-      queryParams: { redirect: this.router.url },
+      queryParams: {
+        redirect: this.router.url,
+      },
     });
   }
 
   goToLogin(): void {
     this.router.navigate(['/login'], {
-      queryParams: { redirect: this.router.url },
+      queryParams: {
+        redirect: this.router.url,
+      },
     });
   }
 
   goToApply(): void {
-    if (!this.job?.id) return;
+    if (!this.job?.id) {
+      return;
+    }
+
     this.router.navigate(['/job', this.job.id, 'apply']);
   }
 

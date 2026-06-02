@@ -100,7 +100,7 @@
             <h3 class="text-lg font-bold">Login Diperlukan</h3>
 
             <p class="py-4">
-              Anda perlu login atau membuat akun applicant terlebih dahulu untuk melamar pekerjaan
+              Anda perlu login atau membuat akun pelamar terlebih dahulu untuk melamar pekerjaan
               ini.
             </p>
 
@@ -110,6 +110,19 @@
                 <button type="button" class="btn btn-primary-faasri" (click)="goToRegister()">
                   Buat Akun Baru
                 </button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+        <dialog #alreadyAppliedModal class="modal">
+          <div class="modal-box">
+            <h3 class="font-bold text-lg">Sudah Dilamar</h3>
+
+            <p class="py-4">Anda sudah mengirimkan lamaran untuk pekerjaan ini.</p>
+
+            <div class="modal-action">
+              <form method="dialog">
+                <button class="btn btn-primary-faasri">OK</button>
               </form>
             </div>
           </div>
