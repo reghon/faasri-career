@@ -247,9 +247,13 @@ export const authService = {
 
   async requestForgotPassword(email: string) {
     const user = await authRepository.findByEmail(email);
-    if (!user) return { message: "If the email is registered, an OTP has been sent" };
+    if (!user) {
+      throw new AppError(404, "Email tidak terdaftar");
+    }
 
-    if (!user.isActive) throw new AppError(403, "Account is not active");
+    if (!user.isActive) {
+      throw new AppError(403, "Akun belum aktif");
+    }
 
     const otp = generateOtp();
     const otpExpiredAt = new Date(Date.now() + 5 * 60 * 1000);
@@ -257,7 +261,9 @@ export const authService = {
     await authRepository.updateOtp(user.id, otp, otpExpiredAt);
     await sendOtpEmail(email, otp);
 
-    return { message: "If the email is registered, an OTP has been sent" };
+    return {
+      message: "OTP berhasil dikirim",
+    };
   },
 
   async confirmForgotPassword(email: string, otp: string, newPassword: string) {
