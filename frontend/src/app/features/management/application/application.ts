@@ -26,7 +26,7 @@ import { ApplyService } from '../../../domain/apply/apply.service';
 import { JobApplyStatusService } from '../../../domain/apply/master-data/job-apply-status/job-apply-status.services';
 import { ApplyStatusHistoryService } from '../../../domain/apply/master-data/apply-status-history/apply-status-history.service';
 
-import { ConfirmModalComponent } from '../job-detail/components/application/components/confirm-modal';
+import { MoveStatusConfirmModalComponent } from '../job-detail/components/application/components/move-status-confirm-modal';
 
 import {
   ApplicationFilters,
@@ -65,7 +65,7 @@ type ApplicationListItem = ApplyListItem & {
     BreadcrumbComponent,
     DataTableComponent,
     TableToolbarComponent,
-    ConfirmModalComponent,
+    MoveStatusConfirmModalComponent,
   ],
   templateUrl: './application.html',
 })
