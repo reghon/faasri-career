@@ -17,6 +17,7 @@
           [job]="job"
           [activeTab]="activeTab"
           (tabChange)="setActiveTab($event)"
+          (editJob)="openEditJobModal()"
         />
 
         @if (activeTab === 'detail') {
@@ -24,21 +25,7 @@
         }
 
         @if (activeTab === 'candidate') {
-          <app-job-application-list
-            [jobId]="job.id"
-          />
-        }
-
-        @if (activeTab === 'pipeline') {
-          <div class="rounded-xl border border-base-300 bg-base-100 p-8 shadow-sm">
-            Pipeline tab nanti di sini.
-          </div>
-        }
-
-        @if (activeTab === 'activity') {
-          <div class="rounded-xl border border-base-300 bg-base-100 p-8 shadow-sm">
-            Activity tab nanti di sini.
-          </div>
+          <app-job-application-list [jobId]="job.id" />
         }
       </div>
     } @else {
@@ -48,3 +35,9 @@
     }
   </div>
 </div>
+<app-job-form-modal
+  [open]="isJobFormModalOpen"
+  [jobId]="selectedJobId"
+  (close)="onCloseJobFormModal()"
+  (saved)="onJobSaved()"
+></app-job-form-modal>

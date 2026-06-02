@@ -11,11 +11,11 @@ import { JobService } from '../../../domain/job/services/job.service';
 import { JobDetail as JobDetailModel } from '../../../domain/job/models/job.model';
 import { JobDetailHeaderComponent } from './components/job-detail-header/job-detail-header';
 import { JobDetailOverviewComponent } from './components/job-detail-overview/job-detail-overview';
-import {
-  JobApplicationListComponent,
-} from './components/application/job-application-list';
+import { JobApplicationListComponent } from './components/application/job-application-list';
 
-type JobDetailTab = 'detail' | 'candidate' | 'pipeline' | 'activity';
+import { JobFormModalComponent } from '../job/job-form-modal/job-form-modal';
+
+type JobDetailTab = 'detail' | 'candidate';
 
 @Component({
   selector: 'app-job-detail',
@@ -26,6 +26,7 @@ type JobDetailTab = 'detail' | 'candidate' | 'pipeline' | 'activity';
     JobDetailHeaderComponent,
     JobDetailOverviewComponent,
     JobApplicationListComponent,
+    JobFormModalComponent,
   ],
   templateUrl: './job-detail.html',
 })
@@ -40,6 +41,9 @@ export class JobDetail implements OnInit {
   errorMessage = '';
 
   activeTab: JobDetailTab = 'detail';
+
+  isJobFormModalOpen = false;
+  selectedJobId: string | null = null;
 
   breadcrumbItems: BreadcrumbItem[] = [
     { label: 'Home', route: '/' },
@@ -88,5 +92,24 @@ export class JobDetail implements OnInit {
 
   setActiveTab(tab: JobDetailTab): void {
     this.activeTab = tab;
+  }
+
+  openEditJobModal(): void {
+    if (!this.job?.id) return;
+
+    this.selectedJobId = this.job.id;
+    this.isJobFormModalOpen = true;
+  }
+
+  onCloseJobFormModal(): void {
+    this.isJobFormModalOpen = false;
+    this.selectedJobId = null;
+  }
+
+  onJobSaved(): void {
+    this.isJobFormModalOpen = false;
+    this.selectedJobId = null;
+
+    this.loadJobDetail();
   }
 }
