@@ -15,6 +15,7 @@ import { ApplyStatusService } from '../../../../../domain/apply/master-data/appl
 import { JobApplyStatusService } from '../../../../../domain/apply/master-data/job-apply-status/job-apply-status.services';
 import { JobPayload } from '../../../../../domain/job/models/job.model';
 import { JobFlowStatusItem, JobFormMasters } from '../models/job-form.model';
+import { ManagementProfileService } from '../../../../../domain/management_profile/management-profile.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ import { JobFlowStatusItem, JobFormMasters } from '../models/job-form.model';
 export class JobFormService {
   private readonly jobService = inject(JobService);
 
+  private readonly managementProfileService = inject(ManagementProfileService);
   private readonly departmentService = inject(DepartmentService);
   private readonly educationLevelService = inject(EducationLevelService);
   private readonly employmentTypeService = inject(EmploymentTypeService);
@@ -34,6 +36,7 @@ export class JobFormService {
 
   loadMasters() {
     return forkJoin({
+      managementProfiles: this.managementProfileService.getAll(),
       categories: this.jobCategoryService.getAll(),
       employmentTypes: this.employmentTypeService.getAll(),
       statuses: this.jobStatusService.getAll(),
@@ -45,6 +48,10 @@ export class JobFormService {
     }).pipe(
       map(
         (masters): JobFormMasters => ({
+          managementProfiles: masters.managementProfiles.map((item) => ({
+            id: item.id,
+            name: item.fullName,
+          })),
           categories: masters.categories.map((item) => ({ id: item.id, name: item.name })),
           employmentTypes: masters.employmentTypes.map((item) => ({
             id: item.id,

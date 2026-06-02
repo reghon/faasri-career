@@ -1,7 +1,10 @@
 import { ApplyStatus } from '../../../../../domain/apply/master-data/apply-status/apply-status.model';
 import { JobApplyStatus } from '../../../../../domain/apply/master-data/job-apply-status/job-apply-status.model';
 import { JobDetail, JobPayload } from '../../../../../domain/job/models/job.model';
-import { toDateTimeLocal, toDateTimeLocalFromUnknown } from '../../../../../shared/utils/date.utils';
+import {
+  toDateTimeLocal,
+  toDateTimeLocalFromUnknown,
+} from '../../../../../shared/utils/date.utils';
 import { JobFlowStatusItem, JobFormValue, SelectOption } from '../models/job-form.model';
 
 export function createInitialJobForm(): JobFormValue {
@@ -11,6 +14,8 @@ export function createInitialJobForm(): JobFormValue {
   nextMonth.setMonth(nextMonth.getMonth() + 1);
 
   return {
+    managementProfileId: '',
+    managementProfileName: '',
     categoryId: '',
     employmentTypeId: '',
     statusId: '',
@@ -49,6 +54,8 @@ export function patchJobForm(
   },
 ): JobFormValue {
   return {
+    managementProfileId: job.managementProfileId ?? '',
+    managementProfileName: job.managementProfileName ?? '',
     categoryId: findOptionIdByName(masters.categories, job.category),
     employmentTypeId: findOptionIdByName(masters.employmentTypes, job.jobType),
     statusId: findOptionIdByName(masters.statuses, job.status),
@@ -76,6 +83,7 @@ export function patchJobForm(
 
 export function buildJobPayload(form: JobFormValue): JobPayload {
   return {
+    managementProfileId: form.managementProfileId,
     categoryId: form.categoryId,
     employmentTypeId: form.employmentTypeId,
     statusId: form.statusId,

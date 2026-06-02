@@ -14,6 +14,7 @@ import { finalize } from 'rxjs';
 
 import { GenericModalComponent } from '../../../../shared/components/general/generic-modal.component';
 
+import { JobPicSectionComponent } from './components/job-pic-section/job-pic-section';
 import { JobBasicSectionComponent } from './components/job-basic-section/job-basic-section';
 import { JobLocationSectionComponent } from './components/job-location-section/job-location-section';
 import { JobCompensationSectionComponent } from './components/job-compensation-section/job-compensation-section';
@@ -38,6 +39,7 @@ import {
 } from './models/job-form.model';
 import { ApplyStatus } from '../../../../domain/apply/master-data/apply-status/apply-status.model';
 import { JobFormService } from './services/job-form.service';
+import { AuthService } from '../../../../domain/auth/auth.service';
 
 @Component({
   selector: 'app-job-form-modal',
@@ -45,6 +47,7 @@ import { JobFormService } from './services/job-form.service';
   imports: [
     CommonModule,
     GenericModalComponent,
+    JobPicSectionComponent,
     JobBasicSectionComponent,
     JobLocationSectionComponent,
     JobCompensationSectionComponent,
@@ -58,6 +61,7 @@ import { JobFormService } from './services/job-form.service';
 export class JobFormModalComponent implements OnChanges {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly service = inject(JobFormService);
+  private readonly authService = inject(AuthService);
 
   @Input() open = false;
   @Input() jobId: string | null = null;
@@ -72,6 +76,8 @@ export class JobFormModalComponent implements OnChanges {
 
   errors: JobFormErrors = {};
 
+  creatorName = '';
+  managementProfiles: SelectOption[] = [];
   categories: SelectOption[] = [];
   employmentTypes: SelectOption[] = [];
   statuses: SelectOption[] = [];
@@ -132,11 +138,13 @@ export class JobFormModalComponent implements OnChanges {
 
   private initializeModal(): void {
     this.errors = {};
+    this.creatorName = this.authService.currentUser()?.email ?? '-';
     this.isLoading = true;
     this.detect();
 
     this.service.loadMasters().subscribe({
       next: (masters) => {
+        this.managementProfiles = masters.managementProfiles;
         this.categories = masters.categories;
         this.employmentTypes = masters.employmentTypes;
         this.statuses = masters.statuses;
@@ -167,6 +175,7 @@ export class JobFormModalComponent implements OnChanges {
   private loadJobDetail(jobId: string): void {
     this.service.loadJobFormDetail(jobId).subscribe({
       next: ({ job, jobApplyStatuses, editGuard }) => {
+        this.creatorName = job.createdBy ?? '-';
         this.form = patchJobForm(job, {
           categories: this.categories,
           employmentTypes: this.employmentTypes,
@@ -249,6 +258,7 @@ export class JobFormModalComponent implements OnChanges {
 
   private resetForm(): void {
     this.errors = {};
+    this.creatorName = '';
     this.form = createInitialJobForm();
     this.jobFlowStatuses = [];
     this.canEditJobFlow = true;

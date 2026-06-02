@@ -6,6 +6,8 @@ export interface SelectOption {
 }
 
 export interface JobFormValue {
+  managementProfileId: string;
+  managementProfileName: string;
   categoryId: string;
   employmentTypeId: string;
   statusId: string;
@@ -42,6 +44,7 @@ export interface JobFlowStatusItem {
 }
 
 export interface JobFormMasters {
+  managementProfiles: SelectOption[];
   categories: SelectOption[];
   employmentTypes: SelectOption[];
   statuses: SelectOption[];

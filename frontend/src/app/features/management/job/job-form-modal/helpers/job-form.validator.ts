@@ -5,7 +5,9 @@ export function validateJobForm(
   jobFlowStatuses: JobFlowStatusItem[],
 ): JobFormErrors {
   const errors: JobFormErrors = {};
-
+  if (!form.managementProfileId) {
+    errors['managementProfileId'] = 'PIC wajib dipilih.';
+  }
   if (!form.title.trim()) errors['title'] = 'Judul wajib diisi.';
   if (!form.slug.trim()) errors['slug'] = 'Slug wajib diisi.';
   if (!form.categoryId) errors['categoryId'] = 'Kategori wajib dipilih.';

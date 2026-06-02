@@ -20,6 +20,13 @@
     </div>
   } @else {
     <form class="space-y-10" (submit)="$event.preventDefault()">
+      <app-job-pic-section
+        [form]="form"
+        [errors]="errors"
+        [creatorName]="creatorName"
+        [managementProfiles]="managementProfiles"
+      />
+      
       <app-job-basic-section
         [form]="form"
         [errors]="errors"
