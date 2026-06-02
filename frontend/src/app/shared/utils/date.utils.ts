@@ -55,3 +55,22 @@ export function toDateTimeLocalFromUnknown(value: string | null | undefined): st
 
   return toDateTimeLocal(new Date());
 }
+
+export function formatDate(
+  value: string | null | undefined,
+  locale = 'id-ID',
+  options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' },
+): string {
+  if (!value) return '-';
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return '-';
+
+  return date.toLocaleDateString(locale, options);
+}
+
+export function toTimestamp(value: string | null | undefined): number {
+  if (!value) return 0;
+  const date = new Date(value);
+  return isNaN(date.getTime())     ? 0 : date.getTime();
+}
