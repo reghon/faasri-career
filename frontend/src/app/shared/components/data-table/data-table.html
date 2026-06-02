@@ -42,7 +42,7 @@
             </td>
           </tr>
         } @else {
-          @for (row of data; track $index) {
+          @for (row of data; track $index; let rowIndex = $index) {
             <tr class="hover">
               @for (column of visibleColumns; track column.key) {
                 <td
@@ -63,7 +63,7 @@
                         [showEdit]="showEdit"
                         [showDelete]="showDelete"
                         [useDropdown]="useActionDropdown"
-                        [actions]="getRowActions($index)"
+                        [actions]="getRowActions(rowIndex)"
                         (view)="view.emit(row)"
                         (edit)="edit.emit(row)"
                         (delete)="delete.emit(row)"

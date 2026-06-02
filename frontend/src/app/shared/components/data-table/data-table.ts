@@ -60,7 +60,6 @@ export class DataTableComponent<T = any> implements OnChanges {
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
-  // Cache hasil actionsGetter per index — mencegah pemanggilan ulang di setiap change detection cycle
   private actionsCache: TableActionItem[][] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -70,11 +69,10 @@ export class DataTableComponent<T = any> implements OnChanges {
   }
 
   private rebuildActionsCache(): void {
-    if (!this.actionsGetter) {
-      this.actionsCache = [];
-      return;
-    }
-    this.actionsCache = this.data.map((row) => this.actionsGetter!(row));
+    this.actionsCache = this.data.map((row) => {
+      const actions = this.actionsGetter!(row);
+      return actions;
+    });
   }
 
   getRowActions(index: number): TableActionItem[] {
