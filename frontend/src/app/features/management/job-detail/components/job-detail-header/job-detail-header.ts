@@ -26,6 +26,7 @@ export class JobDetailHeaderComponent implements OnChanges {
   private readonly applyService = inject(ApplyService);
   private readonly cdr = inject(ChangeDetectorRef);
 
+  @Input() canUpdate = false;
   @Input({ required: true }) job!: JobDetailModel;
   @Input() activeTab: JobDetailTab = 'detail';
 

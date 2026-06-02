@@ -57,13 +57,15 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-primary-faasri btn-sm rounded-lg"
-          (click)="onEditJob()"
-        >
-          Edit Job
-        </button>
+        @if (canUpdate) {
+          <button
+            type="button"
+            class="btn btn-primary-faasri btn-sm rounded-lg"
+            (click)="onEditJob()"
+          >
+            Edit Job
+          </button>
+        }
       </div>
     </div>
   </div>
