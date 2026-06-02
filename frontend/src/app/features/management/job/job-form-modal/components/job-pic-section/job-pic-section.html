@@ -1,0 +1,32 @@
+<section class="space-y-4 pt-1">
+  <div>
+    <h3 class="text-base font-semibold text-base-content">Penanggung Jawab</h3>
+    <p class="mt-1 text-sm text-base-content/60">Penanggung jawab pembuat dan PIC lowongan.</p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
+    <div class="form-control md:col-span-3">
+      <label class="faasri-label">
+        <span>Dibuat Oleh</span>
+      </label>
+
+      <input
+        type="text"
+        class="input input-bordered w-full bg-base-200 text-base-content/70"
+        [value]="creatorName || '-'"
+        disabled
+      />
+    </div>
+
+    <div class="form-control md:col-span-3">
+      <app-select
+        label="PIC Lowongan"
+        name="managementProfileId"
+        [(model)]="form.managementProfileId"
+        [options]="toOptions(managementProfiles)"
+        placeholder="Pilih PIC"
+        [error]="errors['managementProfileId']"
+      />
+    </div>
+  </div>
+</section>
