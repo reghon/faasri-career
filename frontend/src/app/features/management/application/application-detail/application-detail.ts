@@ -7,7 +7,7 @@ import {
   BreadcrumbComponent,
   BreadcrumbItem,
 } from '../../../../shared/components/breadcrumb/breadcrumb';
-import { ConfirmModalComponent } from '../../job-detail/components/application/components/confirm-modal';
+import { MoveStatusConfirmModalComponent } from '../../job-detail/components/application/components/move-status-confirm-modal';
 import { RecruitmentTimelineComponent } from './components/recruitment-timeline';
 import { buildRecruitmentTimeline } from './components/recruitment-timeline.helper';
 import { RecruitmentTimelineItem } from './components/recruitment-timeline.model';
@@ -64,7 +64,7 @@ interface JobApplicationView {
   imports: [
     CommonModule,
     BreadcrumbComponent,
-    ConfirmModalComponent,
+    MoveStatusConfirmModalComponent,
     RecruitmentTimelineComponent,
   ],
   templateUrl: './application-detail.html',

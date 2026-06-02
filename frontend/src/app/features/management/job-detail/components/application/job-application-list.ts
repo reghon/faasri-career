@@ -29,7 +29,7 @@ import {
   buildMoveStatusActions,
   mapJobApplyStatusesWithCount,
 } from '../../../../../shared/utils/apply-status-movement';
-import { ConfirmModalComponent } from './components/confirm-modal';
+import { MoveStatusConfirmModalComponent } from './components/move-status-confirm-modal';
 
 export type JobApplicationSummary = {
   total: number;
@@ -51,7 +51,7 @@ type StatusItem = {
 @Component({
   selector: 'app-job-application-list',
   standalone: true,
-  imports: [ConfirmModalComponent, CommonModule, FormsModule, DataTableComponent],
+  imports: [MoveStatusConfirmModalComponent, CommonModule, FormsModule, DataTableComponent],
   templateUrl: './job-application-list.html',
 })
 export class JobApplicationListComponent implements OnChanges {

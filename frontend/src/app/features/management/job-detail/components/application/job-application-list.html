@@ -106,6 +106,8 @@
       emptyTitle="Belum ada kandidat"
       emptyDescription="Data kandidat belum tersedia pada status ini."
       [pagination]="tablePagination"
+      [showView]="false"
+      [showEdit]="false"
       [useActionDropdown]="true"
       [actionsGetter]="getApplicationActions.bind(this)"
       (actionClick)="handleApplicationAction($event)"
@@ -113,7 +115,7 @@
       (pageSizeChange)="onPageSizeChange($event)"
     />
   </section>
-  <app-confirm-modal
+  <app-move-status-confirm-modal
     [isOpen]="isMoveStatusModalOpen"
     [message]="moveStatusModalMessage"
     [isLoading]="isMovingStatus"
