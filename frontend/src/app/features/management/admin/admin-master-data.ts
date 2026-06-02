@@ -63,6 +63,8 @@ export class AdminMasterData implements OnInit {
   private readonly roleService = inject(RoleService);
   private readonly userService = inject(UserService);
 
+  roleOptions: { label: string; value: string }[] = [];
+
   pageFeedbackMessage = '';
   pageFeedbackType: 'success' | 'error' | '' = '';
 
@@ -137,10 +139,10 @@ export class AdminMasterData implements OnInit {
         },
         {
           key: 'roleName',
-          label: 'Role Name',
-          type: 'text',
+          label: 'Role',
+          type: 'select',
           required: true,
-          placeholder: 'applicant / hr_admin / superadmin',
+          options: [],
         },
         { key: 'isActive', label: 'Active', type: 'switch' },
       ],
@@ -180,8 +182,41 @@ export class AdminMasterData implements OnInit {
   feedbackType: 'success' | 'error' | '' = '';
 
   ngOnInit(): void {
+    this.loadRoles();
     this.resetForm();
     this.loadData();
+  }
+
+  private loadRoles(): void {
+    this.roleService.getAll().subscribe({
+      next: (roles) => {
+        this.roleOptions = roles
+          .filter((role) => role.code !== 'APPLICANT')
+          .map((role) => ({
+            label: role.name,
+            value: role.name,
+          }));
+
+        this.updateRoleFieldOptions();
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed load roles', err);
+      },
+    });
+  }
+  
+  private updateRoleFieldOptions(): void {
+    const usersConfig = this.configs.find((config) => config.key === 'users') as CrudAdminConfig;
+
+    if (!usersConfig) return;
+
+    const roleField = usersConfig.fields.find((field) => field.key === 'roleName');
+
+    if (!roleField) return;
+
+    roleField.options = [...this.roleOptions];
   }
 
   get activeConfig(): AdminConfig {
