@@ -1,31 +1,33 @@
 <div class="min-h-screen bg-base-200/40">
   <div class="mx-auto flex max-w-7xl flex-col gap-4 p-4 md:p-6">
-    <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+    <app-breadcrumb [items]="breadcrumbItems()"></app-breadcrumb>
 
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="rounded-xl border border-base-300 bg-base-100 p-10 text-center shadow-sm">
         <span class="loading loading-spinner loading-md"></span>
         <p class="mt-2 text-sm text-base-content/60">Loading job detail...</p>
       </div>
-    } @else if (errorMessage) {
+    } @else if (errorMessage()) {
       <div class="alert alert-error rounded-xl shadow-sm">
-        <span>{{ errorMessage }}</span>
+        <span>{{ errorMessage() }}</span>
       </div>
-    } @else if (job) {
+    } @else if (job(); as currentJob) {
       <div class="flex flex-col gap-4">
         <app-job-detail-header
-          [job]="job"
-          [activeTab]="activeTab"
+          [job]="currentJob"
+          [activeTab]="activeTab()"
           (tabChange)="setActiveTab($event)"
           (editJob)="openEditJobModal()"
+          [statuses]="statuses()"
+          (statusChange)="updateStatus($event)"
         />
 
-        @if (activeTab === 'detail') {
-          <app-job-detail-overview [job]="job" />
+        @if (activeTab() === 'detail') {
+          <app-job-detail-overview [job]="currentJob" />
         }
 
-        @if (activeTab === 'candidate') {
-          <app-job-application-list [jobId]="job.id" />
+        @if (activeTab() === 'candidate') {
+          <app-job-application-list [jobId]="currentJob.id" />
         }
       </div>
     } @else {
@@ -36,8 +38,8 @@
   </div>
 </div>
 <app-job-form-modal
-  [open]="isJobFormModalOpen"
-  [jobId]="selectedJobId"
+  [open]="isJobFormModalOpen()"
+  [jobId]="selectedJobId()"
   (close)="onCloseJobFormModal()"
   (saved)="onJobSaved()"
 ></app-job-form-modal>

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 import {
   BreadcrumbComponent,
@@ -14,6 +15,8 @@ import { JobDetailOverviewComponent } from './components/job-detail-overview/job
 import { JobApplicationListComponent } from './components/application/job-application-list';
 
 import { JobFormModalComponent } from '../job/job-form-modal/job-form-modal';
+import { JobStatus } from '../../../domain/master-data';
+import { JobStatusService } from '../../../domain/master-data/job-status/job-status.service';
 
 type JobDetailTab = 'detail' | 'candidate';
 
@@ -30,33 +33,41 @@ type JobDetailTab = 'detail' | 'candidate';
   ],
   templateUrl: './job-detail.html',
 })
+
 export class JobDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly jobService = inject(JobService);
-  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly jobStatusService = inject(JobStatusService);
 
-  slug = '';
-  job: JobDetailModel | null = null;
-  isLoading = false;
-  errorMessage = '';
+  readonly job = signal<JobDetailModel | null>(null);
 
-  activeTab: JobDetailTab = 'detail';
-
-  isJobFormModalOpen = false;
-  selectedJobId: string | null = null;
-
-  breadcrumbItems: BreadcrumbItem[] = [
+  readonly isLoading = signal(false);
+  readonly errorMessage = signal('');
+  readonly statuses = signal<JobStatus[]>([]);
+  readonly activeTab = signal<JobDetailTab>('detail');
+  readonly isJobFormModalOpen = signal(false);
+  readonly selectedJobId = signal<string | null>(null);
+  readonly breadcrumbItems = signal<BreadcrumbItem[]>([
     { label: 'Home', route: '/' },
     { label: 'Job', route: '/management/job' },
     { label: 'Detail' },
-  ];
+  ]);
+
+  slug = '';
+
+  readonly hasJob = computed(() => !!this.job());
+
+  readonly currentJobId = computed(() => this.job()?.id ?? null);
+
+  readonly currentStatusId = computed(() => this.job()?.statusId ?? '');
+
   hiringManager = 'User PIC Manager';
 
   ngOnInit(): void {
     this.slug = this.route.snapshot.paramMap.get('slug') || '';
 
     if (!this.slug) {
-      this.errorMessage = 'Slug job tidak ditemukan.';
+      this.errorMessage.set('Slug job tidak ditemukan.');
       return;
     }
 
@@ -64,52 +75,74 @@ export class JobDetail implements OnInit {
   }
 
   loadJobDetail(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.cdr.detectChanges();
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
-    this.jobService.getJobBySlug(this.slug).subscribe({
-      next: (job) => {
-        this.job = job;
-        this.breadcrumbItems = [
+    forkJoin({
+      job: this.jobService.getJobBySlug(this.slug),
+      statuses: this.jobStatusService.getAll(),
+    }).subscribe({
+      next: ({ job, statuses }) => {
+        this.job.set(job);
+        this.statuses.set(statuses.filter((status) => status.isActive));
+
+        this.breadcrumbItems.set([
           { label: 'Home', route: '/' },
           { label: 'Job', route: '/management/job' },
           { label: job.title || 'Detail' },
-        ];
+        ]);
 
-        this.isLoading = false;
-        this.cdr.detectChanges();
+        this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Failed to load job detail:', error);
-        this.job = null;
-        this.errorMessage = 'Gagal memuat detail lowongan.';
-        this.isLoading = false;
-        this.cdr.detectChanges();
+
+        this.job.set(null);
+        this.statuses.set([]);
+        this.errorMessage.set('Gagal memuat detail lowongan.');
+
+        this.isLoading.set(false);
       },
     });
   }
 
   setActiveTab(tab: JobDetailTab): void {
-    this.activeTab = tab;
+    this.activeTab.set(tab);
   }
 
   openEditJobModal(): void {
-    if (!this.job?.id) return;
+    const job = this.job();
 
-    this.selectedJobId = this.job.id;
-    this.isJobFormModalOpen = true;
+    if (!job?.id) return;
+
+    this.selectedJobId.set(job.id);
+    this.isJobFormModalOpen.set(true);
   }
 
   onCloseJobFormModal(): void {
-    this.isJobFormModalOpen = false;
-    this.selectedJobId = null;
+    this.isJobFormModalOpen.set(false);
+    this.selectedJobId.set(null);
   }
 
   onJobSaved(): void {
-    this.isJobFormModalOpen = false;
-    this.selectedJobId = null;
+    this.isJobFormModalOpen.set(false);
+    this.selectedJobId.set(null);
 
     this.loadJobDetail();
+  }
+
+  updateStatus(statusId: string): void {
+    const job = this.job();
+
+    if (!job || statusId === job.statusId) return;
+
+    this.jobService.updateJobStatus(job.id, { statusId }).subscribe({
+      next: (updatedJob) => {
+        this.job.set(updatedJob);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
   }
 }
