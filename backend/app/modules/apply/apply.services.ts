@@ -1,5 +1,8 @@
+import fs from "fs";
+import path from "path";
 import { AppError } from "../../errors/app-error";
 import pool from "../../configurations/database";
+import { generateUploadPath } from "../../utils/upload-path.util";
 import { applicantProfileRepository } from "../applicant/applicant_profile/applicant_profile.repositories";
 import { applyRepository } from "./apply.repositories";
 import { applyProfileService } from "./applicant_profile/apply_profile.services";
@@ -58,7 +61,29 @@ export const applyService = {
 
       const applyId = createdApply.id;
 
-      const profileSnapshot = await applyProfileService.createSnapshot(client, applyId, payload.personalInfo, userId);
+      // Copy CV to application-cvs folder so snapshot has its own file
+      let snapshotCvUrl: string | null = null;
+      let snapshotCvFileName: string | null = null;
+
+      if (profile.cvUrl && profile.cvFileName) {
+        const { url, filename } = generateUploadPath(profile.cvFileName, "application-cv");
+        const srcPath = path.join(process.cwd(), profile.cvUrl.replace(/^\//, ""));
+        const destPath = path.join(process.cwd(), "uploads", "application-cvs", filename);
+
+        if (fs.existsSync(srcPath)) {
+          fs.copyFileSync(srcPath, destPath);
+          snapshotCvUrl = url;
+          snapshotCvFileName = profile.cvFileName;
+        }
+      }
+
+      const personalInfoWithCv = {
+        ...(payload.personalInfo as object),
+        cvUrl: snapshotCvUrl,
+        cvFileName: snapshotCvFileName,
+      };
+
+      const profileSnapshot = await applyProfileService.createSnapshot(client, applyId, personalInfoWithCv, userId);
 
       if (!profileSnapshot) {
         throw new AppError(500, "Failed to create apply profile snapshot");

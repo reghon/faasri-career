@@ -80,7 +80,7 @@ export const applicantProfileController = {
     }
 
     const userId = requireUserId(req);
-    const newCvUrl = `/uploads/cvs/${req.file.filename}`;
+    const newCvUrl = `/uploads/profile-cvs/${req.file.filename}`;
 
     try {
       const existingProfile = await applicantProfileService.getExistingProfile(userId);
