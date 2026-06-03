@@ -112,4 +112,20 @@ export const jobService = {
 
     return deletedJob;
   },
+
+  async updateStatus(id: string, statusId: string, actorId: string) {
+    const existingJob = await jobRepository.getById(id);
+
+    if (!existingJob) {
+      throw new AppError(404, "Job not found");
+    }
+
+    const updatedJob = await jobRepository.updateStatus(id, statusId, actorId);
+
+    if (!updatedJob) {
+      throw new AppError(500, "Failed to update job status");
+    }
+
+    return updatedJob;
+  },
 };

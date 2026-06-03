@@ -13,6 +13,7 @@ export interface JobListItemApi {
   isActive: boolean;
   categoryName: string;
   employmentTypeName: string;
+  statusId?: string;
   statusName: string;
   jobLocationName: string;
   educationLevelName: string;

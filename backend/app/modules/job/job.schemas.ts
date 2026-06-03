@@ -77,6 +77,11 @@ export const jobSlugParamsSchema = z.object({
   slug: z.string().trim().min(1, "Slug is required").max(220, "Slug must be at most 220 characters"),
 });
 
+export const jobStatusBodySchema = z.object({
+  statusId: z.string().uuid("Invalid status id"),
+});
+
+export type JobStatusBodyInput = z.infer<typeof jobStatusBodySchema>;
 export type JobBodyInput = z.infer<typeof jobBodySchema>;
 export type JobParamsInput = z.infer<typeof jobParamsSchema>;
 export type JobQueryInput = z.infer<typeof jobQuerySchema>;

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { requireUserEmail } from "../../utils/request-user.util";
 import { getValidatedBody, getValidatedParams, getValidatedQuery } from "../../utils/validated-request.util";
 import { jobService } from "./job.services";
-import { JobBodyInput, JobParamsInput, JobQueryInput, JobSlugParamsInput } from "./job.schemas";
+import { JobBodyInput, JobParamsInput, JobQueryInput, JobSlugParamsInput, JobStatusBodyInput } from "./job.schemas";
 
 export const jobController = {
   async getAll(req: Request, res: Response) {
@@ -79,6 +79,18 @@ export const jobController = {
 
     res.status(200).json({
       message: "Job deleted successfully",
+      data: job,
+    });
+  },
+
+  async updateStatus(req: Request, res: Response) {
+    const params = getValidatedParams<JobParamsInput>(req);
+    const body = getValidatedBody<JobStatusBodyInput>(req);
+
+    const job = await jobService.updateStatus(params.id, body.statusId, requireUserEmail(req));
+
+    res.status(200).json({
+      message: "Job status updated successfully",
       data: job,
     });
   },

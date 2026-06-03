@@ -1,18 +1,19 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
+  computed,
+  effect,
   inject,
+  input,
+  output,
+  signal,
 } from '@angular/core';
 
 import { JobDetail as JobDetailModel } from '../../../../../domain/job/models/job.model';
 import { ApplyService } from '../../../../../domain/apply/apply.service';
 import { ApplyByJobItem } from '../../../../../domain/apply/apply.model';
+import { RbacService } from '../../../../../domain/authorization/rbac.service';
+import { JobStatus } from '../../../../../domain/master-data';
 
 type JobDetailTab = 'detail' | 'candidate';
 
@@ -22,69 +23,99 @@ type JobDetailTab = 'detail' | 'candidate';
   imports: [CommonModule],
   templateUrl: './job-detail-header.html',
 })
-export class JobDetailHeaderComponent implements OnChanges {
+export class JobDetailHeaderComponent {
+  readonly rbac = inject(RbacService);
   private readonly applyService = inject(ApplyService);
-  private readonly cdr = inject(ChangeDetectorRef);
 
-  @Input({ required: true }) job!: JobDetailModel;
-  @Input() activeTab: JobDetailTab = 'detail';
+  readonly job = input.required<JobDetailModel>();
+  readonly activeTab = input<JobDetailTab>('detail');
+  readonly statuses = input<JobStatus[]>([]);
 
-  @Output() tabChange = new EventEmitter<JobDetailTab>();
-  @Output() editJob = new EventEmitter<void>();
+  readonly tabChange = output<JobDetailTab>();
+  readonly editJob = output<void>();
+  readonly statusChange = output<string>();
 
-  applicantsCount = 0;
-  rejectedCount = 0;
-  inProgressCount = 0;
-  hiredCount = 0;
+  readonly applications = signal<ApplyByJobItem[]>([]);
 
-  tabs: { label: string; value: JobDetailTab }[] = [
-    { label: 'Detail', value: 'detail' },
-    { label: 'Candidate', value: 'candidate' },
+  readonly title = computed(() => this.job().title || '-');
+
+  readonly location = computed(() => this.job().location || '-');
+
+  readonly managementProfile = computed(() => this.job().managementProfile || '-');
+
+  readonly currentStatusId = computed(() => this.job().statusId || '');
+
+  readonly currentStatus = computed(() => {
+    const job = this.job();
+    const status = this.statuses().find((item) => item.id === job.statusId);
+
+    return status ?? null;
+  });
+
+  readonly currentStatusName = computed(
+    () => this.currentStatus()?.name || this.job().status || 'Open',
+  );
+
+  readonly statusOptions = computed(() => {
+    const currentStatusId = this.currentStatusId();
+
+    return this.statuses().filter((status) => status.id !== currentStatusId);
+  });
+
+  readonly statusBadgeClass = computed(() => this.getStatusBadgeClass(this.currentStatusName()));
+
+  readonly applicantsCount = computed(() => this.applications().length);
+
+  readonly rejectedCount = computed(
+    () =>
+      this.applications().filter((item) => item.statusCode?.toUpperCase() === 'REJECTED').length,
+  );
+
+  readonly hiredCount = computed(
+    () => this.applications().filter((item) => item.statusCode?.toUpperCase() === 'HIRED').length,
+  );
+
+  readonly inProgressCount = computed(
+    () =>
+      this.applications().filter((item) => {
+        const statusCode = item.statusCode?.toUpperCase();
+
+        return statusCode !== 'REJECTED' && statusCode !== 'HIRED';
+      }).length,
+  );
+
+  readonly tabs: { label: string; value: JobDetailTab }[] = [
+    {
+      label: 'Detail',
+      value: 'detail',
+    },
+    {
+      label: 'Candidate',
+      value: 'candidate',
+    },
   ];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['job'] && this.job?.id) {
-      this.loadApplicationCounter(this.job.id);
-    }
-  }
+  constructor() {
+    effect(() => {
+      const jobId = this.job().id;
 
-  loadApplicationCounter(jobId: string): void {
-    this.applyService.getByJobId(jobId).subscribe({
-      next: (applications) => {
-        this.setApplicationCounter(applications);
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to load application counter:', error);
-        this.resetApplicationCounter();
-        this.cdr.detectChanges();
-      },
+      if (jobId) {
+        this.loadApplicationCounter(jobId);
+      }
     });
   }
 
-  private setApplicationCounter(applications: ApplyByJobItem[]): void {
-    this.applicantsCount = applications.length;
+  private loadApplicationCounter(jobId: string): void {
+    this.applyService.getByJobId(jobId).subscribe({
+      next: (applications) => {
+        this.applications.set(applications);
+      },
+      error: (error) => {
+        console.error('Failed to load application counter:', error);
 
-    this.rejectedCount = applications.filter((item) => {
-      return item.statusCode?.toUpperCase() === 'REJECTED';
-    }).length;
-
-    this.hiredCount = applications.filter((item) => {
-      return item.statusCode?.toUpperCase() === 'HIRED';
-    }).length;
-
-    this.inProgressCount = applications.filter((item) => {
-      const statusCode = item.statusCode?.toUpperCase();
-
-      return statusCode !== 'REJECTED' && statusCode !== 'HIRED';
-    }).length;
-  }
-
-  private resetApplicationCounter(): void {
-    this.applicantsCount = 0;
-    this.rejectedCount = 0;
-    this.inProgressCount = 0;
-    this.hiredCount = 0;
+        this.applications.set([]);
+      },
+    });
   }
 
   setTab(tab: JobDetailTab): void {
@@ -95,7 +126,15 @@ export class JobDetailHeaderComponent implements OnChanges {
     this.editJob.emit();
   }
 
-  getStatusBadgeClass(status: string | null | undefined): string {
+  onStatusSelect(statusId: string): void {
+    if (!statusId || statusId === this.currentStatusId()) {
+      return;
+    }
+
+    this.statusChange.emit(statusId);
+  }
+
+  private getStatusBadgeClass(status: string | null | undefined): string {
     const normalized = (status || '').toLowerCase();
 
     if (normalized.includes('open') || normalized.includes('active')) {
@@ -111,9 +150,5 @@ export class JobDetailHeaderComponent implements OnChanges {
     }
 
     return 'badge-ghost';
-  }
-
-  getDisplayStatus(status: string | null | undefined): string {
-    return status || 'Open';
   }
 }

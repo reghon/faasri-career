@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { JobDetail as JobDetailModel } from '../../../../../domain/job/models/job.model';
 import { HtmlContentComponent } from '../../../../../shared/components/html-content/html-content.component';
 
@@ -10,9 +10,7 @@ import { HtmlContentComponent } from '../../../../../shared/components/html-cont
   templateUrl: './job-detail-overview.html',
 })
 export class JobDetailOverviewComponent {
-  @Input({ required: true }) job!: JobDetailModel;
+  readonly job = input.required<JobDetailModel>();
 
-  getSalaryRange(): string {
-    return this.job?.salary || '-';
-  }
+  readonly salaryRange = computed(() => this.job().salary || '-');
 }

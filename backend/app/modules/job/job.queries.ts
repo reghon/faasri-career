@@ -176,4 +176,15 @@ export const jobQueries = {
       AND deleted_at IS NULL
     RETURNING ${BASE_FIELDS}
   `,
+  
+  updateStatus: `
+  UPDATE jobs
+  SET
+    status_id = $1,
+    updated_at = NOW(),
+    updated_by = $2
+  WHERE id = $3
+    AND deleted_at IS NULL
+  RETURNING ${BASE_FIELDS}
+`,
 };

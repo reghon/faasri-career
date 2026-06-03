@@ -7,56 +7,56 @@
         <div>
           <p class="text-sm text-base-content/50">Hiring Manager</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.managementProfile }}
+            {{ job().managementProfile }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Job Name</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.title || '-' }}
+            {{ job().title || '-' }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Department</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.department || '-' }}
+            {{ job().department || '-' }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Location</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.location || '-' }}
+            {{ job().location || '-' }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Salary</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ getSalaryRange() }}
+            {{ salaryRange() }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Job Uploaded</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.postedAt }}
+            {{ job().postedAt }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Last Updated</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.updatedAt }}
+            {{ job().updatedAt }}
           </p>
         </div>
 
         <div>
           <p class="text-sm text-base-content/50">Auto Close</p>
           <p class="mt-1 font-medium text-base-content">
-            {{ job.closeAt }}
+            {{ job().closeAt }}
           </p>
         </div>
       </div>
@@ -68,10 +68,10 @@
       <h2 class="text-xl font-bold text-base-content">Job Description</h2>
 
       <div class="mt-6 flex flex-col gap-6 text-sm leading-7 text-base-content/80">
-        <faasri-html-content title="About the Role" [content]="job.aboutRole" />
-        <faasri-html-content title="Responsibilities" [content]="job.responsibilities" />
-        <faasri-html-content title="Qualifications" [content]="job.qualifications" />
-        <faasri-html-content title="Benefits" [content]="job.benefits" />
+        <faasri-html-content title="About the Role" [content]="job().aboutRole" />
+        <faasri-html-content title="Responsibilities" [content]="job().responsibilities" />
+        <faasri-html-content title="Qualifications" [content]="job().qualifications" />
+        <faasri-html-content title="Benefits" [content]="job().benefits" />
       </div>
     </div>
   </div>

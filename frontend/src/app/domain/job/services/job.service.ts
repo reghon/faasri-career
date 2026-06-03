@@ -8,7 +8,7 @@ import {
   JobListItemApi,
   PaginatedJobsApi,
 } from '../models/job-api.model';
-import { JobDetail, JobListItem, JobPayload } from '../models/job.model';
+import { JobDetail, JobListItem, JobPayload, UpdateJobStatusPayload } from '../models/job.model';
 
 export interface GetJobsParams {
   page?: number;
@@ -90,6 +90,12 @@ export class JobService {
       .pipe(map((response) => this.mapToDetailItem(response.data)));
   }
 
+  updateJobStatus(id: string, payload: UpdateJobStatusPayload): Observable<JobDetail> {
+    return this.http
+      .patch<ApiResponse<JobDetailApi>>(API_ENDPOINTS.job.updateStatus(id), payload)
+      .pipe(map((response) => this.mapToDetailItem(response.data)));
+  }
+
   private mapToListItem(item: JobListItemApi): JobListItem {
     const minSalary = Number(item.minSalary || 0);
     const maxSalary = Number(item.maxSalary || 0);
@@ -112,6 +118,7 @@ export class JobService {
 
       department: item.departmentName,
       educationLevel: item.educationLevelName,
+      statusId: item.statusId ?? '',
       status: item.statusName,
       vacancyCount: item.vacancyCount,
       minSalary,
@@ -154,6 +161,7 @@ export class JobService {
       department: item.departmentName,
       educationLevel: item.educationLevelName,
       managementProfile: item.managementProfileName ?? '-',
+      statusId: item.statusId,
       status: item.statusName,
       vacancyCount: item.vacancyCount,
       minSalary,

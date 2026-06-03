@@ -89,4 +89,8 @@ export const jobRepository = {
   async softDelete(id: string, actorId: string): Promise<Job | null> {
     return queryCamelOne<Job>(jobQueries.softDelete, [id, actorId]);
   },
+
+  async updateStatus(id: string, statusId: string, actorId: string): Promise<Job | null> {
+    return queryCamelOne<Job>(jobQueries.updateStatus, [statusId, actorId, id]);
+  },
 };

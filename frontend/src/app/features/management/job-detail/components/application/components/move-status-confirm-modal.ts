@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 export type ConfirmModalResult = {
@@ -13,23 +13,21 @@ export type ConfirmModalResult = {
   templateUrl: './move-status-confirm-modal.html',
 })
 export class MoveStatusConfirmModalComponent {
-  @Input() isOpen = false;
-  @Input() message = 'Apakah Anda yakin?';
-  @Input() isLoading = false;
-  @Input() requireNotes = false;
+  readonly isOpen = input(false);
+  readonly message = input('Apakah Anda yakin?');
+  readonly isLoading = input(false);
+  readonly requireNotes = input(false);
 
-  @Output() close = new EventEmitter<void>();
-  @Output() confirm = new EventEmitter<ConfirmModalResult>();
+  readonly close = output<void>();
+  readonly confirm = output<ConfirmModalResult>();
 
-  notes = '';
-  isSubmitted = false;
+  readonly notes = signal('');
+  readonly isSubmitted = signal(false);
 
-  get notesInvalid(): boolean {
-    return this.requireNotes && !this.notes.trim();
-  }
+  readonly notesInvalid = computed(() => this.requireNotes() && !this.notes().trim());
 
   onClose(): void {
-    if (this.isLoading) {
+    if (this.isLoading()) {
       return;
     }
 
@@ -38,11 +36,11 @@ export class MoveStatusConfirmModalComponent {
   }
 
   onConfirm(): void {
-    this.isSubmitted = true;
+    this.isSubmitted.set(true);
 
-    const notes = this.notes.trim();
+    const notes = this.notes().trim();
 
-    if (this.requireNotes && !notes) {
+    if (this.requireNotes() && !notes) {
       return;
     }
 
@@ -52,7 +50,7 @@ export class MoveStatusConfirmModalComponent {
   }
 
   reset(): void {
-    this.notes = '';
-    this.isSubmitted = false;
+    this.notes.set('');
+    this.isSubmitted.set(false);
   }
 }
