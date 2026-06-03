@@ -1,10 +1,10 @@
-@if (isOpen) {
+@if (isOpen()) {
   <div class="modal modal-open">
     <div class="modal-box max-w-md rounded-2xl">
       <h3 class="text-lg font-bold text-base-content">Perbarui Status Lamaran</h3>
 
       <p class="mt-2 text-md leading-6 text-base-content/70">
-        {{ message }}
+        {{ message() }}
       </p>
 
       <form (ngSubmit)="onConfirm()">
@@ -13,7 +13,7 @@
             <span class="label-text text-md">
               Catatan
 
-              @if (requireNotes) {
+              @if (requireNotes()) {
                 <span class="text-error">*</span>
               }
             </span>
@@ -22,13 +22,14 @@
           <textarea
             name="notes"
             class="textarea textarea-bordered min-h-28 w-full rounded-xl text-md"
-            [class.textarea-error]="isSubmitted && notesInvalid"
+            [class.textarea-error]="isSubmitted() && notesInvalid()"
             placeholder="Tuliskan catatan..."
-            [(ngModel)]="notes"
-            [disabled]="isLoading"
+            [ngModel]="notes()"
+            (ngModelChange)="notes.set($event)"
+            [disabled]="isLoading()"
           ></textarea>
 
-          @if (isSubmitted && notesInvalid) {
+          @if (isSubmitted() && notesInvalid()) {
             <p class="mt-1 text-sm text-error">Catatan wajib diisi.</p>
           }
         </div>
@@ -37,14 +38,14 @@
           <button
             type="button"
             class="btn btn-ghost rounded-xl"
-            [disabled]="isLoading"
+            [disabled]="isLoading()"
             (click)="onClose()"
           >
             Batal
           </button>
 
-          <button type="submit" class="btn btn-primary rounded-xl" [disabled]="isLoading">
-            @if (isLoading) {
+          <button type="submit" class="btn btn-primary rounded-xl" [disabled]="isLoading()">
+            @if (isLoading()) {
               <span class="loading loading-spinner loading-sm"></span>
             }
 
@@ -54,7 +55,7 @@
       </form>
     </div>
 
-    <button type="button" class="modal-backdrop" [disabled]="isLoading" (click)="onClose()">
+    <button type="button" class="modal-backdrop" [disabled]="isLoading()" (click)="onClose()">
       Tutup
     </button>
   </div>
