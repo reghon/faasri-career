@@ -1,28 +1,54 @@
-<div class="overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm">
+<div class="overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm">
   <div class="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
     <div class="flex-1">
       <div class="flex flex-wrap items-center gap-3">
         <h1 class="text-2xl font-bold text-base-content">
-          {{ job.title }}
+          {{ title() }}
         </h1>
 
-        <div
-          class="badge rounded-md border-0 px-3 py-3 font-medium"
-          [ngClass]="getStatusBadgeClass(job.status)"
-        >
-          {{ getDisplayStatus(job.status) }}
+        <div class="dropdown">
+          <button
+            type="button"
+            tabindex="0"
+            class="badge rounded-md border-0 px-3 py-3 font-medium"
+            [ngClass]="statusBadgeClass()"
+          >
+            {{ currentStatusName() }}
+            @if (rbac.job.canUpdate()) {
+              <span class="ml-1 text-xs">v</span>
+            }
+          </button>
+
+          @if (rbac.job.canUpdate()) {
+            <ul
+              tabindex="0"
+              class="menu dropdown-content z-20 mt-2 w-48 rounded-xl border border-base-300 bg-base-100 p-2 shadow-xl"
+            >
+              @if (statusOptions().length === 0) {
+                <li class="px-3 py-2 text-sm text-base-content/60">Tidak ada status lain.</li>
+              } @else {
+                @for (status of statusOptions(); track status.id) {
+                  <li>
+                    <button type="button" (click)="onStatusSelect(status.id)">
+                      {{ status.name }}
+                    </button>
+                  </li>
+                }
+              }
+            </ul>
+          }
         </div>
       </div>
 
       <div class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-base-content/70">
         <div class="flex items-center gap-2">
-          <span>📍</span>
-          <span>{{ job.location || '-' }}</span>
+          <span aria-hidden="true">LOC</span>
+          <span>{{ location() }}</span>
         </div>
 
         <div class="flex items-center gap-2">
-          <span>👤</span>
-          <span>{{ job.managementProfile }}</span>
+          <span aria-hidden="true">PIC</span>
+          <span>{{ managementProfile() }}</span>
         </div>
       </div>
     </div>
@@ -31,33 +57,41 @@
       <div class="flex flex-wrap items-center gap-3 text-sm">
         <div class="flex items-center gap-1">
           <span class="text-base-content/70">Applicants</span>
-          <span class="font-semibold text-info">{{ applicantsCount }}</span>
+          <span class="font-semibold text-info">
+            {{ applicantsCount() }}
+          </span>
         </div>
 
         <div class="text-base-content/30">|</div>
 
         <div class="flex items-center gap-1">
           <span class="text-base-content/70">Rejected</span>
-          <span class="font-semibold text-error">{{ rejectedCount }}</span>
+          <span class="font-semibold text-error">
+            {{ rejectedCount() }}
+          </span>
         </div>
 
         <div class="text-base-content/30">|</div>
 
         <div class="flex items-center gap-1">
           <span class="text-base-content/70">In Progress</span>
-          <span class="font-semibold text-secondary">{{ inProgressCount }}</span>
+          <span class="font-semibold text-secondary">
+            {{ inProgressCount() }}
+          </span>
         </div>
 
         <div class="text-base-content/30">|</div>
 
         <div class="flex items-center gap-1">
           <span class="text-base-content/70">Hired</span>
-          <span class="font-semibold text-success">{{ hiredCount }}</span>
+          <span class="font-semibold text-success">
+            {{ hiredCount() }}
+          </span>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        @if (canUpdate) {
+        @if (rbac.job.canUpdate()) {
           <button
             type="button"
             class="btn btn-primary-faasri btn-sm rounded-lg"
@@ -77,7 +111,7 @@
           type="button"
           class="tab"
           [ngClass]="{
-            'tab-active !text-[var(--color-brand-primary)]': activeTab === tab.value,
+            'tab-active !text-[var(--color-brand-primary)]': activeTab() === tab.value,
           }"
           (click)="setTab(tab.value)"
         >
