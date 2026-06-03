@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
     jobs: `${API_URL}/api/job/jobs`,
     slug: (slug: string) => `${API_URL}/api/job/jobs/slug/${slug}`,
     savedJobs: `${API_URL}/api/job/saved-jobs`,
+    updateStatus: (id: string) => `${API_URL}/api/job/jobs/${id}/status`,
   },
   apply: {
     root: `${API_URL}/api/apply`,

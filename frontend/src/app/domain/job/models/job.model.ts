@@ -16,6 +16,7 @@ export interface JobListItem {
 
   department: string;
   educationLevel: string;
+  statusId?: string;
   status: string;
   vacancyCount: number;
   minSalary: number;
@@ -55,6 +56,7 @@ export interface JobDetail {
   department: string;
   educationLevel: string;
   managementProfile: string;
+  statusId: string;
   status: string;
   vacancyCount: number;
   minSalary: number;
@@ -87,4 +89,8 @@ export interface JobPayload {
   publishedAt: string;
   closeAt: string;
   isActive: boolean;
+}
+
+export interface UpdateJobStatusPayload {
+  statusId: string;
 }
