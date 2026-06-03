@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
+  computed,
+  effect,
   inject,
+  input,
+  output,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -54,33 +53,31 @@ type StatusItem = {
   imports: [MoveStatusConfirmModalComponent, CommonModule, FormsModule, DataTableComponent],
   templateUrl: './job-application-list.html',
 })
-export class JobApplicationListComponent implements OnChanges {
+export class JobApplicationListComponent {
   private readonly applyService = inject(ApplyService);
   private readonly jobApplyStatusService = inject(JobApplyStatusService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly applyStatusHistoryService = inject(ApplyStatusHistoryService);
 
-  @Input() jobId!: string;
-  @Output() summaryChange = new EventEmitter<JobApplicationSummary>();
+  readonly jobId = input.required<string>();
+  readonly summaryChange = output<JobApplicationSummary>();
 
-  applies: ApplyByJobItem[] = [];
-  jobApplyStatuses: JobApplyStatus[] = [];
-  filteredApplies: ApplyByJobItem[] = [];
-  pagedApplies: ApplyByJobItem[] = [];
+  readonly applies = signal<ApplyByJobItem[]>([]);
+  readonly jobApplyStatuses = signal<JobApplyStatus[]>([]);
+  readonly isLoading = signal(false);
+  readonly errorMessage = signal('');
 
-  statuses: StatusItem[] = [];
-
-  isLoading = false;
-  errorMessage = '';
-
-  searchTerm = '';
-  selectedStatusId = '';
+  readonly searchTerm = signal('');
+  readonly selectedStatusId = signal('');
 
   pageSizeOptions = [10, 25, 50, 100];
-  pageSize = 10;
-  currentPage = 1;
+  readonly pageSize = signal(10);
+  readonly currentPage = signal(1);
 
-  sortDirection: 'asc' | 'desc' = 'desc';
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+  readonly isMoveStatusModalOpen = signal(false);
+  readonly selectedApplication = signal<ApplyByJobItem | null>(null);
+  readonly selectedTargetStatus = signal<StatusItem | null>(null);
+  readonly isMovingStatus = signal(false);
 
   columns: DataTableColumn<ApplyByJobItem>[] = [
     {
@@ -119,178 +116,18 @@ export class JobApplicationListComponent implements OnChanges {
     },
   ];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['jobId'] && this.jobId) {
-      this.loadData();
-    }
-  }
+  readonly statuses = computed(
+    () => mapJobApplyStatusesWithCount(this.jobApplyStatuses(), this.applies()) as StatusItem[],
+  );
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredApplies.length / this.pageSize));
-  }
+  readonly filteredApplies = computed(() => {
+    const keyword = this.searchTerm().trim().toLowerCase();
+    const selectedStatusId = this.selectedStatusId();
 
-  get startEntry(): number {
-    if (this.filteredApplies.length === 0) return 0;
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
+    let result = [...this.applies()];
 
-  get endEntry(): number {
-    return Math.min(this.currentPage * this.pageSize, this.filteredApplies.length);
-  }
-
-  get tablePagination(): DataTablePagination {
-    return {
-      currentPage: this.currentPage,
-      totalPages: this.totalPages,
-      startEntry: this.startEntry,
-      endEntry: this.endEntry,
-      totalItems: this.filteredApplies.length,
-      pageSize: this.pageSize,
-      pageSizeOptions: this.pageSizeOptions,
-    };
-  }
-
-  loadData(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.cdr.detectChanges();
-
-    forkJoin({
-      statuses: this.jobApplyStatusService.getByJobId(this.jobId),
-      applies: this.applyService.getByJobId(this.jobId),
-    }).subscribe({
-      next: ({ statuses, applies }) => {
-        this.jobApplyStatuses = statuses;
-        this.applies = applies;
-
-        this.buildStatuses(statuses);
-        this.emitSummary();
-        this.applyFilters();
-
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to load application data:', error);
-
-        this.applies = [];
-        this.filteredApplies = [];
-        this.pagedApplies = [];
-        this.statuses = [];
-
-        this.emitSummary();
-        this.errorMessage = 'Gagal memuat data kandidat.';
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  get selectedStatusName(): string {
-    return (
-      this.statuses.find((status) => status.id === this.selectedStatusId)?.name || 'Applications'
-    );
-  }
-  selectStatus(statusId: string): void {
-    this.selectedStatusId = statusId;
-    this.currentPage = 1;
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  onSearchChange(): void {
-    this.currentPage = 1;
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  toggleSortDirection(): void {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  resetFilters(): void {
-    this.searchTerm = '';
-    this.selectedStatusId = this.statuses[0]?.id || '';
-    this.sortDirection = 'desc';
-    this.currentPage = 1;
-
-    this.applyFilters();
-    this.cdr.detectChanges();
-  }
-
-  onPageSizeChange(size: number): void {
-    this.pageSize = size;
-    this.currentPage = 1;
-    this.paginate();
-    this.cdr.detectChanges();
-  }
-
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-
-    this.currentPage = page;
-    this.paginate();
-    this.cdr.detectChanges();
-  }
-
-  viewApplication(row: ApplyByJobItem): void {
-    console.log('View application:', row);
-  }
-
-  editApplication(row: ApplyByJobItem): void {
-    console.log('Edit application:', row);
-  }
-
-  getContact(row: ApplyByJobItem): string {
-    const phoneCode = row.phoneCode || '';
-    const phone = row.phone || '';
-
-    if (!phoneCode && !phone) return '-';
-    return `${phoneCode}${phone}`;
-  }
-
-  private buildStatuses(statuses: JobApplyStatus[]): void {
-    this.statuses = mapJobApplyStatusesWithCount(statuses, this.applies) as StatusItem[];
-
-    if (!this.selectedStatusId && this.statuses.length > 0) {
-      this.selectedStatusId = this.statuses[0].id;
-    }
-
-    if (
-      this.selectedStatusId &&
-      !this.statuses.some((status) => status.id === this.selectedStatusId)
-    ) {
-      this.selectedStatusId = this.statuses[0]?.id || '';
-    }
-  }
-
-  private emitSummary(): void {
-    const total = this.applies.length;
-
-    const rejected = this.applies.filter((item) => this.isRejectedStatus(item)).length;
-    const hired = this.applies.filter((item) => this.isHiredStatus(item)).length;
-
-    const inProgress = this.applies.filter(
-      (item) => !this.isRejectedStatus(item) && !this.isHiredStatus(item),
-    ).length;
-
-    this.summaryChange.emit({
-      total,
-      rejected,
-      inProgress,
-      hired,
-    });
-  }
-
-  private applyFilters(): void {
-    const keyword = this.searchTerm.trim().toLowerCase();
-
-    let result = [...this.applies];
-
-    if (this.selectedStatusId) {
-      result = result.filter((item) => item.statusId === this.selectedStatusId);
+    if (selectedStatusId) {
+      result = result.filter((item) => item.statusId === selectedStatusId);
     }
 
     if (keyword) {
@@ -316,23 +153,184 @@ export class JobApplicationListComponent implements OnChanges {
       const second = new Date(b.appliedAt).getTime();
       const comparison = first - second;
 
-      return this.sortDirection === 'asc' ? comparison : -comparison;
+      return this.sortDirection() === 'asc' ? comparison : -comparison;
     });
 
-    this.filteredApplies = result;
+    return result;
+  });
 
-    if (this.currentPage > this.totalPages) {
-      this.currentPage = this.totalPages;
-    }
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredApplies().length / this.pageSize())),
+  );
 
-    this.paginate();
+  readonly safePage = computed(() => Math.min(this.currentPage(), this.totalPages()));
+
+  readonly pagedApplies = computed(() => {
+    const start = (this.safePage() - 1) * this.pageSize();
+    const end = start + this.pageSize();
+
+    return this.filteredApplies().slice(start, end);
+  });
+
+  readonly selectedStatusName = computed(
+    () =>
+      this.statuses().find((status) => status.id === this.selectedStatusId())?.name ||
+      'Applications',
+  );
+
+  readonly tablePagination = computed<DataTablePagination>(() => {
+    const total = this.filteredApplies().length;
+    const page = this.safePage();
+    const size = this.pageSize();
+
+    return {
+      currentPage: page,
+      totalPages: this.totalPages(),
+      startEntry: total === 0 ? 0 : (page - 1) * size + 1,
+      endEntry: Math.min(page * size, total),
+      totalItems: total,
+      pageSize: size,
+      pageSizeOptions: this.pageSizeOptions,
+    };
+  });
+
+  readonly moveStatusModalMessage = computed(() => {
+    const applicantName = this.selectedApplication()?.applicantName || 'kandidat';
+    const statusName = this.selectedTargetStatus()?.name || 'status tujuan';
+
+    return `Pindahkan ${applicantName} ke status ${statusName}?`;
+  });
+
+  readonly shouldShowMoveNotes = computed(() => {
+    const selectedTargetStatus = this.selectedTargetStatus();
+
+    if (!selectedTargetStatus) return false;
+
+    const statusText = `${selectedTargetStatus.code} ${selectedTargetStatus.name}`.toLowerCase();
+
+    return statusText.includes('reject') || statusText.includes('hire');
+  });
+
+  constructor() {
+    effect(() => {
+      const jobId = this.jobId();
+
+      if (jobId) {
+        this.loadData(jobId);
+      }
+    });
   }
 
-  private paginate(): void {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
+  loadData(jobId = this.jobId()): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
-    this.pagedApplies = this.filteredApplies.slice(start, end);
+    forkJoin({
+      statuses: this.jobApplyStatusService.getByJobId(jobId),
+      applies: this.applyService.getByJobId(jobId),
+    }).subscribe({
+      next: ({ statuses, applies }) => {
+        this.jobApplyStatuses.set(statuses);
+        this.applies.set(applies);
+
+        this.emitSummary();
+        this.ensureSelectedStatus();
+
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load application data:', error);
+
+        this.applies.set([]);
+        this.jobApplyStatuses.set([]);
+        this.selectedStatusId.set('');
+
+        this.emitSummary();
+        this.errorMessage.set('Gagal memuat data kandidat.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  selectStatus(statusId: string): void {
+    this.selectedStatusId.set(statusId);
+    this.currentPage.set(1);
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value);
+    this.currentPage.set(1);
+  }
+
+  toggleSortDirection(): void {
+    this.sortDirection.update((direction) => (direction === 'asc' ? 'desc' : 'asc'));
+  }
+
+  resetFilters(): void {
+    this.searchTerm.set('');
+    this.selectedStatusId.set(this.statuses()[0]?.id || '');
+    this.sortDirection.set('desc');
+    this.currentPage.set(1);
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages()) return;
+
+    this.currentPage.set(page);
+  }
+
+  viewApplication(row: ApplyByJobItem): void {
+    console.log('View application:', row);
+  }
+
+  editApplication(row: ApplyByJobItem): void {
+    console.log('Edit application:', row);
+  }
+
+  getContact(row: ApplyByJobItem): string {
+    const phoneCode = row.phoneCode || '';
+    const phone = row.phone || '';
+
+    if (!phoneCode && !phone) return '-';
+    return `${phoneCode}${phone}`;
+  }
+
+  private ensureSelectedStatus(): void {
+    const statuses = this.statuses();
+    const selectedStatusId = this.selectedStatusId();
+
+    if (!selectedStatusId && statuses.length > 0) {
+      this.selectedStatusId.set(statuses[0].id);
+      return;
+    }
+
+    if (selectedStatusId && !statuses.some((status) => status.id === selectedStatusId)) {
+      this.selectedStatusId.set(statuses[0]?.id || '');
+    }
+  }
+
+  private emitSummary(): void {
+    const applies = this.applies();
+    const total = applies.length;
+
+    const rejected = applies.filter((item) => this.isRejectedStatus(item)).length;
+    const hired = applies.filter((item) => this.isHiredStatus(item)).length;
+
+    const inProgress = applies.filter(
+      (item) => !this.isRejectedStatus(item) && !this.isHiredStatus(item),
+    ).length;
+
+    this.summaryChange.emit({
+      total,
+      rejected,
+      inProgress,
+      hired,
+    });
   }
 
   private getStatusText(item: ApplyByJobItem): string {
@@ -350,7 +348,7 @@ export class JobApplicationListComponent implements OnChanges {
   }
 
   getApplicationActions(row: ApplyByJobItem): TableActionItem[] {
-    return buildMoveStatusActions(this.statuses, row.statusId);
+    return buildMoveStatusActions(this.statuses(), row.statusId);
   }
 
   handleApplicationAction(event: { action: string; row: ApplyByJobItem }): void {
@@ -362,16 +360,15 @@ export class JobApplicationListComponent implements OnChanges {
     }
   }
   moveApplicationStatus(row: ApplyByJobItem, statusId: string, notes: string | null = null): void {
-    const targetStatus = this.statuses.find((status) => status.id === statusId);
+    const targetStatus = this.statuses().find((status) => status.id === statusId);
 
     if (!targetStatus) {
-      this.errorMessage = 'Status tujuan tidak ditemukan.';
+      this.errorMessage.set('Status tujuan tidak ditemukan.');
       return;
     }
 
-    this.isMovingStatus = true;
-    this.errorMessage = '';
-    this.cdr.detectChanges();
+    this.isMovingStatus.set(true);
+    this.errorMessage.set('');
 
     this.applyStatusHistoryService
       .create({
@@ -381,79 +378,65 @@ export class JobApplicationListComponent implements OnChanges {
       })
       .subscribe({
         next: () => {
-          row.statusId = targetStatus.id;
-          row.statusName = targetStatus.name;
-          row.statusCode = targetStatus.code;
+          this.applies.update((items) =>
+            items.map((item) =>
+              item.id === row.id
+                ? {
+                    ...item,
+                    statusId: targetStatus.id,
+                    statusName: targetStatus.name,
+                    statusCode: targetStatus.code,
+                  }
+                : item,
+            ),
+          );
 
-          this.buildStatuses(this.jobApplyStatuses);
           this.emitSummary();
-          this.applyFilters();
+          this.ensureSelectedStatus();
 
-          this.isMovingStatus = false;
-          this.isMoveStatusModalOpen = false;
-          this.selectedApplication = null;
-          this.selectedTargetStatus = null;
-
-          this.cdr.detectChanges();
+          this.isMovingStatus.set(false);
+          this.isMoveStatusModalOpen.set(false);
+          this.selectedApplication.set(null);
+          this.selectedTargetStatus.set(null);
         },
         error: (error) => {
           console.error('Failed to move application status:', error);
 
-          this.errorMessage = error?.error?.message || 'Gagal memindahkan status kandidat.';
+          this.errorMessage.set(error?.error?.message || 'Gagal memindahkan status kandidat.');
 
-          this.isMovingStatus = false;
-          this.cdr.detectChanges();
+          this.isMovingStatus.set(false);
         },
       });
   }
-  isMoveStatusModalOpen = false;
-  selectedApplication: ApplyByJobItem | null = null;
-  selectedTargetStatus: StatusItem | null = null;
-  isMovingStatus = false;
-
-  get moveStatusModalMessage(): string {
-    const applicantName = this.selectedApplication?.applicantName || 'kandidat';
-    const statusName = this.selectedTargetStatus?.name || 'status tujuan';
-
-    return `Pindahkan ${applicantName} ke status ${statusName}?`;
-  }
-
-  get shouldShowMoveNotes(): boolean {
-    if (!this.selectedTargetStatus) return false;
-
-    const statusText =
-      `${this.selectedTargetStatus.code} ${this.selectedTargetStatus.name}`.toLowerCase();
-
-    return statusText.includes('reject') || statusText.includes('hire');
-  }
 
   openMoveStatusModal(row: ApplyByJobItem, statusId: string): void {
-    const targetStatus = this.statuses.find((status) => status.id === statusId);
+    const targetStatus = this.statuses().find((status) => status.id === statusId);
 
     if (!targetStatus) {
-      this.errorMessage = 'Status tujuan tidak ditemukan.';
+      this.errorMessage.set('Status tujuan tidak ditemukan.');
       return;
     }
 
-    this.selectedApplication = row;
-    this.selectedTargetStatus = targetStatus;
-    this.isMoveStatusModalOpen = true;
-    this.errorMessage = '';
-    this.cdr.detectChanges();
+    this.selectedApplication.set(row);
+    this.selectedTargetStatus.set(targetStatus);
+    this.isMoveStatusModalOpen.set(true);
+    this.errorMessage.set('');
   }
 
   closeMoveStatusModal(): void {
-    if (this.isMovingStatus) return;
+    if (this.isMovingStatus()) return;
 
-    this.isMoveStatusModalOpen = false;
-    this.selectedApplication = null;
-    this.selectedTargetStatus = null;
-    this.cdr.detectChanges();
+    this.isMoveStatusModalOpen.set(false);
+    this.selectedApplication.set(null);
+    this.selectedTargetStatus.set(null);
   }
 
   confirmMoveStatus(event: { notes: string | null }): void {
-    if (!this.selectedApplication || !this.selectedTargetStatus) return;
+    const selectedApplication = this.selectedApplication();
+    const selectedTargetStatus = this.selectedTargetStatus();
 
-    this.moveApplicationStatus(this.selectedApplication, this.selectedTargetStatus.id, event.notes);
+    if (!selectedApplication || !selectedTargetStatus) return;
+
+    this.moveApplicationStatus(selectedApplication, selectedTargetStatus.id, event.notes);
   }
 }
