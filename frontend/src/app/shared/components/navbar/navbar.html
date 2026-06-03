@@ -143,8 +143,15 @@
           class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-base-200"
         >
           <div class="avatar">
-            <div class="w-8 rounded-full bg-base-300 flex items-center justify-center">
+            <div class="w-8 rounded-full bg-base-300 flex items-center justify-center overflow-hidden">
+              <img
+                *ngIf="avatarUrl()"
+                [src]="avatarUrl()"
+                alt="avatar"
+                class="h-full w-full object-cover"
+              />
               <svg
+                *ngIf="!avatarUrl()"
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-5 h-5 text-base-content/50"
                 fill="currentColor"
