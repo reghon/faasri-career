@@ -20,17 +20,19 @@
       <div class="px-6 pb-6">
         <div class="flex items-start justify-between py-4">
           <div class="flex items-center gap-4">
-            <div class="relative w-24 h-24 rounded-full overflow-hidden bg-base-200">
+            <div
+              class="relative flex h-24 w-24 items-center justify-center rounded-full overflow-hidden bg-base-200"
+            >
               @if (applicant.applicantProfile?.avatarUrl) {
                 <img
                   [src]="getFileUrl(applicant.applicantProfile?.avatarUrl)"
                   alt="avatar"
-                  class="w-full h-full object-cover"
+                  class="h-full w-full object-cover"
                 />
               } @else {
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="w-8 h-8 text-base-content/30 m-auto"
+                  class="h-8 w-8 text-base-content/30"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
