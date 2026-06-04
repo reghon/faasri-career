@@ -46,7 +46,7 @@ export const applicantProfileController = {
 
   async updateMyAvatar(req: Request, res: Response) {
     if (!req.file) {
-      throw new AppError(400, "Avatar file is required");
+      throw new AppError(400, "File avatar wajib diunggah");
     }
 
     const userId = requireUserId(req);
@@ -76,7 +76,7 @@ export const applicantProfileController = {
 
   async updateMyCv(req: Request, res: Response) {
     if (!req.file) {
-      throw new AppError(400, "CV file is required");
+      throw new AppError(400, "File CV wajib diunggah");
     }
 
     const userId = requireUserId(req);

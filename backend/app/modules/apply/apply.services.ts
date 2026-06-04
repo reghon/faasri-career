@@ -35,12 +35,12 @@ export const applyService = {
       const profile = await applicantProfileRepository.getByUserId(userId);
 
       if (!profile) {
-        throw new AppError(404, "Applicant profile not found");
+        throw new AppError(404, "Profil pelamar tidak ditemukan");
       }
 
       const defaultStatus = await applyStatusRepository.getDefaultByJobId(client, payload.jobId);
       if (!defaultStatus) {
-        throw new AppError(400, "Default apply status for this job is not configured");
+        throw new AppError(400, "Status lamaran default untuk lowongan ini belum dikonfigurasi");
       }
 
       const createdApply = await applyRepository.create(
@@ -56,7 +56,7 @@ export const applyService = {
       );
 
       if (!createdApply) {
-        throw new AppError(500, "Failed to create apply");
+        throw new AppError(500, "Gagal membuat lamaran");
       }
 
       const applyId = createdApply.id;
@@ -86,7 +86,7 @@ export const applyService = {
       const profileSnapshot = await applyProfileService.createSnapshot(client, applyId, personalInfoWithCv, userId);
 
       if (!profileSnapshot) {
-        throw new AppError(500, "Failed to create apply profile snapshot");
+        throw new AppError(500, "Gagal membuat snapshot profil lamaran");
       }
 
       await applyEducationService.createSnapshots(client, applyId, payload.educationInfo.educations, userId);
@@ -128,7 +128,7 @@ export const applyService = {
       const profile = await applicantProfileRepository.getByUserId(userId);
 
       if (!profile) {
-        throw new AppError(404, "Applicant profile not found");
+        throw new AppError(404, "Profil pelamar tidak ditemukan");
       }
 
       return applyRepository.getMine(client, profile.id);
@@ -166,19 +166,19 @@ export const applyService = {
       const existing = await applyRepository.getById(client, applyId);
 
       if (!existing) {
-        throw new AppError(404, "Apply not found");
+        throw new AppError(404, "Lamaran tidak ditemukan");
       }
 
       const updated = await applyRepository.updateStatus(client, applyId, data, userId);
 
       if (!updated) {
-        throw new AppError(500, "Failed to update apply status");
+        throw new AppError(500, "Gagal memperbarui status lamaran");
       }
 
       const targetStatus = await applyStatusRepository.getById(data.statusId);
 
       if (!targetStatus) {
-        throw new AppError(404, "Target apply status not found");
+        throw new AppError(404, "Status lamaran target tidak ditemukan");
       }
 
       await applyStatusHistoryRepository.create(
@@ -220,13 +220,13 @@ export const applyService = {
       const profile = await applicantProfileRepository.getByUserId(userId);
 
       if (!profile) {
-        throw new AppError(404, "Applicant profile not found");
+        throw new AppError(404, "Profil pelamar tidak ditemukan");
       }
 
       const data = await applyRepository.getApplyDetail(client, applyId, profile.id);
 
       if (!data) {
-        throw new AppError(404, "Apply not found");
+        throw new AppError(404, "Lamaran tidak ditemukan");
       }
 
       return data;
@@ -242,7 +242,7 @@ export const applyService = {
       const profile = await applicantProfileRepository.getByUserId(userId);
 
       if (!profile) {
-        throw new AppError(404, "Applicant profile not found");
+        throw new AppError(404, "Profil pelamar tidak ditemukan");
       }
 
       return applyRepository.hasApplied(client, profile.id, jobId);

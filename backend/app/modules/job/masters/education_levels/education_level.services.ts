@@ -15,7 +15,7 @@ export const educationLevelService = {
     const educationLevel = await educationLevelRepository.getById(id);
 
     if (!educationLevel) {
-      throw new AppError(404, "Education level not found");
+      throw new AppError(404, "Jenjang pendidikan tidak ditemukan");
     }
 
     return educationLevel;
@@ -24,18 +24,18 @@ export const educationLevelService = {
   async create(data: EducationLevelPayload, actorId: string) {
     const existingByName = await educationLevelRepository.getByName(data.name);
     if (existingByName) {
-      throw new AppError(409, "Education level name already exists");
+      throw new AppError(409, "Nama jenjang pendidikan sudah ada");
     }
 
     const existingByCode = await educationLevelRepository.getByCode(data.code);
     if (existingByCode) {
-      throw new AppError(409, "Education level code already exists");
+      throw new AppError(409, "Kode jenjang pendidikan sudah ada");
     }
 
     const createdEducationLevel = await educationLevelRepository.create(data, actorId);
 
     if (!createdEducationLevel) {
-      throw new AppError(500, "Failed to create education level");
+      throw new AppError(500, "Gagal membuat jenjang pendidikan");
     }
 
     return createdEducationLevel;
@@ -45,23 +45,23 @@ export const educationLevelService = {
     const existingEducationLevel = await educationLevelRepository.getById(id);
 
     if (!existingEducationLevel) {
-      throw new AppError(404, "Education level not found");
+      throw new AppError(404, "Jenjang pendidikan tidak ditemukan");
     }
 
     const duplicateName = await educationLevelRepository.getByName(data.name);
     if (duplicateName && duplicateName.id !== id) {
-      throw new AppError(409, "Education level name already exists");
+      throw new AppError(409, "Nama jenjang pendidikan sudah ada");
     }
 
     const duplicateCode = await educationLevelRepository.getByCode(data.code);
     if (duplicateCode && duplicateCode.id !== id) {
-      throw new AppError(409, "Education level code already exists");
+      throw new AppError(409, "Kode jenjang pendidikan sudah ada");
     }
 
     const updatedEducationLevel = await educationLevelRepository.update(id, data, actorId);
 
     if (!updatedEducationLevel) {
-      throw new AppError(500, "Failed to update education level");
+      throw new AppError(500, "Gagal memperbarui jenjang pendidikan");
     }
 
     return updatedEducationLevel;
@@ -71,18 +71,18 @@ export const educationLevelService = {
     const existingEducationLevel = await educationLevelRepository.getById(id);
 
     if (!existingEducationLevel) {
-      throw new AppError(404, "Education level not found");
+      throw new AppError(404, "Jenjang pendidikan tidak ditemukan");
     }
 
     const openJobsUsageCount = await educationLevelRepository.countOpenJobsUsage(id);
     if (openJobsUsageCount > 0) {
-      throw new AppError(409, "Education level cannot be deleted because it is used by open jobs");
+      throw new AppError(409, "Jenjang pendidikan tidak dapat dihapus karena digunakan oleh lowongan aktif");
     }
 
     const deletedEducationLevel = await educationLevelRepository.softDelete(id, actorId);
 
     if (!deletedEducationLevel) {
-      throw new AppError(500, "Failed to delete education level");
+      throw new AppError(500, "Gagal menghapus jenjang pendidikan");
     }
 
     return deletedEducationLevel;
@@ -91,18 +91,18 @@ export const educationLevelService = {
   async hardDelete(id: string) {
     const existingEducationLevel = await educationLevelRepository.getSoftDeletedById(id);
     if (!existingEducationLevel) {
-      throw new AppError(404, "Education level not found");
+      throw new AppError(404, "Jenjang pendidikan tidak ditemukan");
     }
 
     const jobsUsageCount = await educationLevelRepository.countJobsUsage(id);
     if (jobsUsageCount > 0) {
-      throw new AppError(409, "Education level cannot be deleted because it is used by jobs");
+      throw new AppError(409, "Jenjang pendidikan tidak dapat dihapus karena digunakan oleh lowongan");
     }
 
     const deletedEducationLevel = await educationLevelRepository.hardDelete(id);
 
     if (!deletedEducationLevel) {
-      throw new AppError(500, "Failed to permanently delete education level");
+      throw new AppError(500, "Gagal menghapus permanen jenjang pendidikan");
     }
 
     return deletedEducationLevel;
@@ -112,12 +112,12 @@ export const educationLevelService = {
     const existingEducationLevel = await educationLevelRepository.getSoftDeletedById(id);
 
     if (!existingEducationLevel) {
-      throw new AppError(404, "Education level not found");
+      throw new AppError(404, "Jenjang pendidikan tidak ditemukan");
     }
     const updatedEducationLevel = await educationLevelRepository.restore(id, actorId);
 
     if (!updatedEducationLevel) {
-      throw new AppError(500, "Failed to restore education level");
+      throw new AppError(500, "Gagal memulihkan jenjang pendidikan");
     }
 
     return updatedEducationLevel;

@@ -16,7 +16,7 @@ export const applyProfileService = {
       const profile = await applyProfileRepository.getByApplyId(client, applyId);
 
       if (!profile) {
-        throw new AppError(404, "Apply profile not found");
+        throw new AppError(404, "Profil lamaran tidak ditemukan");
       }
 
       return profile;

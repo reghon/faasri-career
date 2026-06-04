@@ -6,7 +6,7 @@ export const applicantMasterService = {
     const result = await applicantMasterRepository.getByUserId(userId);
 
     if (!result) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     return result;
@@ -16,7 +16,7 @@ export const applicantMasterService = {
     const result = await applicantMasterRepository.getByApplicantProfileId(applicantProfileId);
 
     if (!result) {
-      throw new AppError(404, "Applicant not found");
+      throw new AppError(404, "Pelamar tidak ditemukan");
     }
 
     return result;

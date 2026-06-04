@@ -12,7 +12,7 @@ export const applyStatusHistoryService = {
     const applyStatusHistory = await applyStatusHistoryRepository.getById(id);
 
     if (!applyStatusHistory) {
-      throw new AppError(404, "Apply status history not found");
+      throw new AppError(404, "Riwayat status lamaran tidak ditemukan");
     }
 
     return applyStatusHistory;
@@ -22,7 +22,7 @@ export const applyStatusHistoryService = {
     const applyStatusHistory = await applyStatusHistoryRepository.getDetailById(id);
 
     if (!applyStatusHistory) {
-      throw new AppError(404, "Apply status history not found");
+      throw new AppError(404, "Riwayat status lamaran tidak ditemukan");
     }
 
     return applyStatusHistory;
@@ -42,24 +42,24 @@ export const applyStatusHistoryService = {
       const apply = await applyStatusHistoryRepository.getApplyById(client, data.applyId);
 
       if (!apply) {
-        throw new AppError(404, "Apply not found");
+        throw new AppError(404, "Lamaran tidak ditemukan");
       }
 
       const targetStatus = await applyStatusHistoryRepository.getApplyStatusById(client, apply.jobId, data.applyStatusId);
 
       if (!targetStatus) {
-        throw new AppError(404, "Apply status not found");
+        throw new AppError(404, "Status lamaran tidak ditemukan");
       }
 
       const currentSortOrder = apply.statusSortOrder;
       const targetSortOrder = targetStatus.sortOrder;
 
       if (apply.statusIsFinal) {
-        throw new AppError(400, "Apply status is final and cannot be changed");
+        throw new AppError(400, "Status lamaran bersifat final dan tidak dapat diubah");
       }
 
       if (targetSortOrder <= currentSortOrder) {
-        throw new AppError(400, "Apply status cannot move backward or stay at the same status");
+        throw new AppError(400, "Status lamaran tidak dapat mundur atau tetap di status yang sama");
       }
 
       const rawStatusesToCreate = await applyStatusHistoryRepository.getStatusesBySortOrderRange(client, apply.jobId, currentSortOrder + 1, targetSortOrder);
@@ -67,7 +67,7 @@ export const applyStatusHistoryService = {
       const expectedTotal = targetSortOrder - currentSortOrder;
 
       if (rawStatusesToCreate.length !== expectedTotal) {
-        throw new AppError(400, "Apply status sequence is incomplete");
+        throw new AppError(400, "Urutan status lamaran tidak lengkap");
       }
 
       const targetStatusText = `${targetStatus.code} ${targetStatus.name}`.toLowerCase();
@@ -87,7 +87,7 @@ export const applyStatusHistoryService = {
           });
 
       if (statusesToCreate.length === 0) {
-        throw new AppError(400, "Apply target status cannot be processed");
+        throw new AppError(400, "Status target lamaran tidak dapat diproses");
       }
 
       const createdAt = new Date();
@@ -104,7 +104,7 @@ export const applyStatusHistoryService = {
         const createdHistory = await applyStatusHistoryRepository.create(client, item, actorId, createdAt);
 
         if (!createdHistory) {
-          throw new AppError(500, "Failed to create apply status history");
+          throw new AppError(500, "Gagal membuat riwayat status lamaran");
         }
 
         createdHistories.push(createdHistory);
@@ -113,7 +113,7 @@ export const applyStatusHistoryService = {
       const updatedApply = await applyStatusHistoryRepository.updateApplyStatus(client, data.applyId, targetStatus.id, actorId);
 
       if (!updatedApply) {
-        throw new AppError(500, "Failed to update apply current status");
+        throw new AppError(500, "Gagal memperbarui status lamaran saat ini");
       }
 
       await client.query("COMMIT");
@@ -131,13 +131,13 @@ export const applyStatusHistoryService = {
     const existingApplyStatusHistory = await applyStatusHistoryRepository.getById(id);
 
     if (!existingApplyStatusHistory) {
-      throw new AppError(404, "Apply status history not found");
+      throw new AppError(404, "Riwayat status lamaran tidak ditemukan");
     }
 
     const updatedApplyStatusHistory = await applyStatusHistoryRepository.update(id, data.notes, actorId);
 
     if (!updatedApplyStatusHistory) {
-      throw new AppError(500, "Failed to update apply status history");
+      throw new AppError(500, "Gagal memperbarui riwayat status lamaran");
     }
 
     return updatedApplyStatusHistory;
@@ -147,13 +147,13 @@ export const applyStatusHistoryService = {
     const existingApplyStatusHistory = await applyStatusHistoryRepository.getById(id);
 
     if (!existingApplyStatusHistory) {
-      throw new AppError(404, "Apply status history not found");
+      throw new AppError(404, "Riwayat status lamaran tidak ditemukan");
     }
 
     const deletedApplyStatusHistory = await applyStatusHistoryRepository.softDelete(id, actorId);
 
     if (!deletedApplyStatusHistory) {
-      throw new AppError(500, "Failed to delete apply status history");
+      throw new AppError(500, "Gagal menghapus riwayat status lamaran");
     }
 
     return deletedApplyStatusHistory;

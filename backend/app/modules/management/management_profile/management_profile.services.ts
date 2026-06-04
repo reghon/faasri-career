@@ -11,7 +11,7 @@ export const managementProfileService = {
     const managementProfile = await managementProfileRepository.getByUserId(userId);
 
     if (!managementProfile) {
-      throw new AppError(404, "Management profile not found");
+      throw new AppError(404, "Profil manajemen tidak ditemukan");
     }
 
     return managementProfile;
@@ -20,13 +20,13 @@ export const managementProfileService = {
     const existing = await managementProfileRepository.getByUserId(userId);
 
     if (!existing) {
-      throw new AppError(404, "Management profile not found");
+      throw new AppError(404, "Profil manajemen tidak ditemukan");
     }
 
     const updated = await managementProfileRepository.updateMe(userId, fullName);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update profile");
+      throw new AppError(500, "Gagal memperbarui profil");
     }
 
     return updated;
@@ -35,7 +35,7 @@ export const managementProfileService = {
     const managementProfile = await managementProfileRepository.getById(id);
 
     if (!managementProfile) {
-      throw new AppError(404, "Management profile not found");
+      throw new AppError(404, "Profil manajemen tidak ditemukan");
     }
 
     return managementProfile;
@@ -44,13 +44,13 @@ export const managementProfileService = {
   async create(data: ManagementProfilePayload, actorId: string) {
     const existingByUserId = await managementProfileRepository.getByUserId(data.userId);
     if (existingByUserId) {
-      throw new AppError(409, "Management profile for this user already exists");
+      throw new AppError(409, "Profil manajemen untuk pengguna ini sudah ada");
     }
 
     const created = await managementProfileRepository.create(data, actorId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create management profile");
+      throw new AppError(500, "Gagal membuat profil manajemen");
     }
 
     return created;
@@ -59,18 +59,18 @@ export const managementProfileService = {
   async update(id: string, data: ManagementProfilePayload, actorId: string) {
     const existing = await managementProfileRepository.getById(id);
     if (!existing) {
-      throw new AppError(404, "Management profile not found");
+      throw new AppError(404, "Profil manajemen tidak ditemukan");
     }
 
     const duplicateUser = await managementProfileRepository.getByUserId(data.userId);
     if (duplicateUser && duplicateUser.id !== id) {
-      throw new AppError(409, "Management profile for this user already exists");
+      throw new AppError(409, "Profil manajemen untuk pengguna ini sudah ada");
     }
 
     const updated = await managementProfileRepository.update(id, data, actorId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update management profile");
+      throw new AppError(500, "Gagal memperbarui profil manajemen");
     }
 
     return updated;
@@ -79,13 +79,13 @@ export const managementProfileService = {
   async delete(id: string, actorId: string) {
     const existing = await managementProfileRepository.getById(id);
     if (!existing) {
-      throw new AppError(404, "Management profile not found");
+      throw new AppError(404, "Profil manajemen tidak ditemukan");
     }
 
     const deleted = await managementProfileRepository.softDelete(id, actorId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete management profile");
+      throw new AppError(500, "Gagal menghapus profil manajemen");
     }
 
     return deleted;

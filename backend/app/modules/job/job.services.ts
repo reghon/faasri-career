@@ -43,7 +43,7 @@ export const jobService = {
     const job = await jobRepository.getById(id);
 
     if (!job) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     return job;
@@ -53,7 +53,7 @@ export const jobService = {
     const job = await jobRepository.getBySlug(slug);
 
     if (!job) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     return job;
@@ -63,13 +63,13 @@ export const jobService = {
     const existingJob = await jobRepository.getBySlug(data.slug);
 
     if (existingJob) {
-      throw new AppError(409, "Job slug already exists");
+      throw new AppError(409, "Slug lowongan sudah ada");
     }
 
     const createdJob = await jobRepository.create(data, actorId);
 
     if (!createdJob) {
-      throw new AppError(500, "Failed to create job");
+      throw new AppError(500, "Gagal membuat lowongan");
     }
 
     return createdJob;
@@ -79,19 +79,19 @@ export const jobService = {
     const existingJob = await jobRepository.getById(id);
 
     if (!existingJob) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     const duplicateJob = await jobRepository.getBySlug(data.slug);
 
     if (duplicateJob && duplicateJob.id !== id) {
-      throw new AppError(409, "Job slug already exists");
+      throw new AppError(409, "Slug lowongan sudah ada");
     }
 
     const updatedJob = await jobRepository.update(id, data, actorId);
 
     if (!updatedJob) {
-      throw new AppError(500, "Failed to update job");
+      throw new AppError(500, "Gagal memperbarui lowongan");
     }
 
     return updatedJob;
@@ -101,13 +101,13 @@ export const jobService = {
     const existingJob = await jobRepository.getById(id);
 
     if (!existingJob) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     const deletedJob = await jobRepository.softDelete(id, actorId);
 
     if (!deletedJob) {
-      throw new AppError(500, "Failed to delete job");
+      throw new AppError(500, "Gagal menghapus lowongan");
     }
 
     return deletedJob;
@@ -117,13 +117,13 @@ export const jobService = {
     const existingJob = await jobRepository.getById(id);
 
     if (!existingJob) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     const updatedJob = await jobRepository.updateStatus(id, statusId, actorId);
 
     if (!updatedJob) {
-      throw new AppError(500, "Failed to update job status");
+      throw new AppError(500, "Gagal memperbarui status lowongan");
     }
 
     return updatedJob;

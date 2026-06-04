@@ -7,7 +7,7 @@ const getProfileOrThrow = async (userId: string) => {
   const profile = await applicantProfileRepository.getByUserId(userId);
 
   if (!profile) {
-    throw new AppError(404, "Applicant profile not found");
+    throw new AppError(404, "Profil pelamar tidak ditemukan");
   }
 
   return profile;
@@ -25,7 +25,7 @@ export const technicalSkillService = {
     const created = await technicalSkillRepository.create(profile.id, data, userId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create technical skill");
+      throw new AppError(500, "Gagal membuat keahlian teknis");
     }
 
     return created;
@@ -37,13 +37,13 @@ export const technicalSkillService = {
     const existing = await technicalSkillRepository.getById(technicalSkillId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Technical skill not found");
+      throw new AppError(404, "Keahlian teknis tidak ditemukan");
     }
 
     const deleted = await technicalSkillRepository.softDelete(technicalSkillId, profile.id, userId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete technical skill");
+      throw new AppError(500, "Gagal menghapus keahlian teknis");
     }
   },
 };

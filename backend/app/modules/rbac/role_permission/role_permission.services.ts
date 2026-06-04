@@ -12,28 +12,28 @@ export const rolePermissionService = {
   async create(userId: string, data: RolePermissionPayload) {
     const role = await roleRepository.getById(data.roleId);
     if (!role) {
-      throw new AppError(404, "Role not found");
+      throw new AppError(404, "Role tidak ditemukan");
     }
 
     const permission = await permissionRepository.getById(data.permissionId);
     if (!permission) {
-      throw new AppError(404, "Permission not found");
+      throw new AppError(404, "Permission tidak ditemukan");
     }
 
     const existingCombination = await rolePermissionRepository.getByRoleAndPermission(data.roleId, data.permissionId);
 
     if (existingCombination) {
-      throw new AppError(409, "Role permission already exists");
+      throw new AppError(409, "Role permission sudah ada");
     }
 
     const created = await rolePermissionRepository.create(data, userId);
     if (!created) {
-      throw new AppError(500, "Failed to create role permission");
+      throw new AppError(500, "Gagal membuat role permission");
     }
 
     const fullData = await rolePermissionRepository.getById(created.id);
     if (!fullData) {
-      throw new AppError(500, "Failed to load created role permission");
+      throw new AppError(500, "Gagal memuat role permission yang dibuat");
     }
 
     return fullData;
@@ -42,33 +42,33 @@ export const rolePermissionService = {
   async update(userId: string, id: string, data: RolePermissionPayload) {
     const existing = await rolePermissionRepository.getById(id);
     if (!existing) {
-      throw new AppError(404, "Role permission not found");
+      throw new AppError(404, "Role permission tidak ditemukan");
     }
 
     const role = await roleRepository.getById(data.roleId);
     if (!role) {
-      throw new AppError(404, "Role not found");
+      throw new AppError(404, "Role tidak ditemukan");
     }
 
     const permission = await permissionRepository.getById(data.permissionId);
     if (!permission) {
-      throw new AppError(404, "Permission not found");
+      throw new AppError(404, "Permission tidak ditemukan");
     }
 
     const existingCombination = await rolePermissionRepository.getByRoleAndPermission(data.roleId, data.permissionId);
 
     if (existingCombination && existingCombination.id !== id) {
-      throw new AppError(409, "Role permission already exists");
+      throw new AppError(409, "Role permission sudah ada");
     }
 
     const updated = await rolePermissionRepository.update(id, data, userId);
     if (!updated) {
-      throw new AppError(500, "Failed to update role permission");
+      throw new AppError(500, "Gagal memperbarui role permission");
     }
 
     const fullData = await rolePermissionRepository.getById(updated.id);
     if (!fullData) {
-      throw new AppError(500, "Failed to load updated role permission");
+      throw new AppError(500, "Gagal memuat role permission yang diperbarui");
     }
 
     return fullData;
@@ -77,12 +77,12 @@ export const rolePermissionService = {
   async delete(userId: string, id: string) {
     const existing = await rolePermissionRepository.getById(id);
     if (!existing) {
-      throw new AppError(404, "Role permission not found");
+      throw new AppError(404, "Role permission tidak ditemukan");
     }
 
     const deleted = await rolePermissionRepository.softDelete(id, userId);
     if (!deleted) {
-      throw new AppError(500, "Failed to delete role permission");
+      throw new AppError(500, "Gagal menghapus role permission");
     }
   },
 };

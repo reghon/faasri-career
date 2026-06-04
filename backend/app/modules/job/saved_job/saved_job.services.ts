@@ -11,7 +11,7 @@ export const savedJobService = {
     const savedJob = await savedJobRepository.getById(id);
 
     if (!savedJob) {
-      throw new AppError(404, "Saved job not found");
+      throw new AppError(404, "Lowongan tersimpan tidak ditemukan");
     }
 
     return savedJob;
@@ -21,7 +21,7 @@ export const savedJobService = {
     const savedJob = await savedJobRepository.getDetailById(id);
 
     if (!savedJob) {
-      throw new AppError(404, "Saved job not found");
+      throw new AppError(404, "Lowongan tersimpan tidak ditemukan");
     }
 
     return savedJob;
@@ -31,14 +31,14 @@ export const savedJobService = {
     const existingSavedJob = await savedJobRepository.getByUserAndJob(data.userId, data.jobId);
 
     if (existingSavedJob && !existingSavedJob.deletedAt) {
-      throw new AppError(409, "Job already saved");
+      throw new AppError(409, "Lowongan sudah disimpan");
     }
 
     if (existingSavedJob && existingSavedJob.deletedAt) {
       const restoredSavedJob = await savedJobRepository.restore(data, actorId);
 
       if (!restoredSavedJob) {
-        throw new AppError(500, "Failed to restore saved job");
+        throw new AppError(500, "Gagal memulihkan lowongan tersimpan");
       }
 
       return restoredSavedJob;
@@ -47,7 +47,7 @@ export const savedJobService = {
     const createdSavedJob = await savedJobRepository.create(data, actorId);
 
     if (!createdSavedJob) {
-      throw new AppError(500, "Failed to create saved job");
+      throw new AppError(500, "Gagal menyimpan lowongan");
     }
 
     return createdSavedJob;
@@ -57,19 +57,19 @@ export const savedJobService = {
     const existingSavedJob = await savedJobRepository.getById(id);
 
     if (!existingSavedJob) {
-      throw new AppError(404, "Saved job not found");
+      throw new AppError(404, "Lowongan tersimpan tidak ditemukan");
     }
 
     const duplicateSavedJob = await savedJobRepository.getByUserAndJob(data.userId, data.jobId);
 
     if (duplicateSavedJob && duplicateSavedJob.id !== id && !duplicateSavedJob.deletedAt) {
-      throw new AppError(409, "Job already saved by this user");
+      throw new AppError(409, "Lowongan sudah disimpan oleh pengguna ini");
     }
 
     const updatedSavedJob = await savedJobRepository.update(id, data, actorId);
 
     if (!updatedSavedJob) {
-      throw new AppError(500, "Failed to update saved job");
+      throw new AppError(500, "Gagal memperbarui lowongan tersimpan");
     }
 
     return updatedSavedJob;
@@ -79,13 +79,13 @@ export const savedJobService = {
     const existingSavedJob = await savedJobRepository.getById(id);
 
     if (!existingSavedJob) {
-      throw new AppError(404, "Saved job not found");
+      throw new AppError(404, "Lowongan tersimpan tidak ditemukan");
     }
 
     const deletedSavedJob = await savedJobRepository.softDelete(id, actorId);
 
     if (!deletedSavedJob) {
-      throw new AppError(500, "Failed to delete saved job");
+      throw new AppError(500, "Gagal menghapus lowongan tersimpan");
     }
 
     return deletedSavedJob;

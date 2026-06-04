@@ -12,7 +12,7 @@ const getOrCreate = async (userId: string) => {
   const createdProfile = await applicantProfileRepository.create(userId, userId);
 
   if (!createdProfile) {
-    throw new AppError(500, "Failed to create applicant profile");
+    throw new AppError(500, "Gagal membuat profil pelamar");
   }
 
   return createdProfile;
@@ -35,7 +35,7 @@ export const applicantProfileService = {
     const profile = await applicantProfileRepository.getById(id);
 
     if (!profile) {
-      throw new AppError(404, "Applicant profile not found");
+      throw new AppError(404, "Profil pelamar tidak ditemukan");
     }
 
     return profile;
@@ -47,7 +47,7 @@ export const applicantProfileService = {
     const updatedProfile = await applicantProfileRepository.update(userId, data, userId);
 
     if (!updatedProfile) {
-      throw new AppError(500, "Failed to update applicant profile");
+      throw new AppError(500, "Gagal memperbarui profil pelamar");
     }
 
     return updatedProfile;
@@ -59,7 +59,7 @@ export const applicantProfileService = {
     const updatedProfile = await applicantProfileRepository.updateAvatar(userId, data, userId);
 
     if (!updatedProfile) {
-      throw new AppError(500, "Failed to update applicant profile avatar");
+      throw new AppError(500, "Gagal memperbarui avatar profil pelamar");
     }
 
     return updatedProfile;
@@ -71,7 +71,7 @@ export const applicantProfileService = {
     const updatedProfile = await applicantProfileRepository.updateCv(userId, data, userId);
 
     if (!updatedProfile) {
-      throw new AppError(500, "Failed to update applicant profile CV");
+      throw new AppError(500, "Gagal memperbarui CV profil pelamar");
     }
 
     return updatedProfile;
@@ -83,7 +83,7 @@ export const applicantProfileService = {
     const updatedProfile = await applicantProfileRepository.removeAvatar(userId, userId);
 
     if (!updatedProfile) {
-      throw new AppError(500, "Failed to remove applicant profile avatar");
+      throw new AppError(500, "Gagal menghapus avatar profil pelamar");
     }
 
     return updatedProfile;
@@ -95,7 +95,7 @@ export const applicantProfileService = {
     const updatedProfile = await applicantProfileRepository.removeCv(userId, userId);
 
     if (!updatedProfile) {
-      throw new AppError(500, "Failed to remove applicant profile CV");
+      throw new AppError(500, "Gagal menghapus CV profil pelamar");
     }
 
     return updatedProfile;

@@ -11,7 +11,7 @@ export const jobApplyStatusService = {
     const job = await jobApplyStatusRepository.getJobById(jobId);
 
     if (!job) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     return jobApplyStatusRepository.getByJobId(jobId);
@@ -21,7 +21,7 @@ export const jobApplyStatusService = {
     const jobApplyStatus = await jobApplyStatusRepository.getById(id);
 
     if (!jobApplyStatus) {
-      throw new AppError(404, "Job apply status not found");
+      throw new AppError(404, "Status lamaran lowongan tidak ditemukan");
     }
 
     return jobApplyStatus;
@@ -31,7 +31,7 @@ export const jobApplyStatusService = {
     const jobApplyStatus = await jobApplyStatusRepository.getDetailById(id);
 
     if (!jobApplyStatus) {
-      throw new AppError(404, "Job apply status not found");
+      throw new AppError(404, "Status lamaran lowongan tidak ditemukan");
     }
 
     return jobApplyStatus;
@@ -41,45 +41,45 @@ export const jobApplyStatusService = {
     const job = await jobApplyStatusRepository.getJobById(data.jobId);
 
     if (!job) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     const guard = await this.getEditGuardByJobId(data.jobId);
 
     if (!guard.canEditJobFlow) {
-      throw new AppError(409, "Job flow cannot be modified because applicants have progressed beyond Submitted");
+      throw new AppError(409, "Job flow tidak dapat diubah karena pelamar sudah melewati tahap Submitted");
     }
 
     const applyStatus = await jobApplyStatusRepository.getApplyStatusById(data.applyStatusId);
 
     if (!applyStatus) {
-      throw new AppError(404, "Apply status not found");
+      throw new AppError(404, "Status lamaran tidak ditemukan");
     }
 
     const existingStatus = await jobApplyStatusRepository.getByJobAndApplyStatus(data.jobId, data.applyStatusId);
 
     if (existingStatus) {
-      throw new AppError(409, "Apply status already exists in this job");
+      throw new AppError(409, "Status lamaran sudah ada di lowongan ini");
     }
 
     const existingSortOrder = await jobApplyStatusRepository.getByJobAndSortOrder(data.jobId, data.sortOrder);
 
     if (existingSortOrder) {
-      throw new AppError(409, "Sort order already exists in this job");
+      throw new AppError(409, "Urutan sudah ada di lowongan ini");
     }
 
     if (data.isDefault) {
       const existingDefault = await jobApplyStatusRepository.getDefaultByJobId(data.jobId);
 
       if (existingDefault) {
-        throw new AppError(409, "Default status already exists in this job");
+        throw new AppError(409, "Status default sudah ada di lowongan ini");
       }
     }
 
     const createdJobApplyStatus = await jobApplyStatusRepository.create(data, actorId);
 
     if (!createdJobApplyStatus) {
-      throw new AppError(500, "Failed to create job apply status");
+      throw new AppError(500, "Gagal membuat status lamaran lowongan");
     }
 
     return this.getById(createdJobApplyStatus.id);
@@ -89,44 +89,44 @@ export const jobApplyStatusService = {
     const existingJobApplyStatus = await jobApplyStatusRepository.getById(id);
 
     if (!existingJobApplyStatus) {
-      throw new AppError(404, "Job apply status not found");
+      throw new AppError(404, "Status lamaran lowongan tidak ditemukan");
     }
     
     const guard = await this.getEditGuardByJobId(existingJobApplyStatus.jobId);
 
     if (!guard.canEditJobFlow) {
-      throw new AppError(409, "Job flow cannot be modified because applicants have progressed beyond Submitted");
+      throw new AppError(409, "Job flow tidak dapat diubah karena pelamar sudah melewati tahap Submitted");
     }
     const applyStatus = await jobApplyStatusRepository.getApplyStatusById(data.applyStatusId);
 
     if (!applyStatus) {
-      throw new AppError(404, "Apply status not found");
+      throw new AppError(404, "Status lamaran tidak ditemukan");
     }
 
     const duplicateStatus = await jobApplyStatusRepository.getByJobAndApplyStatusExceptId(existingJobApplyStatus.jobId, data.applyStatusId, id);
 
     if (duplicateStatus) {
-      throw new AppError(409, "Apply status already exists in this job");
+      throw new AppError(409, "Status lamaran sudah ada di lowongan ini");
     }
 
     const duplicateSortOrder = await jobApplyStatusRepository.getByJobAndSortOrderExceptId(existingJobApplyStatus.jobId, data.sortOrder, id);
 
     if (duplicateSortOrder) {
-      throw new AppError(409, "Sort order already exists in this job");
+      throw new AppError(409, "Urutan sudah ada di lowongan ini");
     }
 
     if (data.isDefault) {
       const existingDefault = await jobApplyStatusRepository.getDefaultByJobIdExceptId(existingJobApplyStatus.jobId, id);
 
       if (existingDefault) {
-        throw new AppError(409, "Default status already exists in this job");
+        throw new AppError(409, "Status default sudah ada di lowongan ini");
       }
     }
 
     const updatedJobApplyStatus = await jobApplyStatusRepository.update(id, data, actorId);
 
     if (!updatedJobApplyStatus) {
-      throw new AppError(500, "Failed to update job apply status");
+      throw new AppError(500, "Gagal memperbarui status lamaran lowongan");
     }
 
     return this.getById(updatedJobApplyStatus.id);
@@ -136,13 +136,13 @@ export const jobApplyStatusService = {
     const existingJobApplyStatus = await jobApplyStatusRepository.getById(id);
 
     if (!existingJobApplyStatus) {
-      throw new AppError(404, "Job apply status not found");
+      throw new AppError(404, "Status lamaran lowongan tidak ditemukan");
     }
 
     const deletedJobApplyStatus = await jobApplyStatusRepository.softDelete(id, actorId);
 
     if (!deletedJobApplyStatus) {
-      throw new AppError(500, "Failed to delete job apply status");
+      throw new AppError(500, "Gagal menghapus status lamaran lowongan");
     }
 
     return deletedJobApplyStatus;
@@ -152,7 +152,7 @@ export const jobApplyStatusService = {
     const job = await jobApplyStatusRepository.getJobById(jobId);
 
     if (!job) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     const guard = await jobApplyStatusRepository.getEditGuardByJobId(jobId);
@@ -175,11 +175,11 @@ export const jobApplyStatusService = {
 
     for (const item of items) {
       if (applyStatusIds.has(item.applyStatusId)) {
-        throw new AppError(400, "Duplicate apply status in job flow");
+        throw new AppError(400, "Status lamaran duplikat dalam job flow");
       }
 
       if (sortOrders.has(item.sortOrder)) {
-        throw new AppError(400, "Duplicate sort order in job flow");
+        throw new AppError(400, "Urutan duplikat dalam job flow");
       }
 
       if (item.isDefault) {
@@ -191,11 +191,11 @@ export const jobApplyStatusService = {
     }
 
     if (defaultCount !== 1) {
-      throw new AppError(400, "Job flow must have exactly one default status");
+      throw new AppError(400, "Job flow harus memiliki tepat satu status default");
     }
 
     if (!items.some((item) => item.isFinal)) {
-      throw new AppError(400, "Job flow must have at least one final status");
+      throw new AppError(400, "Job flow harus memiliki minimal satu status final");
     }
   },
 
@@ -203,7 +203,7 @@ export const jobApplyStatusService = {
     const job = await jobApplyStatusRepository.getJobById(jobId);
 
     if (!job) {
-      throw new AppError(404, "Job not found");
+      throw new AppError(404, "Lowongan tidak ditemukan");
     }
 
     this.validateSyncItems(data.items);
@@ -211,14 +211,14 @@ export const jobApplyStatusService = {
     const guard = await this.getEditGuardByJobId(jobId);
 
     if (!guard.canEditJobFlow) {
-      throw new AppError(409, "Job flow cannot be modified because applicants have progressed beyond Submitted");
+      throw new AppError(409, "Job flow tidak dapat diubah karena pelamar sudah melewati tahap Submitted");
     }
 
     for (const item of data.items) {
       const applyStatus = await jobApplyStatusRepository.getApplyStatusById(item.applyStatusId);
 
       if (!applyStatus) {
-        throw new AppError(404, "Apply status not found");
+        throw new AppError(404, "Status lamaran tidak ditemukan");
       }
     }
 
@@ -233,7 +233,7 @@ export const jobApplyStatusService = {
         const created = await jobApplyStatusRepository.createWithClient(client, jobId, item, actorId);
 
         if (!created) {
-          throw new AppError(500, "Failed to sync job apply status");
+          throw new AppError(500, "Gagal menyinkronkan status lamaran lowongan");
         }
       }
 

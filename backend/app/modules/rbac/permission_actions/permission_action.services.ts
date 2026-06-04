@@ -11,19 +11,19 @@ export const permissionActionService = {
     const existingCode = await permissionActionRepository.getByCode(data.code);
 
     if (existingCode) {
-      throw new AppError(409, "Permission action code already exists");
+      throw new AppError(409, "Kode aksi permission sudah ada");
     }
 
     const existingName = await permissionActionRepository.getByName(data.name);
 
     if (existingName) {
-      throw new AppError(409, "Permission action name already exists");
+      throw new AppError(409, "Nama aksi permission sudah ada");
     }
 
     const created = await permissionActionRepository.create(data, userId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create permission action");
+      throw new AppError(500, "Gagal membuat aksi permission");
     }
 
     return created;
@@ -33,25 +33,25 @@ export const permissionActionService = {
     const existing = await permissionActionRepository.getById(id);
 
     if (!existing) {
-      throw new AppError(404, "Permission action not found");
+      throw new AppError(404, "Aksi permission tidak ditemukan");
     }
 
     const existingCode = await permissionActionRepository.getByCode(data.code);
 
     if (existingCode && existingCode.id !== id) {
-      throw new AppError(409, "Permission action code already exists");
+      throw new AppError(409, "Kode aksi permission sudah ada");
     }
 
     const existingName = await permissionActionRepository.getByName(data.name);
 
     if (existingName && existingName.id !== id) {
-      throw new AppError(409, "Permission action name already exists");
+      throw new AppError(409, "Nama aksi permission sudah ada");
     }
 
     const updated = await permissionActionRepository.update(id, data, userId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update permission action");
+      throw new AppError(500, "Gagal memperbarui aksi permission");
     }
 
     return updated;
@@ -61,13 +61,13 @@ export const permissionActionService = {
     const existing = await permissionActionRepository.getById(id);
 
     if (!existing) {
-      throw new AppError(404, "Permission action not found");
+      throw new AppError(404, "Aksi permission tidak ditemukan");
     }
 
     const deleted = await permissionActionRepository.softDelete(id, userId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete permission action");
+      throw new AppError(500, "Gagal menghapus aksi permission");
     }
   },
 };

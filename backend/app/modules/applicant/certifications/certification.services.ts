@@ -7,7 +7,7 @@ const getProfileOrThrow = async (userId: string) => {
   const profile = await applicantProfileRepository.getByUserId(userId);
 
   if (!profile) {
-    throw new AppError(404, "Applicant profile not found");
+    throw new AppError(404, "Profil pelamar tidak ditemukan");
   }
 
   return profile;
@@ -25,7 +25,7 @@ export const certificationService = {
     const created = await certificationRepository.create(profile.id, data, userId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create certification");
+      throw new AppError(500, "Gagal membuat sertifikasi");
     }
 
     return created;
@@ -37,13 +37,13 @@ export const certificationService = {
     const existing = await certificationRepository.getById(certificationId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Certification not found");
+      throw new AppError(404, "Sertifikasi tidak ditemukan");
     }
 
     const updated = await certificationRepository.update(certificationId, profile.id, data, userId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update certification");
+      throw new AppError(500, "Gagal memperbarui sertifikasi");
     }
 
     return updated;
@@ -55,13 +55,13 @@ export const certificationService = {
     const existing = await certificationRepository.getById(certificationId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Certification not found");
+      throw new AppError(404, "Sertifikasi tidak ditemukan");
     }
 
     const deleted = await certificationRepository.softDelete(certificationId, profile.id, userId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete certification");
+      throw new AppError(500, "Gagal menghapus sertifikasi");
     }
   },
 };

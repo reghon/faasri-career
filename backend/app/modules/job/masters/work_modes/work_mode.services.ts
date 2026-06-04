@@ -15,7 +15,7 @@ export const workModeService = {
     const data = await workModeRepository.getById(id);
 
     if (!data) {
-      throw new AppError(404, "Work mode not found");
+      throw new AppError(404, "Mode kerja tidak ditemukan");
     }
 
     return data;
@@ -24,18 +24,18 @@ export const workModeService = {
   async create(data: WorkModePayload, actorId: string) {
     const existingByCode = await workModeRepository.getByCode(data.code);
     if (existingByCode) {
-      throw new AppError(409, "Work mode code already exists");
+      throw new AppError(409, "Kode mode kerja sudah ada");
     }
 
     const existingByName = await workModeRepository.getByName(data.name);
     if (existingByName) {
-      throw new AppError(409, "Work mode name already exists");
+      throw new AppError(409, "Nama mode kerja sudah ada");
     }
 
     const created = await workModeRepository.create(data, actorId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create work mode");
+      throw new AppError(500, "Gagal membuat mode kerja");
     }
 
     return created;
@@ -45,23 +45,23 @@ export const workModeService = {
     const existing = await workModeRepository.getById(id);
 
     if (!existing) {
-      throw new AppError(404, "Work mode not found");
+      throw new AppError(404, "Mode kerja tidak ditemukan");
     }
 
     const duplicateCode = await workModeRepository.getByCode(data.code);
     if (duplicateCode && duplicateCode.id !== id) {
-      throw new AppError(409, "Work mode code already exists");
+      throw new AppError(409, "Kode mode kerja sudah ada");
     }
 
     const duplicateName = await workModeRepository.getByName(data.name);
     if (duplicateName && duplicateName.id !== id) {
-      throw new AppError(409, "Work mode name already exists");
+      throw new AppError(409, "Nama mode kerja sudah ada");
     }
 
     const updated = await workModeRepository.update(id, data, actorId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update work mode");
+      throw new AppError(500, "Gagal memperbarui mode kerja");
     }
 
     return updated;
@@ -70,17 +70,17 @@ export const workModeService = {
   async softDelete(id: string, actorId: string) {
     const existing = await workModeRepository.getById(id);
     if (!existing) {
-      throw new AppError(404, "Work mode not found");
+      throw new AppError(404, "Mode kerja tidak ditemukan");
     }
 
     const openJobsUsageCount = await workModeRepository.countOpenJobsUsage(id);
     if (openJobsUsageCount > 0) {
-      throw new AppError(409, "Work mode cannot be deleted because it is used by jobs");
+      throw new AppError(409, "Mode kerja tidak dapat dihapus karena digunakan oleh lowongan");
     }
 
     const deleted = await workModeRepository.softDelete(id, actorId);
     if (!deleted) {
-      throw new AppError(500, "Failed to delete work mode");
+      throw new AppError(500, "Gagal menghapus mode kerja");
     }
 
     return deleted;
@@ -89,7 +89,7 @@ export const workModeService = {
   async hardDelete(id: string) {
     const existing = await workModeRepository.getSoftDeletedById(id);
     if (!existing) {
-      throw new AppError(404, "Work mode not found");
+      throw new AppError(404, "Mode kerja tidak ditemukan");
     }
 
     const jobsUsageCount = await workModeRepository.countJobsUsage(id);
@@ -99,7 +99,7 @@ export const workModeService = {
 
     const deleted = await workModeRepository.hardDelete(id);
     if (!deleted) {
-      throw new AppError(500, "Failed to permanently delete work mode");
+      throw new AppError(500, "Gagal menghapus permanen mode kerja");
     }
 
     return deleted;
@@ -109,13 +109,13 @@ export const workModeService = {
     const existing = await workModeRepository.getSoftDeletedById(id);
 
     if (!existing) {
-      throw new AppError(404, "Work mode not found");
+      throw new AppError(404, "Mode kerja tidak ditemukan");
     }
 
     const updated = await workModeRepository.restore(id, actorId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to restore work mode");
+      throw new AppError(500, "Gagal memulihkan mode kerja");
     }
 
     return updated;

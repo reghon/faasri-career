@@ -15,7 +15,7 @@ export const jobCategoryService = {
     const jobCategory = await jobCategoryRepository.getById(id);
 
     if (!jobCategory) {
-      throw new AppError(404, "Job category not found");
+      throw new AppError(404, "Kategori lowongan tidak ditemukan");
     }
 
     return jobCategory;
@@ -25,7 +25,7 @@ export const jobCategoryService = {
     const jobCategory = await jobCategoryRepository.getDetailById(id);
 
     if (!jobCategory) {
-      throw new AppError(404, "Job category not found");
+      throw new AppError(404, "Kategori lowongan tidak ditemukan");
     }
 
     return jobCategory;
@@ -34,18 +34,18 @@ export const jobCategoryService = {
   async create(data: JobCategoryPayload, actorId: string) {
     const existingByName = await jobCategoryRepository.getByName(data.name);
     if (existingByName) {
-      throw new AppError(409, "Job category name already exists");
+      throw new AppError(409, "Nama kategori lowongan sudah ada");
     }
 
     const existingByCode = await jobCategoryRepository.getByCode(data.code);
     if (existingByCode) {
-      throw new AppError(409, "Job category code already exists");
+      throw new AppError(409, "Kode kategori lowongan sudah ada");
     }
 
     const createdJobCategory = await jobCategoryRepository.create(data, actorId);
 
     if (!createdJobCategory) {
-      throw new AppError(500, "Failed to create job category");
+      throw new AppError(500, "Gagal membuat kategori lowongan");
     }
 
     return createdJobCategory;
@@ -55,23 +55,23 @@ export const jobCategoryService = {
     const existingJobCategory = await jobCategoryRepository.getById(id);
 
     if (!existingJobCategory) {
-      throw new AppError(404, "Job category not found");
+      throw new AppError(404, "Kategori lowongan tidak ditemukan");
     }
 
     const duplicateByName = await jobCategoryRepository.getByName(data.name);
     if (duplicateByName && duplicateByName.id !== id) {
-      throw new AppError(409, "Job category name already exists");
+      throw new AppError(409, "Nama kategori lowongan sudah ada");
     }
 
     const duplicateByCode = await jobCategoryRepository.getByCode(data.code);
     if (duplicateByCode && duplicateByCode.id !== id) {
-      throw new AppError(409, "Job category code already exists");
+      throw new AppError(409, "Kode kategori lowongan sudah ada");
     }
 
     const updatedJobCategory = await jobCategoryRepository.update(id, data, actorId);
 
     if (!updatedJobCategory) {
-      throw new AppError(500, "Failed to update job category");
+      throw new AppError(500, "Gagal memperbarui kategori lowongan");
     }
 
     return updatedJobCategory;
@@ -80,17 +80,17 @@ export const jobCategoryService = {
   async softDelete(id: string, actorId: string) {
     const existingJobCategory = await jobCategoryRepository.getById(id);
     if (!existingJobCategory) {
-      throw new AppError(404, "Job category not found");
+      throw new AppError(404, "Kategori lowongan tidak ditemukan");
     }
 
     const openJobsUsageCount = await jobCategoryRepository.countOpenJobsUsage(id);
     if (openJobsUsageCount > 0) {
-      throw new AppError(409, "Job category cannot be deleted because it is used by jobs");
+      throw new AppError(409, "Kategori lowongan tidak dapat dihapus karena digunakan oleh lowongan");
     }
 
     const deletedJobCategory = await jobCategoryRepository.softDelete(id, actorId);
     if (!deletedJobCategory) {
-      throw new AppError(500, "Failed to delete job category");
+      throw new AppError(500, "Gagal menghapus kategori lowongan");
     }
 
     return deletedJobCategory;
@@ -99,7 +99,7 @@ export const jobCategoryService = {
   async hardDelete(id: string) {
     const existingJobCategory = await jobCategoryRepository.getSoftDeletedById(id);
     if (!existingJobCategory) {
-      throw new AppError(404, "Job category not found");
+      throw new AppError(404, "Kategori lowongan tidak ditemukan");
     }
 
     const jobsUsageCount = await jobCategoryRepository.countJobsUsage(id);
@@ -109,7 +109,7 @@ export const jobCategoryService = {
 
     const deletedJobCategory = await jobCategoryRepository.hardDelete(id);
     if (!deletedJobCategory) {
-      throw new AppError(500, "Failed to permanently delete job category");
+      throw new AppError(500, "Gagal menghapus permanen kategori lowongan");
     }
 
     return deletedJobCategory;
@@ -119,13 +119,13 @@ export const jobCategoryService = {
     const existingJobCategory = await jobCategoryRepository.getSoftDeletedById(id);
 
     if (!existingJobCategory) {
-      throw new AppError(404, "Job category not found");
+      throw new AppError(404, "Kategori lowongan tidak ditemukan");
     }
 
     const restoredJobCategory = await jobCategoryRepository.restore(id, actorId);
 
     if (!restoredJobCategory) {
-      throw new AppError(500, "Failed to restore job category");
+      throw new AppError(500, "Gagal memulihkan kategori lowongan");
     }
 
     return restoredJobCategory;

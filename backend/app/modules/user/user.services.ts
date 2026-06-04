@@ -21,7 +21,7 @@ export const userService = {
     const user = await userRepository.getById(id);
 
     if (!user) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     return user;
@@ -31,13 +31,13 @@ export const userService = {
     const existingUser = await userRepository.getByEmail(data.email);
 
     if (existingUser) {
-      throw new AppError(409, "Email already registered");
+      throw new AppError(409, "Email sudah terdaftar");
     }
 
     const role = await userRepository.getRoleByName(data.roleName);
 
     if (!role) {
-      throw new AppError(404, "Role not found");
+      throw new AppError(404, "Role tidak ditemukan");
     }
 
     const hashedPassword = await bcrypt.hash(data.password, config.bcrypt.saltRounds);
@@ -51,7 +51,7 @@ export const userService = {
     });
 
     if (!created) {
-      throw new AppError(500, "Failed to create user");
+      throw new AppError(500, "Gagal membuat pengguna");
     }
 
     return created;
@@ -61,19 +61,19 @@ export const userService = {
     const existing = await userRepository.getById(id);
 
     if (!existing) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     const duplicateEmail = await userRepository.getByEmail(data.email);
 
     if (duplicateEmail && duplicateEmail.id !== id) {
-      throw new AppError(409, "Email already registered");
+      throw new AppError(409, "Email sudah terdaftar");
     }
 
     const role = await userRepository.getRoleByName(data.roleName);
 
     if (!role) {
-      throw new AppError(404, "Role not found");
+      throw new AppError(404, "Role tidak ditemukan");
     }
 
     const hashedPassword = data.password ? await bcrypt.hash(data.password, config.bcrypt.saltRounds) : null;
@@ -87,7 +87,7 @@ export const userService = {
     });
 
     if (!updated) {
-      throw new AppError(500, "Failed to update user");
+      throw new AppError(500, "Gagal memperbarui pengguna");
     }
 
     return updated;
@@ -96,12 +96,12 @@ export const userService = {
   async restore(id: string, actorId: string) {
     const existing = await userRepository.getSoftDeletedById(id);
     if (!existing) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     const restoredUser = await userRepository.restore(id, actorId);
     if (!restoredUser) {
-      throw new AppError(500, "Failed to restore user");
+      throw new AppError(500, "Gagal memulihkan pengguna");
     }
 
     return restoredUser;
@@ -111,13 +111,13 @@ export const userService = {
     const existing = await userRepository.getById(id);
 
     if (!existing) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     const deleted = await userRepository.softDelete(id, actorId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete user");
+      throw new AppError(500, "Gagal menghapus pengguna");
     }
 
     return deleted;
@@ -127,13 +127,13 @@ export const userService = {
     const existing = await userRepository.getSoftDeletedById(id);
 
     if (!existing) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     const deleted = await userRepository.hardDelete(id);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to permanently delete user");
+      throw new AppError(500, "Gagal menghapus permanen pengguna");
     }
 
     return deleted;

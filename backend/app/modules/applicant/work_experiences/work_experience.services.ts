@@ -7,7 +7,7 @@ const getProfileOrThrow = async (userId: string) => {
   const profile = await applicantProfileRepository.getByUserId(userId);
 
   if (!profile) {
-    throw new AppError(404, "Applicant profile not found");
+    throw new AppError(404, "Profil pelamar tidak ditemukan");
   }
 
   return profile;
@@ -25,7 +25,7 @@ export const workExperienceService = {
     const created = await workExperienceRepository.create(profile.id, data, userId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create work experience");
+      throw new AppError(500, "Gagal membuat pengalaman kerja");
     }
 
     return created;
@@ -37,13 +37,13 @@ export const workExperienceService = {
     const existing = await workExperienceRepository.getById(workExperienceId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Work experience not found");
+      throw new AppError(404, "Pengalaman kerja tidak ditemukan");
     }
 
     const updated = await workExperienceRepository.update(workExperienceId, profile.id, data, userId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update work experience");
+      throw new AppError(500, "Gagal memperbarui pengalaman kerja");
     }
 
     return updated;
@@ -55,13 +55,13 @@ export const workExperienceService = {
     const existing = await workExperienceRepository.getById(workExperienceId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Work experience not found");
+      throw new AppError(404, "Pengalaman kerja tidak ditemukan");
     }
 
     const deleted = await workExperienceRepository.softDelete(workExperienceId, profile.id, userId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete work experience");
+      throw new AppError(500, "Gagal menghapus pengalaman kerja");
     }
   },
 };

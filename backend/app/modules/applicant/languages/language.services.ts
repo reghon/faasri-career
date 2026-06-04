@@ -7,7 +7,7 @@ const getProfileOrThrow = async (userId: string) => {
   const profile = await applicantProfileRepository.getByUserId(userId);
 
   if (!profile) {
-    throw new AppError(404, "Applicant profile not found");
+    throw new AppError(404, "Profil pelamar tidak ditemukan");
   }
 
   return profile;
@@ -25,7 +25,7 @@ export const languageService = {
     const created = await languageRepository.create(profile.id, data, userId);
 
     if (!created) {
-      throw new AppError(500, "Failed to create language");
+      throw new AppError(500, "Gagal membuat bahasa");
     }
 
     return created;
@@ -37,13 +37,13 @@ export const languageService = {
     const existing = await languageRepository.getById(languageId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Language not found");
+      throw new AppError(404, "Bahasa tidak ditemukan");
     }
 
     const updated = await languageRepository.update(languageId, profile.id, data, userId);
 
     if (!updated) {
-      throw new AppError(500, "Failed to update language");
+      throw new AppError(500, "Gagal memperbarui bahasa");
     }
 
     return updated;
@@ -55,13 +55,13 @@ export const languageService = {
     const existing = await languageRepository.getById(languageId, profile.id);
 
     if (!existing) {
-      throw new AppError(404, "Language not found");
+      throw new AppError(404, "Bahasa tidak ditemukan");
     }
 
     const deleted = await languageRepository.softDelete(languageId, profile.id, userId);
 
     if (!deleted) {
-      throw new AppError(500, "Failed to delete language");
+      throw new AppError(500, "Gagal menghapus bahasa");
     }
   },
 };

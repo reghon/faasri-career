@@ -17,13 +17,13 @@ export const authService = {
     const existingUser = await authRepository.findByEmail(email);
 
     if (existingUser?.isActive) {
-      throw new AppError(409, "Email already registered");
+      throw new AppError(409, "Email sudah terdaftar");
     }
 
     const defaultRole = await authRepository.findRoleByName(DEFAULT_REGISTER_ROLE);
 
     if (!defaultRole) {
-      throw new AppError(500, "Default role not found");
+      throw new AppError(500, "Role default tidak ditemukan");
     }
 
     const hashedPassword = await bcrypt.hash(password, config.bcrypt.saltRounds);
@@ -35,7 +35,7 @@ export const authService = {
       const user = await authRepository.updateUnverifiedRegistration(existingUser.id, hashedPassword, otp, otpExpiredAt);
 
       if (!user) {
-        throw new AppError(500, "Failed to update registration");
+        throw new AppError(500, "Gagal memperbarui registrasi");
       }
 
       await sendOtpEmail(email, otp);
@@ -46,7 +46,7 @@ export const authService = {
     const user = await authRepository.create(email, hashedPassword, defaultRole.id, otp, otpExpiredAt);
 
     if (!user) {
-      throw new AppError(500, "Failed to register user");
+      throw new AppError(500, "Gagal mendaftarkan pengguna");
     }
 
     await sendOtpEmail(email, otp);
@@ -58,19 +58,19 @@ export const authService = {
     const user = await authRepository.findByEmail(email);
 
     if (!user) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     if (user.isActive) {
-      throw new AppError(400, "Account already verified");
+      throw new AppError(400, "Akun sudah terverifikasi");
     }
 
     if (!user.otp || user.otp !== otp) {
-      throw new AppError(400, "Invalid OTP");
+      throw new AppError(400, "OTP tidak valid");
     }
 
     if (!user.otpExpiredAt || new Date() > new Date(user.otpExpiredAt)) {
-      throw new AppError(400, "OTP expired");
+      throw new AppError(400, "OTP sudah kedaluwarsa");
     }
 
     await authRepository.activateUser(user.id);
@@ -96,17 +96,17 @@ export const authService = {
     const user = await authRepository.findByEmail(email);
 
     if (!user) {
-      throw new AppError(401, "Invalid email or password");
+      throw new AppError(401, "Email atau password tidak valid");
     }
 
     if (!user.isActive) {
-      throw new AppError(403, "Account is not verified yet, please check your email");
+      throw new AppError(403, "Akun belum diverifikasi, silakan cek email Anda");
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      throw new AppError(401, "Invalid email or password");
+      throw new AppError(401, "Email atau password tidak valid");
     }
 
     const accessToken = signAccessToken({
@@ -134,7 +134,7 @@ export const authService = {
     const storedRefreshToken = await authRepository.findRefreshToken(refreshToken);
 
     if (!storedRefreshToken) {
-      throw new AppError(401, "Invalid or expired refresh token");
+      throw new AppError(401, "Refresh token tidak valid atau sudah kedaluwarsa");
     }
 
     const payload = verifyRefreshToken(refreshToken);
@@ -142,11 +142,11 @@ export const authService = {
     const user = await authRepository.findById(payload.userId);
 
     if (!user) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     if (!user.isActive) {
-      throw new AppError(403, "User is inactive");
+      throw new AppError(403, "Pengguna tidak aktif");
     }
 
     return {
@@ -161,7 +161,7 @@ export const authService = {
     const user = await authRepository.findById(userId);
 
     if (!user) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "Pengguna tidak ditemukan");
     }
 
     const rolePermissions = user.roleId ? await authorizationService.getRolePermissions(user.roleId) : [];
@@ -179,7 +179,7 @@ export const authService = {
   async requestChangeEmail(userId: string, newEmail: string) {
     const existing = await authRepository.findByEmailExcludeId(newEmail, userId);
     if (existing) {
-      throw new AppError(409, "Email already in use");
+      throw new AppError(409, "Email sudah digunakan");
     }
 
     const otp = generateOtp();
@@ -188,25 +188,25 @@ export const authService = {
     await authRepository.updateOtp(userId, otp, otpExpiredAt);
     await sendOtpEmail(newEmail, otp);
 
-    return { message: "OTP sent to new email" };
+    return { message: "OTP berhasil dikirim ke email baru" };
   },
 
   async confirmChangeEmail(userId: string, newEmail: string, otp: string, currentRefreshToken?: string) {
     const user = await authRepository.findById(userId);
-    if (!user) throw new AppError(404, "User not found");
+    if (!user) throw new AppError(404, "Pengguna tidak ditemukan");
 
     const fullUser = await authRepository.findByIdFull(userId);
-    if (!fullUser) throw new AppError(404, "User not found");
+    if (!fullUser) throw new AppError(404, "Pengguna tidak ditemukan");
 
     if (!fullUser.otp || fullUser.otp !== otp) {
-      throw new AppError(400, "Invalid OTP");
+      throw new AppError(400, "OTP tidak valid");
     }
 
     if (!fullUser.otpExpiredAt || new Date() > new Date(fullUser.otpExpiredAt)) {
-      throw new AppError(400, "OTP expired");
+      throw new AppError(400, "OTP sudah kedaluwarsa");
     }
     const existing = await authRepository.findByEmailExcludeId(newEmail, userId);
-    if (existing) throw new AppError(409, "Email already in use");
+    if (existing) throw new AppError(409, "Email sudah digunakan");
 
     const updatedUser = await authRepository.updateEmail(userId, newEmail);
     await authRepository.updateOtp(userId, "", new Date(0));
@@ -215,7 +215,7 @@ export const authService = {
     }
 
     return {
-      message: "Email updated successfully",
+      message: "Email berhasil diperbarui",
       accessToken: signAccessToken({
         userId,
         sessionVersion: updatedUser?.sessionVersion ?? fullUser.sessionVersion + 1,
@@ -225,10 +225,10 @@ export const authService = {
 
   async changePassword(userId: string, oldPassword: string, newPassword: string, currentRefreshToken?: string) {
     const user = await authRepository.findByIdFull(userId);
-    if (!user) throw new AppError(404, "User not found");
+    if (!user) throw new AppError(404, "Pengguna tidak ditemukan");
 
     const isValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isValid) throw new AppError(400, "Old password is incorrect");
+    if (!isValid) throw new AppError(400, "Password lama tidak sesuai");
 
     const hashed = await bcrypt.hash(newPassword, config.bcrypt.saltRounds);
     const updatedUser = await authRepository.updatePassword(userId, hashed);
@@ -237,7 +237,7 @@ export const authService = {
     }
 
     return {
-      message: "Password changed successfully",
+      message: "Password berhasil diubah",
       accessToken: signAccessToken({
         userId,
         sessionVersion: updatedUser?.sessionVersion ?? user.sessionVersion + 1,
@@ -268,14 +268,14 @@ export const authService = {
 
   async confirmForgotPassword(email: string, otp: string, newPassword: string) {
     const user = await authRepository.findByEmail(email);
-    if (!user) throw new AppError(400, "Invalid request");
+    if (!user) throw new AppError(400, "Permintaan tidak valid");
 
     if (!user.otp || user.otp !== otp) {
-      throw new AppError(400, "Invalid OTP");
+      throw new AppError(400, "OTP tidak valid");
     }
 
     if (!user.otpExpiredAt || new Date() > new Date(user.otpExpiredAt)) {
-      throw new AppError(400, "OTP expired");
+      throw new AppError(400, "OTP sudah kedaluwarsa");
     }
 
     const hashed = await bcrypt.hash(newPassword, config.bcrypt.saltRounds);
@@ -284,21 +284,21 @@ export const authService = {
 
     await authRepository.deleteRefreshTokenByUserId(user.id);
 
-    return { message: "Password reset successfully" };
+    return { message: "Password berhasil direset" };
   },
 
   async verifyForgotPasswordOtp(email: string, otp: string) {
     const user = await authRepository.findByEmail(email);
-    if (!user) throw new AppError(400, "Invalid request");
+    if (!user) throw new AppError(400, "Permintaan tidak valid");
 
     if (!user.otp || user.otp !== otp) {
-      throw new AppError(400, "Invalid OTP");
+      throw new AppError(400, "OTP tidak valid");
     }
 
     if (!user.otpExpiredAt || new Date() > new Date(user.otpExpiredAt)) {
-      throw new AppError(400, "OTP expired");
+      throw new AppError(400, "OTP sudah kedaluwarsa");
     }
 
-    return { message: "OTP verified" };
+    return { message: "OTP berhasil diverifikasi" };
   },
 };
