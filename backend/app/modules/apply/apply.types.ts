@@ -107,3 +107,27 @@ export type ApplyMeDetail = Apply & {
     createdAt: string;
   }[];
 };
+
+export type ApplyFilterParams = {
+  search: string;
+  jobName: string;
+  statusName: string;
+  sortBy: string;
+  sortDirection: string;
+};
+
+export type PaginatedApplyList = {
+  items: ApplyListItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+};
+
+export type CountResult = {
+  total: number;
+};

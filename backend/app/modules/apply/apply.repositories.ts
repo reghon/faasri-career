@@ -1,8 +1,58 @@
 import { PoolClient } from "pg";
 import { queryCamel, queryCamelOne } from "../../utils/db.util";
 import { applyQueries } from "./apply.queries";
-import { Apply, CreateApplyPayload, UpdateApplyStatusPayload, ApplyByJobItem, ApplyListItem, ApplyMeDetail, ApplyHistoryList } from "./apply.types";
+import { Apply, CreateApplyPayload, UpdateApplyStatusPayload, ApplyByJobItem, ApplyListItem, ApplyMeDetail, ApplyHistoryList, ApplyFilterParams, CountResult } from "./apply.types";
+
+const SORT_COLUMN_MAP: Record<string, string> = {
+  full_name: "ap.full_name",
+  job_name: "j.title",
+  status_name: "aps.name",
+  applied_at: "a.applied_at",
+};
+
+function buildFilterClauses(filters: ApplyFilterParams): { conditions: string; params: unknown[] } {
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters.search) {
+    params.push(`%${filters.search}%`);
+    conditions.push(`(ap.full_name ILIKE $${params.length} OR ap.linkedin_url ILIKE $${params.length} OR j.title ILIKE $${params.length})`);
+  }
+
+  if (filters.jobName) {
+    params.push(filters.jobName);
+    conditions.push(`j.title = $${params.length}`);
+  }
+
+  if (filters.statusName) {
+    params.push(filters.statusName);
+    conditions.push(`aps.name = $${params.length}`);
+  }
+
+  return {
+    conditions: conditions.length > 0 ? "AND " + conditions.join(" AND ") : "",
+    params,
+  };
+}
+
 export const applyRepository = {
+  async countAllFiltered(filters: ApplyFilterParams): Promise<CountResult | null> {
+    const { conditions, params } = buildFilterClauses(filters);
+    return queryCamelOne<CountResult>(applyQueries.countAllFiltered(conditions), params);
+  },
+
+  async getAllFiltered(limit: number, offset: number, filters: ApplyFilterParams): Promise<ApplyListItem[]> {
+    const { conditions, params } = buildFilterClauses(filters);
+    const limitParam = `$${params.length + 1}`;
+    const offsetParam = `$${params.length + 2}`;
+    const sortCol = SORT_COLUMN_MAP[filters.sortBy] || "a.applied_at";
+    const orderBy = `${sortCol} ${filters.sortDirection} NULLS LAST`;
+    return queryCamel<ApplyListItem>(
+      applyQueries.getAllFiltered(conditions, orderBy, limitParam, offsetParam),
+      [...params, limit, offset],
+    );
+  },
+
   async getAll(client: PoolClient): Promise<ApplyListItem[]> {
     return queryCamel<ApplyListItem>(client, applyQueries.getAll);
   },

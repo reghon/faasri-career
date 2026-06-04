@@ -50,6 +50,37 @@ export const applyQueries = {
 
   ORDER BY a.applied_at DESC, a.created_at DESC
 `,
+
+  countAllFiltered: (conditions: string) => `
+    SELECT COUNT(*)::int AS total
+    FROM applies a
+    LEFT JOIN applicant_profiles ap ON ap.id = a.applicant_profile_id AND ap.deleted_at IS NULL
+    LEFT JOIN jobs j ON j.id = a.job_id AND j.deleted_at IS NULL
+    LEFT JOIN apply_statuses aps ON aps.id = a.status_id AND aps.deleted_at IS NULL
+    WHERE a.deleted_at IS NULL ${conditions}
+  `,
+
+  getAllFiltered: (conditions: string, orderBy: string, limitParam: string, offsetParam: string) => `
+    SELECT
+      a.id,
+      a.applicant_profile_id,
+      a.job_id,
+      a.status_id,
+      ap.full_name,
+      ap.linkedin_url,
+      j.title AS job_name,
+      aps.name AS status_name,
+      a.applied_at,
+      jas.updated_at AS status_updated_at
+    FROM applies a
+    LEFT JOIN applicant_profiles ap ON ap.id = a.applicant_profile_id AND ap.deleted_at IS NULL
+    LEFT JOIN jobs j ON j.id = a.job_id AND j.deleted_at IS NULL
+    LEFT JOIN apply_statuses aps ON aps.id = a.status_id AND aps.deleted_at IS NULL
+    LEFT JOIN job_apply_statuses jas ON jas.job_id = a.job_id AND jas.apply_status_id = a.status_id AND jas.deleted_at IS NULL
+    WHERE a.deleted_at IS NULL ${conditions}
+    ORDER BY ${orderBy}
+    LIMIT ${limitParam} OFFSET ${offsetParam}
+  `,
   getMine: `
   SELECT 
     a.id,

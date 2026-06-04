@@ -1,15 +1,23 @@
 import { Request, Response } from "express";
 import { requireUserId } from "../../utils/request-user.util";
-import { getValidatedBody, getValidatedParams } from "../../utils/validated-request.util";
+import { getValidatedBody, getValidatedParams, getValidatedQuery } from "../../utils/validated-request.util";
 import { applyService } from "./apply.services";
-import { ApplyDetailParamsSchema, ApplyJobParamsInput, ApplyParamsInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
+import { ApplyDetailParamsSchema, ApplyJobParamsInput, ApplyParamsInput, ApplyQueryInput, CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
 
 export const applyController = {
   async getAll(req: Request, res: Response) {
-    const data = await applyService.getAll();
+    const query = getValidatedQuery<ApplyQueryInput>(req);
+
+    const data = await applyService.getAll(query.page, query.limit, {
+      search: query.search,
+      jobName: query.jobName,
+      statusName: query.statusName,
+      sortBy: query.sortBy,
+      sortDirection: query.sortDirection,
+    });
 
     res.status(200).json({
-      message: "Apply list fetched successfully",
+      message: "Success",
       data,
     });
   },

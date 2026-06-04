@@ -14,16 +14,31 @@ import { applyTechnicalSkillService } from "./technical_skills/apply_technical_s
 import { applyStatusRepository } from "./statuses/apply_status.repositories";
 import { applyStatusHistoryRepository } from "./status_histories/apply_status_history.repositories";
 import { CreateApplyBodyInput, UpdateApplyStatusBodyInput } from "./apply.schemas";
+import { ApplyFilterParams, PaginatedApplyList } from "./apply.types";
 
 export const applyService = {
-  async getAll() {
-    const client = await pool.connect();
+  async getAll(page: number, limit: number, filters: ApplyFilterParams): Promise<PaginatedApplyList> {
+    const offset = (page - 1) * limit;
 
-    try {
-      return applyRepository.getAll(client);
-    } finally {
-      client.release();
-    }
+    const [countResult, items] = await Promise.all([
+      applyRepository.countAllFiltered(filters),
+      applyRepository.getAllFiltered(limit, offset, filters),
+    ]);
+
+    const total = countResult?.total ?? 0;
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+
+    return {
+      items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   },
   
   async createApply(userId: string, payload: CreateApplyBodyInput) {
