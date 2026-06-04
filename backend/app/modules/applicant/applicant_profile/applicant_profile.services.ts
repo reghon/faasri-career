@@ -1,6 +1,6 @@
 import { AppError } from "../../../errors/app-error";
 import { applicantProfileRepository } from "./applicant_profile.repositories";
-import { ApplicantProfileAvatarPayload, ApplicantProfileCvPayload, ApplicantProfilePayload } from "./applicant_profile.types";
+import { ApplicantFilterParams, ApplicantProfileAvatarPayload, ApplicantProfileCvPayload, ApplicantProfilePayload, PaginatedApplicantProfiles } from "./applicant_profile.types";
 
 const getOrCreate = async (userId: string) => {
   const existingProfile = await applicantProfileRepository.getByUserId(userId);
@@ -21,6 +21,30 @@ const getOrCreate = async (userId: string) => {
 export const applicantProfileService = {
   async getAll() {
     return applicantProfileRepository.getAll();
+  },
+
+  async getAllPaginated(page: number, limit: number, filters: ApplicantFilterParams): Promise<PaginatedApplicantProfiles> {
+    const offset = (page - 1) * limit;
+
+    const [countResult, items] = await Promise.all([
+      applicantProfileRepository.countAllFiltered(filters),
+      applicantProfileRepository.getAllFiltered(limit, offset, filters),
+    ]);
+
+    const total = countResult?.total ?? 0;
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+
+    return {
+      items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   },
 
   async getOrCreateProfile(userId: string) {

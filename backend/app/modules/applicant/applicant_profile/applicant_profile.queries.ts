@@ -16,6 +16,20 @@ export const applicantProfileQueries = {
   WHERE deleted_at IS NULL
   ORDER BY created_at DESC
 `,
+
+  countAllFiltered: (conditions: string) => `
+    SELECT COUNT(*)::int AS total
+    FROM applicant_profiles
+    WHERE deleted_at IS NULL ${conditions}
+  `,
+
+  getAllFiltered: (conditions: string, orderBy: string, limitParam: string, offsetParam: string) => `
+    SELECT ${SELECT_FIELDS}
+    FROM applicant_profiles
+    WHERE deleted_at IS NULL ${conditions}
+    ORDER BY ${orderBy}
+    LIMIT ${limitParam} OFFSET ${offsetParam}
+  `,
   getById: `
   SELECT ${SELECT_FIELDS}
   FROM applicant_profiles

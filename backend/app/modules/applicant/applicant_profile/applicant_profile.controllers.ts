@@ -2,17 +2,24 @@ import { Request, Response } from "express";
 import { AppError } from "../../../errors/app-error";
 import { deleteUploadedFile } from "../../../utils/file.util";
 import { requireUserId } from "../../../utils/request-user.util";
-import { getValidatedBody } from "../../../utils/validated-request.util";
-import { ApplicantProfileParamsInput,ApplicantProfileBodyInput } from "./applicant_profile.schemas";
+import { getValidatedBody, getValidatedQuery } from "../../../utils/validated-request.util";
+import { ApplicantProfileParamsInput, ApplicantProfileBodyInput, ApplicantProfileQueryInput } from "./applicant_profile.schemas";
 import { applicantProfileService } from "./applicant_profile.services";
 
 export const applicantProfileController = {
   async getAll(req: Request, res: Response) {
-    const profiles = await applicantProfileService.getAll();
+    const query = getValidatedQuery<ApplicantProfileQueryInput>(req);
+
+    const data = await applicantProfileService.getAllPaginated(query.page, query.limit, {
+      search: query.search,
+      gender: query.gender,
+      sortBy: query.sortBy,
+      sortDirection: query.sortDirection,
+    });
 
     res.status(200).json({
       message: "Success",
-      data: profiles,
+      data,
     });
   },
 

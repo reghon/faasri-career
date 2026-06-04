@@ -1,8 +1,44 @@
 import { queryCamel, queryCamelOne } from "../../../utils/db.util";
 import { applicantProfileQueries } from "./applicant_profile.queries";
-import { ApplicantProfile, ApplicantProfileAvatarPayload, ApplicantProfileCvPayload, ApplicantProfilePayload } from "./applicant_profile.types";
+import { ApplicantProfile, ApplicantProfileAvatarPayload, ApplicantProfileCvPayload, ApplicantProfilePayload, ApplicantFilterParams, CountResult } from "./applicant_profile.types";
+
+function buildFilterClauses(filters: ApplicantFilterParams): { conditions: string; params: unknown[] } {
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters.search) {
+    params.push(`%${filters.search}%`);
+    conditions.push(`(full_name ILIKE $${params.length} OR email ILIKE $${params.length} OR phone ILIKE $${params.length} OR linkedin_url ILIKE $${params.length})`);
+  }
+
+  if (filters.gender) {
+    params.push(filters.gender);
+    conditions.push(`gender = $${params.length}`);
+  }
+
+  return {
+    conditions: conditions.length > 0 ? "AND " + conditions.join(" AND ") : "",
+    params,
+  };
+}
 
 export const applicantProfileRepository = {
+  async countAllFiltered(filters: ApplicantFilterParams): Promise<CountResult | null> {
+    const { conditions, params } = buildFilterClauses(filters);
+    return queryCamelOne<CountResult>(applicantProfileQueries.countAllFiltered(conditions), params);
+  },
+
+  async getAllFiltered(limit: number, offset: number, filters: ApplicantFilterParams): Promise<ApplicantProfile[]> {
+    const { conditions, params } = buildFilterClauses(filters);
+    const limitParam = `$${params.length + 1}`;
+    const offsetParam = `$${params.length + 2}`;
+    const orderBy = `${filters.sortBy} ${filters.sortDirection}`;
+    return queryCamel<ApplicantProfile>(
+      applicantProfileQueries.getAllFiltered(conditions, orderBy, limitParam, offsetParam),
+      [...params, limit, offset],
+    );
+  },
+
   async getAll(): Promise<ApplicantProfile[]> {
     return queryCamel<ApplicantProfile>(applicantProfileQueries.getAll);
   },

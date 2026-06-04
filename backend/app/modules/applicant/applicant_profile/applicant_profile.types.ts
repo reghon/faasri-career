@@ -54,3 +54,26 @@ export type ApplicantProfileCvPayload = {
   cvUrl: string | null;
   cvFileName: string | null;
 };
+
+export type ApplicantFilterParams = {
+  search: string;
+  gender: string;
+  sortBy: string;
+  sortDirection: string;
+};
+
+export type PaginatedApplicantProfiles = {
+  items: ApplicantProfile[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+};
+
+export type CountResult = {
+  total: number;
+};
