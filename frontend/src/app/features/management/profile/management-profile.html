@@ -1,0 +1,54 @@
+<div class="container-app px-6">
+  <div class="flex flex-col items-center pt-8 pb-12">
+    <div class="w-full max-w-2xl">
+      <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-base-content">Management Profile</h1>
+        <p class="mt-1 text-sm text-base-content/60">Kelola informasi profile management anda</p>
+      </div>
+
+      <div class="card border border-base-300 bg-base-100">
+        <div class="card-body gap-5">
+          @if (loading()) {
+            <div class="py-10 text-center text-base-content/60">Loading profile...</div>
+          } @else {
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+              <div>
+                <label for="fullName" class="mb-1 block text-sm font-medium text-base-content">
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  formControlName="fullName"
+                  placeholder="Masukkan full name"
+                  class="input input-bordered w-full"
+                  [class.input-error]="form.controls.fullName.touched && form.controls.fullName.invalid"
+                />
+                @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+                  <p class="mt-1 text-xs text-error">Full name wajib diisi</p>
+                }
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  class="btn"
+                  [class.btn-primary-faasri]="canSubmit()"
+                  [class.btn-neutral]="!canSubmit()"
+                  [disabled]="!canSubmit()"
+                >
+                  @if (saving()) {
+                    <span class="loading loading-spinner loading-sm"></span>
+                    Menyimpan...
+                  } @else {
+                    Simpan Perubahan
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
