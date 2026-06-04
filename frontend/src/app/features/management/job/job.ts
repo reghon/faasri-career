@@ -1,11 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, Subscription, forkJoin } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 import { JobListItem } from '../../../domain/job/models/job.model';
 import { JobService } from '../../../domain/job/services/job.service';
 import { JobFormModalComponent } from './job-form-modal/job-form-modal';
+
+import { JobStatusService } from '../../../domain/master-data/job-status/job-status.service';
+import { DepartmentService } from '../../../domain/master-data/department/department.service';
+import { JobLocationService } from '../../../domain/master-data/job-location/job-location.service';
 
 import {
   BreadcrumbComponent,
@@ -22,27 +28,15 @@ import {
   TableToolbarComponent,
   ToolbarAction,
   ToolbarFilter,
-  ToolbarSortOption,
 } from '../../../shared/components/table-toolbar/table-toolbar';
 
-import {
-  JobFilters,
-  SortDirection,
-  SortField,
-  filterJobs,
-  getDisplayStatus,
-  getStatusDotClass,
-  getStatusTextClass,
-  sortJobs,
-} from './utils/job-filter.utils';
-
-import { getUniqueOptions, paginate, formatDate } from '../../../shared/utils/';
+import { getDisplayStatus, getStatusDotClass, getStatusTextClass } from './utils/job-filter.utils';
+import { formatDate } from '../../../shared/utils/';
 import { RbacService } from '../../../domain/authorization/rbac.service';
 
-const DEFAULT_SORT_FIELD: SortField = 'publishedAt';
-const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-job',
@@ -57,60 +51,36 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
   ],
   templateUrl: './job.html',
 })
-export class Job implements OnInit {
+export class Job implements OnInit, OnDestroy {
   private readonly jobService = inject(JobService);
   private readonly router = inject(Router);
+  private readonly jobStatusService = inject(JobStatusService);
+  private readonly departmentService = inject(DepartmentService);
+  private readonly jobLocationService = inject(JobLocationService);
 
   readonly rbac = inject(RbacService);
 
   readonly isLoading = signal(false);
   readonly jobs = signal<JobListItem[]>([]);
+  readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
 
   readonly searchTerm = signal('');
   readonly selectedStatus = signal('');
   readonly selectedDepartment = signal('');
   readonly selectedLocation = signal('');
-  readonly sortField = signal<SortField>(DEFAULT_SORT_FIELD);
-  readonly sortDirection = signal<SortDirection>(DEFAULT_SORT_DIRECTION);
   readonly currentPage = signal(1);
   readonly pageSize = signal(DEFAULT_PAGE_SIZE);
+
+  readonly statusOptions = signal<string[]>([]);
+  readonly departmentOptions = signal<string[]>([]);
+  readonly locationOptions = signal<string[]>([]);
 
   readonly isJobFormModalOpen = signal(false);
   readonly selectedJobId = signal<string | null>(null);
 
-  readonly filteredJobs = computed(() => {
-    const filters: JobFilters = {
-      keyword: this.searchTerm(),
-      status: this.selectedStatus(),
-      department: this.selectedDepartment(),
-      location: this.selectedLocation(),
-    };
-
-    const filtered = filterJobs(this.jobs(), filters);
-    return sortJobs(filtered, this.sortField(), this.sortDirection());
-  });
-
-  readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredJobs().length / this.pageSize())),
-  );
-
-  readonly safePage = computed(() => Math.min(this.currentPage(), this.totalPages()));
-
-  readonly pagedJobs = computed(() =>
-    paginate(this.filteredJobs(), this.safePage(), this.pageSize()),
-  );
-
-  readonly statusOptions = computed(() =>
-    getUniqueOptions(this.jobs().map((item) => item.status)),
-  );
-
-  readonly departmentOptions = computed(() =>
-    getUniqueOptions(this.jobs().map((item) => item.department)),
-  );
-
-  readonly locationOptions = computed(() =>
-    getUniqueOptions(this.jobs().map((item) => item.location)),
-  );
+  private readonly searchSubject = new Subject<string>();
+  private searchSub!: Subscription;
 
   readonly toolbarFilters = computed<ToolbarFilter[]>(() => [
     {
@@ -134,8 +104,8 @@ export class Job implements OnInit {
   ]);
 
   readonly tablePagination = computed<DataTablePagination>(() => {
-    const total = this.filteredJobs().length;
-    const page = this.safePage();
+    const total = this.totalItems();
+    const page = this.currentPage();
     const size = this.pageSize();
 
     return {
@@ -172,19 +142,10 @@ export class Job implements OnInit {
       key: 'publishedAt',
       label: 'Posted Date',
       type: 'date',
-      valueGetter: (job) => formatDate(job.publishedAt, 'en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }),
+      valueGetter: (job) =>
+        formatDate(job.publishedAt, 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
     },
     { key: 'action', label: 'Action', type: 'action', align: 'right' },
-  ];
-
-  readonly toolbarSortOptions: ToolbarSortOption[] = [
-    { key: 'publishedAt', label: 'Sort by Posted Date' },
-    { key: 'title', label: 'Sort by Job Title' },
-    { key: 'status', label: 'Sort by Status' },
   ];
 
   readonly toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
@@ -193,12 +154,22 @@ export class Job implements OnInit {
   readonly getStatusTextClass = getStatusTextClass;
 
   ngOnInit(): void {
+    this.loadFilterOptions();
     this.loadJobs();
+
+    this.searchSub = this.searchSubject.pipe(debounceTime(SEARCH_DEBOUNCE_MS)).subscribe((value) => {
+      this.searchTerm.set(value);
+      this.currentPage.set(1);
+      this.loadJobs();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
   }
 
   onToolbarSearchChange(value: string): void {
-    this.searchTerm.set(value);
-    this.currentPage.set(1);
+    this.searchSubject.next(value);
   }
 
   onToolbarFilterChange(event: { key: string; value: string }): void {
@@ -206,22 +177,7 @@ export class Job implements OnInit {
     if (event.key === 'department') this.selectedDepartment.set(event.value);
     if (event.key === 'location') this.selectedLocation.set(event.value);
     this.currentPage.set(1);
-  }
-
-  onToolbarSortDirectionChange(direction: SortDirection): void {
-    this.sortDirection.set(direction);
-  }
-
-  onToolbarSortByChange(field: string): void {
-    const incoming = field as SortField;
-
-    if (this.sortField() === incoming) {
-      this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
-      return;
-    }
-
-    this.sortField.set(incoming);
-    this.sortDirection.set(incoming === 'publishedAt' ? 'desc' : 'asc');
+    this.loadJobs();
   }
 
   onToolbarAction(action: string): void {
@@ -231,11 +187,13 @@ export class Job implements OnInit {
   onPageSizeChange(size: number): void {
     this.pageSize.set(size);
     this.currentPage.set(1);
+    this.loadJobs();
   }
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
+    this.loadJobs();
   }
 
   viewJob(job: JobListItem): void {
@@ -249,11 +207,6 @@ export class Job implements OnInit {
 
   openCreateModal(): void {
     this.selectedJobId.set(null);
-    this.isJobFormModalOpen.set(true);
-  }
-
-  openEditModal(jobId: string): void {
-    this.selectedJobId.set(jobId);
     this.isJobFormModalOpen.set(true);
   }
 
@@ -271,15 +224,47 @@ export class Job implements OnInit {
   private loadJobs(): void {
     this.isLoading.set(true);
 
-    this.jobService.getJobs({ page: 1, limit: 100 }).subscribe({
-      next: (response) => {
-        this.jobs.set(response.items);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load jobs:', error);
-        this.jobs.set([]);
-        this.isLoading.set(false);
+    this.jobService
+      .getJobs({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        search: this.searchTerm(),
+        status: this.selectedStatus(),
+        department: this.selectedDepartment(),
+        location: this.selectedLocation(),
+      })
+      .subscribe({
+        next: (response) => {
+          this.jobs.set(response.items);
+          this.totalItems.set(response.meta.total);
+          this.totalPages.set(response.meta.totalPages);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.jobs.set([]);
+          this.totalItems.set(0);
+          this.totalPages.set(0);
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  private loadFilterOptions(): void {
+    forkJoin([
+      this.jobStatusService.getAll(),
+      this.departmentService.getAll(),
+      this.jobLocationService.getAll(),
+    ]).subscribe({
+      next: ([statuses, departments, locations]) => {
+        this.statusOptions.set(
+          statuses.filter((s) => s.isActive).map((s) => s.name),
+        );
+        this.departmentOptions.set(
+          departments.filter((d) => d.isActive).map((d) => d.name),
+        );
+        this.locationOptions.set(
+          locations.filter((l) => l.isActive).map((l) => l.name),
+        );
       },
     });
   }
@@ -289,8 +274,7 @@ export class Job implements OnInit {
     this.selectedStatus.set('');
     this.selectedDepartment.set('');
     this.selectedLocation.set('');
-    this.sortField.set(DEFAULT_SORT_FIELD);
-    this.sortDirection.set(DEFAULT_SORT_DIRECTION);
     this.currentPage.set(1);
+    this.loadJobs();
   }
 }

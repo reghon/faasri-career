@@ -26,24 +26,19 @@
       <div class="p-4 md:p-5">
         <div class="flex flex-col gap-4">
           <app-table-toolbar
-            searchPlaceholder="Search title, department, location..."
+            searchPlaceholder="Cari berdasarkan judul..."
             [search]="searchTerm()"
-            [sortBy]="sortField()"
-            [sortDirection]="sortDirection()"
             [filters]="toolbarFilters()"
-            [sortOptions]="toolbarSortOptions"
             [actions]="toolbarActions"
             (searchChange)="onToolbarSearchChange($event)"
             (filterChange)="onToolbarFilterChange($event)"
-            (sortDirectionChange)="onToolbarSortDirectionChange($event)"
-            (sortByChange)="onToolbarSortByChange($event)"
             (action)="onToolbarAction($event)"
           ></app-table-toolbar>
 
           <!-- TABLE -->
           <app-data-table
             [columns]="jobColumns"
-            [data]="pagedJobs()"
+            [data]="jobs()"
             [isLoading]="isLoading()"
             loadingText="Loading jobs..."
             emptyTitle="Belum ada job"
