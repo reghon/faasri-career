@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/config/api.config';
 import {
@@ -14,6 +14,28 @@ import {
 interface ApiResponse<T> {
   message: string;
   data: T;
+}
+
+export interface GetAppliesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  jobName?: string;
+  statusName?: string;
+  sortBy?: string;
+  sortDirection?: string;
+}
+
+export interface ApplyListResult {
+  items: ApplyListItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 @Injectable({
@@ -34,9 +56,19 @@ export class ApplyService {
       .pipe(map((response) => response.data));
   }
 
-  getAll(): Observable<ApplyListItem[]> {
+  getAll(params: GetAppliesParams = {}): Observable<ApplyListResult> {
+    let httpParams = new HttpParams()
+      .set('page', params.page ?? 1)
+      .set('limit', params.limit ?? 10);
+
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.jobName) httpParams = httpParams.set('jobName', params.jobName);
+    if (params.statusName) httpParams = httpParams.set('statusName', params.statusName);
+    if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+    if (params.sortDirection) httpParams = httpParams.set('sortDirection', params.sortDirection);
+
     return this.http
-      .get<ApiResponse<ApplyListItem[]>>(`${API_ENDPOINTS.apply.root}`)
+      .get<ApiResponse<ApplyListResult>>(`${API_ENDPOINTS.apply.root}`, { params: httpParams })
       .pipe(map((response) => response.data));
   }
 
