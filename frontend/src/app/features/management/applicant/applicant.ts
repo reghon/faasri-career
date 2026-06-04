@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 import {
   BreadcrumbComponent,
@@ -23,23 +25,12 @@ import {
 
 import { ApplicantProfile } from '../../../domain/applicant/applicant_profile/applicant_profile.model';
 import { ApplicantProfileService } from '../../../domain/applicant/applicant_profile/applicant_profile.service';
-
-import {
-  ApplicantFilters,
-  SortDirection,
-  SortField,
-  filterApplicants,
-  formatPhone,
-  sortApplicants,
-} from './utils/applicant-filter.utils';
-
-import { getUniqueOptions, paginate } from '../../../shared/utils';
+import { formatPhone } from './utils/applicant-filter.utils';
 import { RbacService } from '../../../domain/authorization/rbac.service';
 
-const DEFAULT_SORT_FIELD: SortField = 'fullName';
-const DEFAULT_SORT_DIRECTION: SortDirection = 'asc';
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-applicant',
@@ -53,70 +44,39 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
   ],
   templateUrl: './applicant.html',
 })
-export class Applicant implements OnInit {
+export class Applicant implements OnInit, OnDestroy {
   private readonly applicantProfileService = inject(ApplicantProfileService);
   private readonly router = inject(Router);
 
   readonly rbac = inject(RbacService);
 
   readonly isLoading = signal(false);
-  readonly applications = signal<ApplicantProfile[]>([]);
+  readonly applicants = signal<ApplicantProfile[]>([]);
+  readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
 
   readonly searchTerm = signal('');
   readonly selectedGender = signal('');
-  readonly selectedPhoneCode = signal('');
-  readonly sortField = signal<SortField>(DEFAULT_SORT_FIELD);
-  readonly sortDirection = signal<SortDirection>(DEFAULT_SORT_DIRECTION);
+  readonly sortBy = signal('');
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
   readonly currentPage = signal(1);
   readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 
-  readonly filteredApplicants = computed(() => {
-    const filters: ApplicantFilters = {
-      keyword: this.searchTerm(),
-      gender: this.selectedGender(),
-      phoneCode: this.selectedPhoneCode(),
-    };
-
-    const filtered = filterApplicants(this.applications(), filters);
-    return sortApplicants(filtered, this.sortField(), this.sortDirection());
-  });
-
-  readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredApplicants().length / this.pageSize())),
-  );
-
-  readonly safePage = computed(() => Math.min(this.currentPage(), this.totalPages()));
-
-  readonly pagedApplicants = computed(() =>
-    paginate(this.filteredApplicants(), this.safePage(), this.pageSize()),
-  );
-
-  readonly genderOptions = computed(() =>
-    getUniqueOptions(this.applications().map((item) => item.gender)),
-  );
-
-  readonly phoneCodeOptions = computed(() =>
-    getUniqueOptions(this.applications().map((item) => item.phoneCode)),
-  );
+  private readonly searchSubject = new Subject<string>();
+  private searchSub!: Subscription;
 
   readonly toolbarFilters = computed<ToolbarFilter[]>(() => [
     {
       key: 'gender',
-      label: 'All Gender',
+      label: 'Gender',
       value: this.selectedGender(),
-      options: this.genderOptions(),
-    },
-    {
-      key: 'phoneCode',
-      label: 'All Phone Code',
-      value: this.selectedPhoneCode(),
-      options: this.phoneCodeOptions(),
+      options: ['Laki-laki', 'Perempuan'],
     },
   ]);
 
   readonly tablePagination = computed<DataTablePagination>(() => {
-    const total = this.filteredApplicants().length;
-    const page = this.safePage();
+    const total = this.totalItems();
+    const page = this.currentPage();
     const size = this.pageSize();
 
     return {
@@ -169,44 +129,50 @@ export class Applicant implements OnInit {
   ];
 
   readonly toolbarSortOptions: ToolbarSortOption[] = [
-    { key: 'fullName', label: 'Sort by Full Name' },
-    { key: 'email', label: 'Sort by Email' },
-    { key: 'gender', label: 'Sort by Gender' },
-    { key: 'phone', label: 'Sort by Phone' },
-    { key: 'linkedinUrl', label: 'Sort by LinkedIn URL' },
+    { key: 'full_name', label: 'Full Name' },
   ];
 
   readonly toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
 
   ngOnInit(): void {
     this.loadApplicants();
+
+    this.searchSub = this.searchSubject.pipe(debounceTime(SEARCH_DEBOUNCE_MS)).subscribe((value) => {
+      this.searchTerm.set(value);
+      this.currentPage.set(1);
+      this.loadApplicants();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
   }
 
   onToolbarSearchChange(value: string): void {
-    this.searchTerm.set(value);
-    this.currentPage.set(1);
+    this.searchSubject.next(value);
   }
 
   onToolbarFilterChange(event: { key: string; value: string }): void {
     if (event.key === 'gender') this.selectedGender.set(event.value);
-    if (event.key === 'phoneCode') this.selectedPhoneCode.set(event.value);
     this.currentPage.set(1);
-  }
-
-  onToolbarSortDirectionChange(direction: SortDirection): void {
-    this.sortDirection.set(direction);
+    this.loadApplicants();
   }
 
   onToolbarSortByChange(field: string): void {
-    const incoming = field as SortField;
-
-    if (this.sortField() === incoming) {
+    if (this.sortBy() === field) {
       this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
-      return;
+    } else {
+      this.sortBy.set(field);
+      this.sortDirection.set('asc');
     }
+    this.currentPage.set(1);
+    this.loadApplicants();
+  }
 
-    this.sortField.set(incoming);
-    this.sortDirection.set('asc');
+  onToolbarSortDirectionChange(direction: 'asc' | 'desc'): void {
+    this.sortDirection.set(direction);
+    this.currentPage.set(1);
+    this.loadApplicants();
   }
 
   onToolbarAction(action: string): void {
@@ -216,11 +182,13 @@ export class Applicant implements OnInit {
   onPageSizeChange(size: number): void {
     this.pageSize.set(size);
     this.currentPage.set(1);
+    this.loadApplicants();
   }
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
+    this.loadApplicants();
   }
 
   viewApplicant(applicant: ApplicantProfile): void {
@@ -230,25 +198,37 @@ export class Applicant implements OnInit {
   private loadApplicants(): void {
     this.isLoading.set(true);
 
-    this.applicantProfileService.getAll().subscribe({
-      next: (data) => {
-        this.applications.set(data);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load applicants:', error);
-        this.applications.set([]);
-        this.isLoading.set(false);
-      },
-    });
+    this.applicantProfileService
+      .getAll({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        search: this.searchTerm(),
+        gender: this.selectedGender(),
+        sortBy: this.sortBy(),
+        sortDirection: this.sortDirection(),
+      })
+      .subscribe({
+        next: (response) => {
+          this.applicants.set(response.items);
+          this.totalItems.set(response.meta.total);
+          this.totalPages.set(response.meta.totalPages);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.applicants.set([]);
+          this.totalItems.set(0);
+          this.totalPages.set(0);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private resetFilters(): void {
     this.searchTerm.set('');
     this.selectedGender.set('');
-    this.selectedPhoneCode.set('');
-    this.sortField.set(DEFAULT_SORT_FIELD);
-    this.sortDirection.set(DEFAULT_SORT_DIRECTION);
+    this.sortBy.set('');
+    this.sortDirection.set('asc');
     this.currentPage.set(1);
+    this.loadApplicants();
   }
 }
