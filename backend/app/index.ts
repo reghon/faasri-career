@@ -65,6 +65,10 @@ app.get("/", (_req, res) => {
   res.status(200).send("Backend is running");
 });
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/applicant/profile", applicantProfileRoutes);
 app.use("/api/applicant/work-experiences", workExperienceRoutes);
@@ -104,7 +108,7 @@ async function bootstrap() {
     console.log("✅ Database connected");
     client.release();
 
-    app.listen(PORT, "127.0.0.1", () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
   } catch (error) {
