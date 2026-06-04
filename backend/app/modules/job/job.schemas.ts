@@ -75,6 +75,8 @@ export const jobQuerySchema = z.object({
   status: z.string().trim().optional().default(""),
   department: z.string().trim().optional().default(""),
   location: z.string().trim().optional().default(""),
+  sortBy: z.enum(["created_at", "title", "published_at"]).optional().default("created_at"),
+  sortDirection: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
 export const jobSlugParamsSchema = z.object({

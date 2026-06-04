@@ -13,6 +13,8 @@ export const jobController = {
       status: query.status,
       department: query.department,
       location: query.location,
+      sortBy: query.sortBy,
+      sortDirection: query.sortDirection,
     });
 
     res.status(200).json({

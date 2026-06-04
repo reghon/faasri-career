@@ -42,8 +42,9 @@ export const jobRepository = {
     const { conditions, params } = buildFilterClauses(filters);
     const limitParam = `$${params.length + 1}`;
     const offsetParam = `$${params.length + 2}`;
+    const orderBy = `j.${filters.sortBy} ${filters.sortDirection}`;
     return queryCamel<JobListItem>(
-      jobQueries.getAllFiltered(conditions, limitParam, offsetParam),
+      jobQueries.getAllFiltered(conditions, orderBy, limitParam, offsetParam),
       [...params, limit, offset],
     );
   },

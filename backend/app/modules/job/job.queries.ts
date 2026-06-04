@@ -60,7 +60,7 @@ export const jobQueries = {
     WHERE j.deleted_at IS NULL ${conditions}
   `,
 
-  getAllFiltered: (conditions: string, limitParam: string, offsetParam: string) => `
+  getAllFiltered: (conditions: string, orderBy: string, limitParam: string, offsetParam: string) => `
     SELECT ${LIST_FIELDS}
     FROM jobs j
     JOIN job_categories jc ON jc.id = j.category_id
@@ -71,7 +71,7 @@ export const jobQueries = {
     JOIN departments d ON d.id = j.department_id
     JOIN work_modes wm ON wm.id = j.work_mode_id
     WHERE j.deleted_at IS NULL ${conditions}
-    ORDER BY j.created_at DESC
+    ORDER BY ${orderBy}
     LIMIT ${limitParam} OFFSET ${offsetParam}
   `,
 

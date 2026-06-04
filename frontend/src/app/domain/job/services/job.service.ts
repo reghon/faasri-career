@@ -17,6 +17,8 @@ export interface GetJobsParams {
   status?: string;
   department?: string;
   location?: string;
+  sortBy?: string;
+  sortDirection?: string;
 }
 
 export interface JobListResult {
@@ -46,6 +48,8 @@ export class JobService {
     if (params.status) httpParams = httpParams.set('status', params.status);
     if (params.department) httpParams = httpParams.set('department', params.department);
     if (params.location) httpParams = httpParams.set('location', params.location);
+    if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+    if (params.sortDirection) httpParams = httpParams.set('sortDirection', params.sortDirection);
 
     return this.http
       .get<ApiResponse<PaginatedJobsApi>>(API_ENDPOINTS.job.list, { params: httpParams })

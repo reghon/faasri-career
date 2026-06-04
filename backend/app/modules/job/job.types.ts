@@ -107,6 +107,8 @@ export type JobFilterParams = {
   status: string;
   department: string;
   location: string;
+  sortBy: string;
+  sortDirection: string;
 };
 
 export type PaginatedJobs = {
