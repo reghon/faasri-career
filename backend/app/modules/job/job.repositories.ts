@@ -1,14 +1,51 @@
 import { queryCamel, queryCamelOne } from "../../utils/db.util";
 import { jobQueries } from "./job.queries";
-import { CountResult, Job, JobDetail, JobListItem, JobPayload } from "./job.types";
+import { CountResult, Job, JobDetail, JobFilterParams, JobListItem, JobPayload } from "./job.types";
+
+function buildFilterClauses(filters: JobFilterParams): { conditions: string; params: unknown[] } {
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (filters.search) {
+    params.push(`%${filters.search}%`);
+    conditions.push(`j.title ILIKE $${params.length}`);
+  }
+
+  if (filters.status) {
+    params.push(filters.status);
+    conditions.push(`js.name = $${params.length}`);
+  }
+
+  if (filters.department) {
+    params.push(filters.department);
+    conditions.push(`d.name = $${params.length}`);
+  }
+
+  if (filters.location) {
+    params.push(filters.location);
+    conditions.push(`jl.name = $${params.length}`);
+  }
+
+  return {
+    conditions: conditions.length > 0 ? "AND " + conditions.join(" AND ") : "",
+    params,
+  };
+}
 
 export const jobRepository = {
-  async countAll(): Promise<CountResult | null> {
-    return queryCamelOne<CountResult>(jobQueries.countAll);
+  async countAll(filters: JobFilterParams): Promise<CountResult | null> {
+    const { conditions, params } = buildFilterClauses(filters);
+    return queryCamelOne<CountResult>(jobQueries.countAllFiltered(conditions), params);
   },
 
-  async getAll(limit: number, offset: number): Promise<JobListItem[]> {
-    return queryCamel<JobListItem>(jobQueries.getAll, [limit, offset]);
+  async getAll(limit: number, offset: number, filters: JobFilterParams): Promise<JobListItem[]> {
+    const { conditions, params } = buildFilterClauses(filters);
+    const limitParam = `$${params.length + 1}`;
+    const offsetParam = `$${params.length + 2}`;
+    return queryCamel<JobListItem>(
+      jobQueries.getAllFiltered(conditions, limitParam, offsetParam),
+      [...params, limit, offset],
+    );
   },
 
   async countAllOpen(): Promise<CountResult | null> {

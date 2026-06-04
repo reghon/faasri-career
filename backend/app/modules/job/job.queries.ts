@@ -6,7 +6,7 @@ const BASE_FIELDS = `
   deleted_at,deleted_by
 `;
 
-const LIST_FIELDS = `
+export const LIST_FIELDS = `
   j.id,j.title,j.slug,j.min_salary,j.max_salary,j.currency_code,
   j.salary_type,j.vacancy_count,j.experience_min_years,j.published_at,j.close_at,j.is_active,
   jc.name AS category_name,et.name AS employment_type_name,js.name AS status_name,
@@ -49,6 +49,30 @@ export const jobQueries = {
     WHERE j.deleted_at IS NULL
     ORDER BY j.created_at DESC
     LIMIT $1 OFFSET $2
+  `,
+
+  countAllFiltered: (conditions: string) => `
+    SELECT COUNT(*)::int AS total
+    FROM jobs j
+    JOIN job_statuses js ON js.id = j.status_id
+    JOIN departments d ON d.id = j.department_id
+    JOIN job_locations jl ON jl.id = j.job_location_id
+    WHERE j.deleted_at IS NULL ${conditions}
+  `,
+
+  getAllFiltered: (conditions: string, limitParam: string, offsetParam: string) => `
+    SELECT ${LIST_FIELDS}
+    FROM jobs j
+    JOIN job_categories jc ON jc.id = j.category_id
+    JOIN employment_types et ON et.id = j.employment_type_id
+    JOIN job_statuses js ON js.id = j.status_id
+    JOIN job_locations jl ON jl.id = j.job_location_id
+    JOIN education_levels el ON el.id = j.education_level_id
+    JOIN departments d ON d.id = j.department_id
+    JOIN work_modes wm ON wm.id = j.work_mode_id
+    WHERE j.deleted_at IS NULL ${conditions}
+    ORDER BY j.created_at DESC
+    LIMIT ${limitParam} OFFSET ${offsetParam}
   `,
 
   countAllOpen: `

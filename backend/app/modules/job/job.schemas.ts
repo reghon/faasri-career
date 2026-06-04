@@ -69,8 +69,12 @@ export const jobParamsSchema = z.object({
 });
 
 export const jobQuerySchema = z.object({
-  page: z.coerce.number().int("Page must be an integer").min(1, "Page must be at least 1").default(1),
-  limit: z.coerce.number().int("Limit must be an integer").min(1, "Limit must be at least 1").max(100, "Limit must be at most 100").default(10),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  search: z.string().trim().optional().default(""),
+  status: z.string().trim().optional().default(""),
+  department: z.string().trim().optional().default(""),
+  location: z.string().trim().optional().default(""),
 });
 
 export const jobSlugParamsSchema = z.object({

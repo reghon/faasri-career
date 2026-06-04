@@ -8,7 +8,12 @@ export const jobController = {
   async getAll(req: Request, res: Response) {
     const query = getValidatedQuery<JobQueryInput>(req);
 
-    const jobs = await jobService.getAll(query.page, query.limit);
+    const jobs = await jobService.getAll(query.page, query.limit, {
+      search: query.search,
+      status: query.status,
+      department: query.department,
+      location: query.location,
+    });
 
     res.status(200).json({
       message: "Success",

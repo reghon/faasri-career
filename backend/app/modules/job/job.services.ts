@@ -1,14 +1,18 @@
 import { AppError } from "../../errors/app-error";
 import { jobRepository } from "./job.repositories";
-import { JobPayload, PaginatedJobs } from "./job.types";
+import { JobFilterParams, JobPayload, PaginatedJobs } from "./job.types";
 
 export const jobService = {
-  async getAll(page: number, limit: number): Promise<PaginatedJobs> {
+  async getAll(page: number, limit: number, filters: JobFilterParams): Promise<PaginatedJobs> {
     const offset = (page - 1) * limit;
 
-    const [countResult, items] = await Promise.all([jobRepository.countAll(), jobRepository.getAll(limit, offset)]);
+    const [countResult, items] = await Promise.all([
+      jobRepository.countAll(filters),
+      jobRepository.getAll(limit, offset, filters),
+    ]);
 
     const total = countResult?.total ?? 0;
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
 
     return {
       items,
@@ -16,7 +20,9 @@ export const jobService = {
         page,
         limit,
         total,
-        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   },
@@ -27,6 +33,7 @@ export const jobService = {
     const [countResult, items] = await Promise.all([jobRepository.countAllOpen(), jobRepository.getAllOpen(limit, offset)]);
 
     const total = countResult?.total ?? 0;
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
 
     return {
       items,
@@ -34,7 +41,9 @@ export const jobService = {
         page,
         limit,
         total,
-        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   },
