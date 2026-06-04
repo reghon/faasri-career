@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { Subject, Subscription, forkJoin } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 import {
   BreadcrumbComponent,
@@ -23,20 +24,14 @@ import { TableActionItem } from '../../../shared/components/table-action/table-a
 
 import { ApplyListItem } from '../../../domain/apply/apply.model';
 import { ApplyService } from '../../../domain/apply/apply.service';
+import { JobService } from '../../../domain/job/services/job.service';
 import { JobApplyStatusService } from '../../../domain/apply/master-data/job-apply-status/job-apply-status.services';
 import { ApplyStatusHistoryService } from '../../../domain/apply/master-data/apply-status-history/apply-status-history.service';
+import { ApplyStatusService } from '../../../domain/apply/master-data/apply-status/apply-status.service';
 
 import { MoveStatusConfirmModalComponent } from '../job-detail/components/application/components/move-status-confirm-modal';
 
-import {
-  ApplicationFilters,
-  SortDirection,
-  SortField,
-  filterApplications,
-  sortApplications,
-} from './utils/application-filter.utils';
 import { formatDate } from '../../../shared/utils';
-import { getUniqueOptions, paginate } from '../../../shared/utils/';
 import {
   ApplyStatusMovementItem,
   buildMoveStatusActions,
@@ -45,10 +40,9 @@ import {
 } from '../../../shared/utils/apply-status-movement';
 import { RbacService } from '../../../domain/authorization/rbac.service';
 
-const DEFAULT_SORT_FIELD: SortField = 'appliedAt';
-const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const SEARCH_DEBOUNCE_MS = 300;
 
 type ApplicationListItem = ApplyListItem & {
   jobId: string;
@@ -69,8 +63,10 @@ type ApplicationListItem = ApplyListItem & {
   ],
   templateUrl: './application.html',
 })
-export class Application implements OnInit {
+export class Application implements OnInit, OnDestroy {
   private readonly applyService = inject(ApplyService);
+  private readonly jobService = inject(JobService);
+  private readonly applyStatusService = inject(ApplyStatusService);
   private readonly router = inject(Router);
   private readonly jobApplyStatusService = inject(JobApplyStatusService);
   private readonly applyStatusHistoryService = inject(ApplyStatusHistoryService);
@@ -83,46 +79,26 @@ export class Application implements OnInit {
   readonly errorMessage = signal('');
 
   readonly applications = signal<ApplicationListItem[]>([]);
+  readonly totalItems = signal(0);
+  readonly totalPages = signal(0);
 
   readonly searchTerm = signal('');
   readonly selectedJobName = signal('');
   readonly selectedStatusName = signal('');
-  readonly sortField = signal<SortField>(DEFAULT_SORT_FIELD);
-  readonly sortDirection = signal<SortDirection>(DEFAULT_SORT_DIRECTION);
+  readonly sortBy = signal('');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly currentPage = signal(1);
   readonly pageSize = signal(DEFAULT_PAGE_SIZE);
+
+  readonly jobNameOptions = signal<string[]>([]);
+  readonly statusNameOptions = signal<string[]>([]);
 
   readonly isMoveStatusModalOpen = signal(false);
   readonly selectedApplication = signal<ApplicationListItem | null>(null);
   readonly selectedTargetStatus = signal<ApplyStatusMovementItem | null>(null);
 
-  readonly filteredApplications = computed(() => {
-    const filters: ApplicationFilters = {
-      keyword: this.searchTerm(),
-      jobName: this.selectedJobName(),
-      statusName: this.selectedStatusName(),
-    };
-    const filtered = filterApplications(this.applications(), filters);
-    return sortApplications(filtered, this.sortField(), this.sortDirection());
-  });
-
-  readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredApplications().length / this.pageSize())),
-  );
-
-  readonly safePage = computed(() => Math.min(this.currentPage(), this.totalPages()));
-
-  readonly pagedApplications = computed(() =>
-    paginate(this.filteredApplications(), this.safePage(), this.pageSize()),
-  );
-
-  readonly jobNameOptions = computed(() =>
-    getUniqueOptions(this.applications().map((item) => item.jobName)),
-  );
-
-  readonly statusNameOptions = computed(() =>
-    getUniqueOptions(this.applications().map((item) => item.statusName)),
-  );
+  private readonly searchSubject = new Subject<string>();
+  private searchSub!: Subscription;
 
   readonly toolbarFilters = computed<ToolbarFilter[]>(() => [
     {
@@ -140,8 +116,8 @@ export class Application implements OnInit {
   ]);
 
   readonly tablePagination = computed<DataTablePagination>(() => {
-    const total = this.filteredApplications().length;
-    const page = this.safePage();
+    const total = this.totalItems();
+    const page = this.currentPage();
     const size = this.pageSize();
 
     return {
@@ -164,7 +140,6 @@ export class Application implements OnInit {
   readonly shouldShowMoveNotes = computed(() => {
     const targetStatus = this.selectedTargetStatus();
     if (!targetStatus) return false;
-
     const statusText = `${targetStatus.code} ${targetStatus.name}`.toLowerCase();
     return statusText.includes('reject') || statusText.includes('hire');
   });
@@ -204,63 +179,52 @@ export class Application implements OnInit {
   ];
 
   readonly toolbarSortOptions: ToolbarSortOption[] = [
-    { key: 'fullName', label: 'Sort by Full Name' },
-    { key: 'linkedinUrl', label: 'Sort by LinkedIn' },
-    { key: 'jobName', label: 'Sort by Job' },
-    { key: 'statusName', label: 'Sort by Status' },
-    { key: 'appliedAt', label: 'Sort by Applied At' },
-    { key: 'statusUpdatedAt', label: 'Sort by Status Updated At' },
+    { key: 'full_name', label: 'Full Name' },
+    { key: 'job_name', label: 'Job' },
+    { key: 'status_name', label: 'Status' },
+    { key: 'applied_at', label: 'Applied At' },
   ];
 
   readonly toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
 
   ngOnInit(): void {
+    this.loadFilterOptions();
     this.loadApplications();
+
+    this.searchSub = this.searchSubject.pipe(debounceTime(SEARCH_DEBOUNCE_MS)).subscribe((value) => {
+      this.searchTerm.set(value);
+      this.currentPage.set(1);
+      this.loadApplications();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
   }
 
   getApplicationActions(row: ApplicationListItem): TableActionItem[] {
     if (!row.jobId) {
-      return [
-        {
-          label: 'Job ID tidak tersedia',
-          value: 'missing_job_id',
-          class: 'menu-title pointer-events-none text-xs text-base-content/50',
-          disabled: true,
-        },
-      ];
+      return [{ label: 'Job ID tidak tersedia', value: 'missing_job_id', disabled: true }];
     }
-
     const statuses = this.statusCache.get(row.jobId);
-
     if (!statuses) {
-      return [
-        {
-          label: 'Status tidak tersedia',
-          value: 'statuses_not_available',
-          class: 'menu-title pointer-events-none text-xs text-base-content/50',
-          disabled: true,
-        },
-      ];
+      return [{ label: 'Status tidak tersedia', value: 'statuses_not_available', disabled: true }];
     }
-
     return buildMoveStatusActions(statuses, row.statusId);
   }
 
   handleApplicationAction(event: { action: string; row: ApplicationListItem }): void {
     if (!event.action.startsWith('move_status:')) return;
-
     const statusId = event.action.split(':')[1];
     this.openMoveStatusModal(event.row, statusId);
   }
 
   openMoveStatusModal(row: ApplicationListItem, statusId: string): void {
     const targetStatus = (this.statusCache.get(row.jobId) ?? []).find((s) => s.id === statusId);
-
     if (!targetStatus) {
       this.errorMessage.set('Status tujuan tidak ditemukan.');
       return;
     }
-
     this.selectedApplication.set(row);
     this.selectedTargetStatus.set(targetStatus);
     this.isMoveStatusModalOpen.set(true);
@@ -269,7 +233,6 @@ export class Application implements OnInit {
 
   closeMoveStatusModal(): void {
     if (this.isMovingStatus()) return;
-
     this.isMoveStatusModalOpen.set(false);
     this.selectedApplication.set(null);
     this.selectedTargetStatus.set(null);
@@ -278,53 +241,43 @@ export class Application implements OnInit {
   confirmMoveStatus(event: { notes: string | null }): void {
     const application = this.selectedApplication();
     const targetStatus = this.selectedTargetStatus();
-
     if (!application || !targetStatus) return;
-
     this.moveApplicationStatus(application, targetStatus, event.notes);
   }
 
   formatLinkedinUsername(url: string | null | undefined): string {
     if (!url) return '-';
-
-    const cleanUrl = url.trim();
-    const match = cleanUrl.match(/linkedin\.com\/in\/([^/?#]+)/i);
-
+    const match = url.trim().match(/linkedin\.com\/in\/([^/?#]+)/i);
     if (match?.[1]) return `@${match[1]}`;
-
-    return cleanUrl
-      .replace(/^https?:\/\/(www\.)?/i, '')
-      .replace(/^linkedin\.com\/in\//i, '@')
-      .replace(/\/$/, '');
+    return url.trim().replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '');
   }
 
   onToolbarSearchChange(value: string): void {
-    this.searchTerm.set(value);
-    this.currentPage.set(1);
+    this.searchSubject.next(value);
   }
 
   onToolbarFilterChange(event: { key: string; value: string }): void {
     if (event.key === 'jobName') this.selectedJobName.set(event.value);
     if (event.key === 'statusName') this.selectedStatusName.set(event.value);
     this.currentPage.set(1);
-  }
-
-  onToolbarSortDirectionChange(direction: SortDirection): void {
-    this.sortDirection.set(direction);
+    this.loadApplications();
   }
 
   onToolbarSortByChange(field: string): void {
-    const incoming = field as SortField;
-
-    if (this.sortField() === incoming) {
+    if (this.sortBy() === field) {
       this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
-      return;
+    } else {
+      this.sortBy.set(field);
+      this.sortDirection.set(field === 'full_name' ? 'asc' : 'desc');
     }
+    this.currentPage.set(1);
+    this.loadApplications();
+  }
 
-    this.sortField.set(incoming);
-    this.sortDirection.set(
-      incoming === 'appliedAt' || incoming === 'statusUpdatedAt' ? 'desc' : 'asc',
-    );
+  onToolbarSortDirectionChange(direction: 'asc' | 'desc'): void {
+    this.sortDirection.set(direction);
+    this.currentPage.set(1);
+    this.loadApplications();
   }
 
   onToolbarAction(action: string): void {
@@ -334,11 +287,13 @@ export class Application implements OnInit {
   onPageSizeChange(size: number): void {
     this.pageSize.set(size);
     this.currentPage.set(1);
+    this.loadApplications();
   }
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
+    this.loadApplications();
   }
 
   viewApplication(application: ApplicationListItem): void {
@@ -357,25 +312,11 @@ export class Application implements OnInit {
       .create({ applyId: application.id, applyStatusId: targetStatus.id, notes })
       .subscribe({
         next: () => {
-          this.applications.update((items) =>
-            items.map((item) =>
-              item.id === application.id
-                ? {
-                    ...item,
-                    statusId: targetStatus.id,
-                    statusName: targetStatus.name,
-                    statusCode: targetStatus.code,
-                    statusUpdatedAt: new Date().toISOString(),
-                  }
-                : item,
-            ),
-          );
-
           this.isMovingStatus.set(false);
           this.isMoveStatusModalOpen.set(false);
           this.selectedApplication.set(null);
           this.selectedTargetStatus.set(null);
-          this.currentPage.set(1);
+          this.loadApplications();
         },
         error: (error) => {
           this.errorMessage.set(error?.error?.message || 'Gagal memindahkan status application.');
@@ -387,40 +328,61 @@ export class Application implements OnInit {
   private loadApplications(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
-    this.statusCache.clear();
 
-    this.applyService.getAll().subscribe({
-      next: (data) => this.loadStatusesByJobs(data as ApplicationListItem[]),
-      error: () => {
-        this.applications.set([]);
-        this.errorMessage.set('Gagal memuat data application.');
-        this.isLoading.set(false);
+    this.applyService
+      .getAll({
+        page: this.currentPage(),
+        limit: this.pageSize(),
+        search: this.searchTerm(),
+        jobName: this.selectedJobName(),
+        statusName: this.selectedStatusName(),
+        sortBy: this.sortBy(),
+        sortDirection: this.sortDirection(),
+      })
+      .subscribe({
+        next: (response) => {
+          const items = response.items as ApplicationListItem[];
+          this.applications.set(items);
+          this.totalItems.set(response.meta.total);
+          this.totalPages.set(response.meta.totalPages);
+          this.loadStatusCacheForItems(items);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.applications.set([]);
+          this.totalItems.set(0);
+          this.totalPages.set(0);
+          this.errorMessage.set('Gagal memuat data application.');
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  private loadStatusCacheForItems(items: ApplicationListItem[]): void {
+    const jobIds = getUniqueJobIds(items);
+    const uncachedJobIds = jobIds.filter((id) => !this.statusCache.has(id));
+
+    if (uncachedJobIds.length === 0) return;
+
+    forkJoin(uncachedJobIds.map((jobId) => this.jobApplyStatusService.getByJobId(jobId))).subscribe({
+      next: (statusGroups) => {
+        statusGroups.forEach((statuses, index) => {
+          this.statusCache.set(uncachedJobIds[index], mapJobApplyStatuses(statuses));
+        });
       },
     });
   }
 
-  private loadStatusesByJobs(applications: ApplicationListItem[]): void {
-    const jobIds = getUniqueJobIds(applications);
-
-    if (jobIds.length === 0) {
-      this.applications.set(applications);
-      this.isLoading.set(false);
-      return;
-    }
-
-    forkJoin(jobIds.map((jobId) => this.jobApplyStatusService.getByJobId(jobId))).subscribe({
-      next: (statusGroups) => {
-        statusGroups.forEach((statuses, index) => {
-          this.statusCache.set(jobIds[index], mapJobApplyStatuses(statuses));
-        });
-
-        this.applications.set(applications);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.applications.set(applications);
-        this.errorMessage.set('Data application berhasil dimuat, tapi status gagal dimuat.');
-        this.isLoading.set(false);
+  private loadFilterOptions(): void {
+    forkJoin([
+      this.jobService.getJobs({ page: 1, limit: 100, status: 'Open' }),
+      this.applyStatusService.getAll(),
+    ]).subscribe({
+      next: ([jobsResult, statuses]) => {
+        this.jobNameOptions.set(jobsResult.items.map((j) => j.title));
+        this.statusNameOptions.set(
+          statuses.filter((s) => s.isActive).map((s) => s.name),
+        );
       },
     });
   }
@@ -429,8 +391,9 @@ export class Application implements OnInit {
     this.searchTerm.set('');
     this.selectedJobName.set('');
     this.selectedStatusName.set('');
-    this.sortField.set(DEFAULT_SORT_FIELD);
-    this.sortDirection.set(DEFAULT_SORT_DIRECTION);
+    this.sortBy.set('');
+    this.sortDirection.set('desc');
     this.currentPage.set(1);
+    this.loadApplications();
   }
 }
