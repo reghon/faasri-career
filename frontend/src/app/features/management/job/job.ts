@@ -70,7 +70,7 @@ export class Job implements OnInit, OnDestroy {
   readonly selectedStatus = signal('');
   readonly selectedDepartment = signal('');
   readonly selectedLocation = signal('');
-  readonly sortBy = signal('created_at');
+  readonly sortBy = signal('');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly currentPage = signal(1);
   readonly pageSize = signal(DEFAULT_PAGE_SIZE);
@@ -154,9 +154,9 @@ export class Job implements OnInit, OnDestroy {
   readonly toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
 
   readonly toolbarSortOptions: ToolbarSortOption[] = [
-    { key: 'created_at', label: 'Sort by Created Date' },
-    { key: 'published_at', label: 'Sort by Posted Date' },
-    { key: 'title', label: 'Sort by Job Title' },
+    { key: 'created_at', label: 'Created Date' },
+    { key: 'published_at', label: 'Posted Date' },
+    { key: 'title', label: 'Job Title' },
   ];
 
   readonly getStatusDotClass = getStatusDotClass;
@@ -302,7 +302,7 @@ export class Job implements OnInit, OnDestroy {
     this.selectedStatus.set('');
     this.selectedDepartment.set('');
     this.selectedLocation.set('');
-    this.sortBy.set('created_at');
+    this.sortBy.set('');
     this.sortDirection.set('desc');
     this.currentPage.set(1);
     this.loadJobs();
