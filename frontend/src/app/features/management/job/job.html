@@ -29,9 +29,14 @@
             searchPlaceholder="Cari berdasarkan judul..."
             [search]="searchTerm()"
             [filters]="toolbarFilters()"
+            [sortBy]="sortBy()"
+            [sortDirection]="sortDirection()"
+            [sortOptions]="toolbarSortOptions"
             [actions]="toolbarActions"
             (searchChange)="onToolbarSearchChange($event)"
             (filterChange)="onToolbarFilterChange($event)"
+            (sortByChange)="onToolbarSortByChange($event)"
+            (sortDirectionChange)="onToolbarSortDirectionChange($event)"
             (action)="onToolbarAction($event)"
           ></app-table-toolbar>
 

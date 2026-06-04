@@ -28,6 +28,7 @@ import {
   TableToolbarComponent,
   ToolbarAction,
   ToolbarFilter,
+  ToolbarSortOption,
 } from '../../../shared/components/table-toolbar/table-toolbar';
 
 import { getDisplayStatus, getStatusDotClass, getStatusTextClass } from './utils/job-filter.utils';
@@ -69,6 +70,8 @@ export class Job implements OnInit, OnDestroy {
   readonly selectedStatus = signal('');
   readonly selectedDepartment = signal('');
   readonly selectedLocation = signal('');
+  readonly sortBy = signal('created_at');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly currentPage = signal(1);
   readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 
@@ -150,6 +153,12 @@ export class Job implements OnInit, OnDestroy {
 
   readonly toolbarActions: ToolbarAction[] = [{ key: 'reset', label: 'Reset Filters' }];
 
+  readonly toolbarSortOptions: ToolbarSortOption[] = [
+    { key: 'created_at', label: 'Sort by Created Date' },
+    { key: 'published_at', label: 'Sort by Posted Date' },
+    { key: 'title', label: 'Sort by Job Title' },
+  ];
+
   readonly getStatusDotClass = getStatusDotClass;
   readonly getStatusTextClass = getStatusTextClass;
 
@@ -176,6 +185,23 @@ export class Job implements OnInit, OnDestroy {
     if (event.key === 'status') this.selectedStatus.set(event.value);
     if (event.key === 'department') this.selectedDepartment.set(event.value);
     if (event.key === 'location') this.selectedLocation.set(event.value);
+    this.currentPage.set(1);
+    this.loadJobs();
+  }
+
+  onToolbarSortByChange(field: string): void {
+    if (this.sortBy() === field) {
+      this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.sortBy.set(field);
+      this.sortDirection.set(field === 'title' ? 'asc' : 'desc');
+    }
+    this.currentPage.set(1);
+    this.loadJobs();
+  }
+
+  onToolbarSortDirectionChange(direction: 'asc' | 'desc'): void {
+    this.sortDirection.set(direction);
     this.currentPage.set(1);
     this.loadJobs();
   }
@@ -232,6 +258,8 @@ export class Job implements OnInit, OnDestroy {
         status: this.selectedStatus(),
         department: this.selectedDepartment(),
         location: this.selectedLocation(),
+        sortBy: this.sortBy(),
+        sortDirection: this.sortDirection(),
       })
       .subscribe({
         next: (response) => {
@@ -274,6 +302,8 @@ export class Job implements OnInit, OnDestroy {
     this.selectedStatus.set('');
     this.selectedDepartment.set('');
     this.selectedLocation.set('');
+    this.sortBy.set('created_at');
+    this.sortDirection.set('desc');
     this.currentPage.set(1);
     this.loadJobs();
   }
