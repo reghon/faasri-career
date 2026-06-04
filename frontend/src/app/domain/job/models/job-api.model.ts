@@ -68,6 +68,8 @@ export interface PaginationMetaApi {
   limit: number;
   total: number;
   totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export interface PaginatedJobsApi {

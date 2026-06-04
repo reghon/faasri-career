@@ -13,6 +13,10 @@ import { JobDetail, JobListItem, JobPayload, UpdateJobStatusPayload } from '../m
 export interface GetJobsParams {
   page?: number;
   limit?: number;
+  search?: string;
+  status?: string;
+  department?: string;
+  location?: string;
 }
 
 export interface JobListResult {
@@ -22,6 +26,8 @@ export interface JobListResult {
     limit: number;
     total: number;
     totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
   };
 }
 
@@ -32,15 +38,17 @@ export class JobService {
   private readonly http = inject(HttpClient);
 
   getJobs(params: GetJobsParams = {}): Observable<JobListResult> {
-    const page = params.page ?? 1;
-    const limit = params.limit ?? 100;
+    let httpParams = new HttpParams()
+      .set('page', params.page ?? 1)
+      .set('limit', params.limit ?? 10);
 
-    const httpParams = new HttpParams().set('page', page).set('limit', limit);
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.status) httpParams = httpParams.set('status', params.status);
+    if (params.department) httpParams = httpParams.set('department', params.department);
+    if (params.location) httpParams = httpParams.set('location', params.location);
 
     return this.http
-      .get<ApiResponse<PaginatedJobsApi>>(API_ENDPOINTS.job.list, {
-        params: httpParams,
-      })
+      .get<ApiResponse<PaginatedJobsApi>>(API_ENDPOINTS.job.list, { params: httpParams })
       .pipe(
         map((response) => ({
           items: response.data.items.map((item) => this.mapToListItem(item)),
