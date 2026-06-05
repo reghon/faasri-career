@@ -3,6 +3,7 @@ import { config } from "../../configurations/env";
 import { AppError } from "../../errors/app-error";
 import { UserBodyInput, UserUpdateBodyInput } from "./user.schemas";
 import { userRepository } from "./user.repositories";
+import { managementProfileRepository } from "../management/management_profile/management_profile.repositories";
 
 export const userService = {
   async getAll() {
@@ -53,6 +54,11 @@ export const userService = {
     if (!created) {
       throw new AppError(500, "Gagal membuat pengguna");
     }
+
+    await managementProfileRepository.create(
+      { userId: created.id, roleId: role.id, fullName: data.fullName, isActive: data.isActive },
+      actorId
+    );
 
     return created;
   },

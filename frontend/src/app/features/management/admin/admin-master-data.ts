@@ -121,6 +121,15 @@ export class AdminMasterData implements OnInit {
       description: 'Buat akun user baru dari halaman admin.',
       fields: [
         {
+          key: 'fullName',
+          label: 'Full Name',
+          type: 'text',
+          required: true,
+          placeholder: 'Nama lengkap',
+          minLength: 3,
+          maxLength: 255,
+        },
+        {
           key: 'email',
           label: 'Email',
           type: 'text',

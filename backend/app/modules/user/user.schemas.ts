@@ -3,6 +3,7 @@ import { z } from "zod";
 const passwordSchema = z.string().min(8, "Password minimal 8 karakter").regex(/[A-Z]/, "Password harus mengandung minimal 1 huruf besar").regex(/[0-9]/, "Password harus mengandung minimal 1 angka");
 
 export const userBodySchema = z.object({
+  fullName: z.string().trim().min(3, "Full name minimal 3 karakter").max(255),
   email: z.string().trim().min(1, "Email is required").email("Invalid email format"),
   password: passwordSchema,
   roleName: z.string().trim().min(1, "Role name is required"),
