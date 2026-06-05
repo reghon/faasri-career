@@ -84,22 +84,10 @@
     </div>
 
     <div class="flex items-center gap-5 px-4 py-3 text-xs md:justify-end">
-      <div class="flex items-center gap-2">
-        <span class="text-info">▣</span>
-        <span>Melamar</span>
-        <span class="font-bold">2</span>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <span class="text-warning">▣</span>
-        <span>Dalam Proses</span>
-        <span class="font-bold">1</span>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <span class="text-error">⊗</span>
-        <span>Ditolak</span>
-        <span class="font-bold">1</span>
+      <div *ngFor="let stat of applicationStats()" class="flex items-center gap-2">
+        <span [class]="stat.colorClass">{{ stat.icon }}</span>
+        <span>{{ stat.label }}</span>
+        <span class="font-bold">{{ stat.count }}</span>
       </div>
     </div>
   </div>

@@ -9,6 +9,8 @@ import {
 
 import { ApplicantMaster } from '../../../../domain/applicant/applicant_master.model';
 import { ApplicantMasterService } from '../../../../domain/applicant/applicant_master.service';
+import { ApplyService } from '../../../../domain/apply/apply.service';
+import { ApplyHistoryList } from '../../../../domain/apply/apply.model';
 
 import { ApplicantDetailHeaderComponent } from './components/applicant-detail-header/applicant-detail-header';
 import { ApplicantDetailProfileComponent } from './components/applicant-detail-profile/applicant-detail-profile';
@@ -32,9 +34,11 @@ export class ApplicantDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly applicantMasterService = inject(ApplicantMasterService);
+  private readonly applyService = inject(ApplyService);
 
   readonly isLoading = signal(false);
   readonly applicantMaster = signal<ApplicantMaster | null>(null);
+  readonly applications = signal<ApplyHistoryList[]>([]);
   readonly activeTab = signal<ApplicantDetailTab>('profile');
 
   readonly applicantProfile = computed(() => this.applicantMaster()?.applicantProfile ?? null);
@@ -77,6 +81,11 @@ export class ApplicantDetail implements OnInit {
         this.applicantMaster.set(null);
         this.isLoading.set(false);
       },
+    });
+
+    this.applyService.getApplyListByApplicantProfileId(applicantProfileId).subscribe({
+      next: (apps) => this.applications.set(apps),
+      error: () => this.applications.set([]),
     });
   }
 }
