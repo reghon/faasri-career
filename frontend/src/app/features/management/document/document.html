@@ -1,0 +1,180 @@
+<div class="min-h-screen bg-base-200/40">
+  <div class="mx-auto max-w-7xl p-4 md:p-6">
+
+    <!-- Header -->
+    <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-base-content">Faasri ATS User Guide</h1>
+        <p class="mt-1 text-sm text-base-content/70">Panduan lengkap penggunaan sistem Applicant Tracking System</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Search -->
+        <label class="input input-bordered flex w-full items-center gap-2 rounded-xl md:w-72">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            type="text"
+            class="grow"
+            placeholder="Search Guide..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+        </label>
+
+        <!-- Download PDF -->
+        <button
+          class="btn btn-primary-faasri btn-sm rounded-xl"
+          [disabled]="isExporting()"
+          (click)="exportPdf()"
+        >
+          <svg *ngIf="!isExporting()" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span *ngIf="isExporting()" class="loading loading-spinner loading-xs"></span>
+          Download PDF
+        </button>
+
+        <!-- Mobile TOC toggle -->
+        <button class="btn btn-ghost btn-sm rounded-xl lg:hidden" (click)="toggleToc()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout: TOC + Content -->
+    <div class="flex gap-6">
+
+      <!-- TOC Sidebar (desktop) -->
+      <aside class="hidden w-64 shrink-0 lg:block">
+        <div class="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-4 shadow-sm">
+          <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-base-content/60">Table of Contents</h2>
+          <nav>
+            <ol class="space-y-2">
+              <li *ngFor="let section of visibleSections(); let i = index">
+                <button
+                  class="w-full text-left text-sm font-semibold text-base-content hover:text-primary transition-colors"
+                  (click)="scrollTo(section.id)"
+                >
+                  {{ i + 1 }}. {{ section.title }}
+                </button>
+                <ol class="ml-4 mt-1 space-y-1">
+                  <li *ngFor="let child of section.children">
+                    <button
+                      class="w-full text-left text-xs text-base-content/70 hover:text-primary transition-colors"
+                      (click)="scrollTo(child.id)"
+                    >
+                      {{ child.title }}
+                    </button>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Mobile TOC overlay -->
+      <div
+        *ngIf="tocOpen()"
+        class="fixed inset-0 z-50 bg-black/50 lg:hidden"
+        (click)="toggleToc()"
+      >
+        <aside
+          class="absolute left-0 top-0 h-full w-72 overflow-y-auto bg-base-100 p-5 shadow-xl"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wide text-base-content/60">Table of Contents</h2>
+            <button class="btn btn-ghost btn-xs" (click)="toggleToc()">✕</button>
+          </div>
+          <nav>
+            <ol class="space-y-2">
+              <li *ngFor="let section of visibleSections(); let i = index">
+                <button
+                  class="w-full text-left text-sm font-semibold text-base-content hover:text-primary"
+                  (click)="scrollTo(section.id)"
+                >
+                  {{ i + 1 }}. {{ section.title }}
+                </button>
+                <ol class="ml-4 mt-1 space-y-1">
+                  <li *ngFor="let child of section.children">
+                    <button
+                      class="w-full text-left text-xs text-base-content/70 hover:text-primary"
+                      (click)="scrollTo(child.id)"
+                    >
+                      {{ child.title }}
+                    </button>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </nav>
+        </aside>
+      </div>
+
+      <!-- Content Area -->
+      <main class="min-w-0 flex-1">
+        <div
+          id="doc-content"
+          class="rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm md:p-8"
+        >
+          <!-- Guide Title for PDF -->
+          <div class="mb-8 border-b border-base-300 pb-6">
+            <div class="flex items-center gap-3">
+              <img src="faasri_career_logo.png" alt="Faasri" class="h-10" />
+              <div>
+                <h1 class="text-xl font-bold">Faasri ATS User Guide</h1>
+                <p class="text-xs text-base-content/60">Applicant Tracking System Documentation</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- No results -->
+          <div
+            *ngIf="filteredSections().length === 0"
+            class="py-12 text-center text-sm text-base-content/60"
+          >
+            Tidak ada hasil untuk "{{ searchQuery() }}"
+          </div>
+
+          <!-- Sections -->
+          <div *ngFor="let section of filteredSections(); let si = index" class="mb-10">
+            <h2
+              [id]="section.id"
+              class="mb-4 scroll-mt-28 border-b border-base-300 pb-2 text-lg font-bold text-base-content"
+            >
+              {{ si + 1 }}. {{ section.title }}
+            </h2>
+
+            <div *ngFor="let child of section.children" class="mb-6 ml-1">
+              <h3
+                [id]="child.id"
+                class="mb-2 scroll-mt-28 text-base font-semibold text-base-content"
+              >
+                {{ child.title }}
+              </h3>
+              <p class="text-sm leading-relaxed text-base-content/80">
+                {{ child.content }}
+              </p>
+              <ul *ngIf="child.bullets?.length" class="mt-2 ml-4 list-disc space-y-1">
+                <li *ngFor="let bullet of child.bullets" class="text-sm text-base-content/70">
+                  {{ bullet }}
+                </li>
+              </ul>
+              <img
+                *ngIf="child.imageUrl"
+                [src]="child.imageUrl"
+                [alt]="child.title"
+                class="mx-auto mt-3 max-w-[50%] rounded-lg border border-base-300 shadow-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
