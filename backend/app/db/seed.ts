@@ -11,9 +11,9 @@ async function seed() {
     console.log("🌱 Starting seed...\n");
 
     await seedRolesAndUsers();
-    await seedApplicantProfiles();
+    // await seedApplicantProfiles();
     await seedMasterData();
-    await seedJobs();
+    // await seedJobs();
     await seedApplyStatuses();
     await seedPermissions();
 
