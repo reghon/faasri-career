@@ -41,7 +41,7 @@ export const applyService = {
     };
   },
   
-  async createApply(userId: string, payload: CreateApplyBodyInput) {
+  async createApply(userId: string, payload: CreateApplyBodyInput, uploadedCvFile?: Express.Multer.File) {
     const client = await pool.connect();
 
     try {
@@ -76,11 +76,16 @@ export const applyService = {
 
       const applyId = createdApply.id;
 
-      // Copy CV to application-cvs folder so snapshot has its own file
+      // Determine CV for snapshot
       let snapshotCvUrl: string | null = null;
       let snapshotCvFileName: string | null = null;
 
-      if (profile.cvUrl && profile.cvFileName) {
+      if (uploadedCvFile) {
+        // Use the CV uploaded directly in the apply form
+        snapshotCvUrl = `/uploads/application-cvs/${uploadedCvFile.filename}`;
+        snapshotCvFileName = uploadedCvFile.originalname;
+      } else if (profile.cvUrl && profile.cvFileName) {
+        // Fallback: copy CV from profile
         const { url, filename } = generateUploadPath(profile.cvFileName, "application-cv");
         const srcPath = path.join(process.cwd(), profile.cvUrl.replace(/^\//, ""));
         const destPath = path.join(process.cwd(), "uploads", "application-cvs", filename);

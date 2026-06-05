@@ -56,7 +56,7 @@ export const applyController = {
   async create(req: Request, res: Response) {
     const body = getValidatedBody<CreateApplyBodyInput>(req);
 
-    const data = await applyService.createApply(requireUserId(req), body);
+    const data = await applyService.createApply(requireUserId(req), body, req.file);
 
     res.status(201).json({
       message: "Apply submitted successfully",

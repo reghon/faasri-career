@@ -44,9 +44,14 @@ export interface ApplyListResult {
 export class ApplyService {
   constructor(private readonly http: HttpClient) {}
 
-  create(payload: CreateApplyPayload): Observable<Apply> {
+  create(payload: CreateApplyPayload, cvFile?: File | null): Observable<Apply> {
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+    if (cvFile) {
+      formData.append('cv', cvFile);
+    }
     return this.http
-      .post<ApiResponse<Apply>>(API_ENDPOINTS.apply.root, payload)
+      .post<ApiResponse<Apply>>(API_ENDPOINTS.apply.root, formData)
       .pipe(map((response) => response.data));
   }
 

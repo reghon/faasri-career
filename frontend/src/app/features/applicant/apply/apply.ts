@@ -416,7 +416,7 @@ export class Apply implements OnInit {
     this.cdr.detectChanges();
 
     this.applyService
-      .create(payload)
+      .create(payload, this.cvFile)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -433,7 +433,6 @@ export class Apply implements OnInit {
           this.cdr.detectChanges();
 
           const message = error?.error?.message || error?.message || 'Gagal mengirim lamaran';
-
           alert(message);
         },
       });
