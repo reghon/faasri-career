@@ -196,6 +196,24 @@ export class RbacMatrixComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  isAllChecked(row: MatrixRow): boolean {
+    return this.actions.every((action) => {
+      const cell = row.cells[action.id];
+      return !cell || cell.disabled || cell.checked;
+    });
+  }
+
+  toggleAll(row: MatrixRow, value: boolean): void {
+    for (const action of this.actions) {
+      const cell = row.cells[action.id];
+      if (!cell || cell.disabled) continue;
+      cell.checked = value;
+    }
+    this.pageFeedbackMessage = '';
+    this.pageFeedbackType = '';
+    this.cdr.detectChanges();
+  }
+
   save(): void {
     if (!this.selectedRoleId || !this.hasChanges || this.isSaving) return;
 
