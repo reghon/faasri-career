@@ -192,6 +192,9 @@
           <li>
             <a [routerLink]="isManagementRole() ? '/management/profile' : '/profile'"> Profile </a>
           </li>
+          <li *ngIf="isManagementRole()">
+            <a routerLink="/management/document"> Document </a>
+          </li>
 
           <ng-container *ngIf="!isManagementRole()">
             <li><a routerLink="/saved-jobs">Lamaran Disimpan</a></li>
