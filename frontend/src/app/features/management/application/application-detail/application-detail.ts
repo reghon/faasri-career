@@ -14,6 +14,7 @@ import { RecruitmentTimelineItem } from './components/recruitment-timeline.model
 
 import { ApplyProfileService } from '../../../../domain/apply/master-data/apply-profile/apply-profile.service';
 import { ApplyProfile } from '../../../../domain/apply/master-data/apply-profile/apply-profile.model';
+import { API_URL } from '../../../../core/config/api.config';
 import { ApplyStatusHistoryService } from '../../../../domain/apply/master-data/apply-status-history/apply-status-history.service';
 import { ApplyStatusHistory } from '../../../../domain/apply/master-data/apply-status-history/apply-status-history.model';
 import { JobApplyStatusService } from '../../../../domain/apply/master-data/job-apply-status/job-apply-status.services';
@@ -302,7 +303,7 @@ export class ApplicationDetail {
       address: this.formatAddress(profile),
       linkedinUrl: profile.linkedinUrl || '-',
       cvName: profile.cvFileName || '-',
-      cvUrl: profile.cvUrl || '-',
+      cvUrl: profile.cvUrl ? `${API_URL}${profile.cvUrl}` : '-',
       avatarUrl: null,
     };
   }

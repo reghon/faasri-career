@@ -11,6 +11,7 @@ import { ApplicantMaster } from '../../../../domain/applicant/applicant_master.m
 import { ApplicantMasterService } from '../../../../domain/applicant/applicant_master.service';
 import { ApplyService } from '../../../../domain/apply/apply.service';
 import { ApplyHistoryList } from '../../../../domain/apply/apply.model';
+import { API_URL } from '../../../../core/config/api.config';
 
 import { ApplicantDetailHeaderComponent } from './components/applicant-detail-header/applicant-detail-header';
 import { ApplicantDetailProfileComponent } from './components/applicant-detail-profile/applicant-detail-profile';
@@ -41,7 +42,15 @@ export class ApplicantDetail implements OnInit {
   readonly applications = signal<ApplyHistoryList[]>([]);
   readonly activeTab = signal<ApplicantDetailTab>('profile');
 
-  readonly applicantProfile = computed(() => this.applicantMaster()?.applicantProfile ?? null);
+  readonly applicantProfile = computed(() => {
+    const p = this.applicantMaster()?.applicantProfile ?? null;
+    if (!p) return null;
+    return {
+      ...p,
+      avatarUrl: p.avatarUrl ? `${API_URL}${p.avatarUrl}` : null,
+      cvUrl: p.cvUrl ? `${API_URL}${p.cvUrl}` : null,
+    };
+  });
 
   readonly breadcrumbItems: BreadcrumbItem[] = [
     { label: 'Management', route: '/management' },

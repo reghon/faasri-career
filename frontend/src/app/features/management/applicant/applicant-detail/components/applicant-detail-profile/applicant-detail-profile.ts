@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input, signal } from '@angular/core';
 import { ApplicantMaster } from '../..//../../../../domain/applicant/applicant_master.model';
+import { API_URL } from '../../../../../../core/config/api.config';
 
 type ProfileAccordionKey =
   | 'profile'
@@ -29,6 +30,10 @@ export class ApplicantDetailProfileComponent {
   });
 
   readonly profile = computed(() => this.master().applicantProfile);
+  readonly cvFullUrl = computed(() => {
+    const url = this.profile()?.cvUrl;
+    return url ? `${API_URL}${url}` : null;
+  });
   readonly workExperiences = computed(() => this.master().workExperiences ?? []);
   readonly educations = computed(() => this.master().educations ?? []);
   readonly certifications = computed(() => this.master().certifications ?? []);
