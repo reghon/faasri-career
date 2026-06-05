@@ -43,6 +43,10 @@
                     <div class="max-w-xs whitespace-pre-wrap text-sm text-base-content/80">
                       {{ item[column.key] || '-' }}
                     </div>
+                  } @else if (column.key === 'createdAt' || column.key === 'updatedAt') {
+                    <div class="font-medium">
+                      {{ item[column.key] ? (item[column.key] | date: 'dd MMM yyyy, HH:mm') : '-' }}
+                    </div>
                   } @else {
                     <div class="font-medium">
                       {{ item[column.key] || '-' }}
