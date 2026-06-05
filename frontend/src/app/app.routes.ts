@@ -140,6 +140,12 @@ export const routes: Routes = [
             (m) => m.ManagementProfileComponent,
           ),
       },
+
+      {
+        path: 'document',
+        loadComponent: () =>
+          import('./features/management/document/document').then((m) => m.Document),
+      },
     ],
   },
   {
