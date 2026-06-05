@@ -13,6 +13,7 @@ export const roleQueries = {
     SELECT ${SELECT_FIELDS}
     FROM roles
     WHERE deleted_at IS NULL
+      AND code != 'APPLICANT'
     ORDER BY name ASC
   `,
 

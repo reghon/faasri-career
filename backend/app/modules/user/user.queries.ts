@@ -45,6 +45,7 @@ export const userQueries = {
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.deleted_at IS NOT NULL
+      AND LOWER(r.name) <> 'applicant'
     ORDER BY u.created_at DESC
   `,
 

@@ -42,6 +42,7 @@ export const rolePermissionQueries = {
       AND p.deleted_at IS NULL
       AND m.deleted_at IS NULL
       AND pa.deleted_at IS NULL
+      AND r.code != 'APPLICANT'
     ORDER BY rp.updated_at DESC, r.name ASC, p.name ASC
   `,
 
