@@ -140,8 +140,8 @@ export class JobDetailComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     forkJoin({
-      job: this.jobService.getJobById(id),
-      jobsResult: this.jobService.getJobs({ page: 1, limit: 10 }),
+      job: this.jobService.getJobBySlug(id),
+      jobsResult: this.jobService.getJobsOpen({ page: 1, limit: 10 }),
     })
       .pipe(
         takeUntil(this.destroy$),
